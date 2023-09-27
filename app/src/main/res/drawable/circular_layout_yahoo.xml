@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <layer-list>
+            <!-- Background (Base Color) -->
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/blue" />
+                </shape>
+            </item>
+
+            <!-- Top Highlight (Lighter Color) -->
+            <item android:right="2dp" android:top="2dp" android:left="2dp" android:bottom="2dp">
+                <shape android:shape="oval">
+                    <gradient
+                        android:startColor="#FAF4F4"
+                        android:centerColor="#FAF4F4"
+                        android:endColor="#FAF4F4"
+                        android:angle="270" />
+                </shape>
+            </item>
+
+            <!-- Bottom Shadow (Darker Color) -->
+            <item android:right="2dp" android:top="2dp" android:left="2dp" android:bottom="2dp">
+                <shape android:shape="oval">
+                    <gradient
+                        android:startColor="#FAF4F4"
+                        android:centerColor="#FAF4F4"
+                        android:endColor="#FAF4F4"
+                        android:angle="90" />
+                </shape>
+            </item>
+            <item
+                android:drawable="@drawable/yahooicon"
+                android:gravity="center" />
+        </layer-list>
+    </item>
+</selector>

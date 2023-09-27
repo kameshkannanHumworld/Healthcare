@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="blue">#96B6C5</color>
+    <color name="back">#6F809C</color>
+    <color name="grey">#242B2E</color>
+    <color name="red">#F44336</color>
+
+    <color name="k_rose">#F68685</color>
+    <color name="k_blue">#7093E5</color>
+    <color name="k_black">#7093E5</color>
+    <color name="k_grey">#7093E5</color>
+
+    <color name="your_enabled_thumb_color">#FF4081</color>
+    <color name="your_default_thumb_color">#BDBDBD</color>
+    <color name="your_enabled_track_color">#FF4081</color>
+    <color name="your_default_track_color">#BDBDBD</color>
+
+</resources>

@@ -1,0 +1,49 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Healthcare" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    </style>
+
+    <!--    Light mode code-->
+    <!--    background-->
+    <style name="SCREEN">
+        <item name="android:background">#040D12</item>
+    </style>
+
+    <!--    Text color-->
+    <style name="TEXT">
+        <item name="android:textColor">#EEE0C9</item>
+    </style>
+
+    <!--   Button background-->
+    <style name="BUTTON">
+        <item name="android:backgroundTint">#EEE0C9</item>
+        <item name="android:textColor">#000</item>
+    </style>
+
+    <!--    slidein animation-->
+    <style name="DIALOGANIMATION">
+        <item name="android:windowEnterAnimation">@anim/slide_in</item>
+        <item name="android:windowExitAnimation">@anim/slide_out</item>
+    </style>
+
+    <!--    TextInput Layout-->
+    <style name="TEXTINPUTLAYOUT" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/k_rose</item>
+        <item name="boxBackgroundColor">@color/white</item>
+        <item name="boxCornerRadiusTopStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="hintTextColor">@color/k_rose</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+    </style>
+
+<!--    social media icons-->
+    <style name="SOCIAL_MEDIA">
+        <item name="cardBackgroundColor">@color/white</item>
+    </style>
+
+</resources>
