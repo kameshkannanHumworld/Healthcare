@@ -18,6 +18,7 @@
         tools:ignore="ImageContrastCheck" />
 
     <TextView
+        android:id="@+id/navigationDrawerUserName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/username"
@@ -25,6 +26,7 @@
         tools:ignore="TextContrastCheck" />
 
     <TextView
+        android:id="@+id/navigationDrawerUserUniqId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"

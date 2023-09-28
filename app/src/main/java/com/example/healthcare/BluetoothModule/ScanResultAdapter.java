@@ -1,15 +1,20 @@
 package com.example.healthcare.BluetoothModule;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.le.ScanResult;
+import android.content.pm.PackageManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.healthcare.Permissions.BluetoothUtil;
 import com.example.healthcare.R;
 
 import java.util.List;
@@ -33,10 +38,13 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
         return new ViewHolder(view);
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ScanResult result = scanResults.get(position);
-        holder.bind(result);
+
+            holder.bind(result);
+
     }
 
     @Override
@@ -66,10 +74,9 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
 //            if (ActivityCompat.checkSelfPermission(itemView.getContext(), android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 //                return;
 //            }
-            if (!Objects.equals(result.getDevice().getName(), "Unnamed") || result.getDevice().getName() != null) {
                 deviceName.setText(result.getDevice().getName());
-            }
                 deviceAddress.setText(result.getDevice().getAddress());
+
         }
 
         @Override

@@ -64,9 +64,9 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     TextInputEditText medicineQuantityInput, endDateTimeInput, notesInput, recordDateTimeInput;
     private final String TAG = "TAGi";
     public static final int ID_DROPDOWN = 33689;
-    public static final int PATIENT_ID = 52787;
+    public static final int PATIENT_ID = 53278;
+    public static final int CAREPLAN_ID = 34534;
     public final Integer VISIT_ID = null;
-    public static final int CAREPLAN_ID = 34252;
     public static Integer MEDICTION_ID;
     private final String MEDICTION_NAME = "";
     String medName,frequency,recordDateTime,endDateTime,notes;

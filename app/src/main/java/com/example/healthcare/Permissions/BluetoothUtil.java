@@ -57,10 +57,11 @@ public class BluetoothUtil {
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
     public static void requestBluetoothConnectPermission(Activity activity) {
-        if (!isBluetoothConnectPermissionGranted(activity)) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, BLUETOOTH_CONNECT_PERMISSION_REQUEST_CODE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!isBluetoothConnectPermissionGranted(activity)) {
+                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, BLUETOOTH_CONNECT_PERMISSION_REQUEST_CODE);
+            }
         }
     }
 

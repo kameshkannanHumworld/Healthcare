@@ -1,5 +1,7 @@
 package com.example.healthcare;
 
+import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +13,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.example.healthcare.Fragments.HomeFragment;
 import com.example.healthcare.Fragments.MedicationsFragment;
@@ -18,6 +21,7 @@ import com.google.android.material.navigation.NavigationView;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawerLayout;
+    TextView navigationDrawerUserName, navigationDrawerUserUniqId;
     Toolbar toolbar;
     @SuppressLint("MissingInflatedId")
     @Override
@@ -29,8 +33,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             setSupportActionBar(toolbar);
 
         drawerLayout = findViewById(R.id.drawer_layout);
+        navigationDrawerUserName = findViewById(R.id.navigationDrawerUserName);
+        navigationDrawerUserUniqId = findViewById(R.id.navigationDrawerUserUniqId);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+//        navigationDrawerUserName.setText(PATIENT_ID);
+//        navigationDrawerUserUniqId.setText(PATIENT_ID);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
                 R.string.close_nav);

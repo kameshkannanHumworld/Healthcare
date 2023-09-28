@@ -127,12 +127,12 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     public boolean hasRequiredRuntimePermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Log.d(TAG, "hasRequiredRuntimePermissions:122 "+hasPermission(Manifest.permission.BLUETOOTH_SCAN));
-            Log.d(TAG, "hasRequiredRuntimePermissions:123 "+hasPermission(Manifest.permission.BLUETOOTH_CONNECT));
+            Log.d(TAG, "hasRequiredRuntimePermissions:122 " + hasPermission(Manifest.permission.BLUETOOTH_SCAN));
+            Log.d(TAG, "hasRequiredRuntimePermissions:123 " + hasPermission(Manifest.permission.BLUETOOTH_CONNECT));
             return hasPermission(Manifest.permission.BLUETOOTH_SCAN) &&
                     hasPermission(Manifest.permission.BLUETOOTH_CONNECT);
         } else {
-            Log.d(TAG, "hasRequiredRuntimePermissions:127 "+hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
+            Log.d(TAG, "hasRequiredRuntimePermissions:127 " + hasPermission(Manifest.permission.ACCESS_FINE_LOCATION));
             return hasPermission(Manifest.permission.ACCESS_FINE_LOCATION);
         }
     }
@@ -231,6 +231,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
     private ScanCallback scanCallback = new ScanCallback() {
+        @SuppressLint("MissingPermission")
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             Activity activity = (Activity) context;
@@ -257,12 +258,17 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 //                    return;
 //                }
                 @SuppressLint("MissingPermission") String deviceName = result.getDevice().getName() != null ? result.getDevice().getName() : "Unnamed";
-                Log.i("ScanCallback", "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
-                scanResults.add(result);
+//                Log.i("ScanCallback", "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
+                if (result.getDevice().getName() != null) {
+                    Log.i("ScanCallback", "Found BLE device! Name: " + result.getDevice().getName());
+                    scanResults.add(result);
+                }
                 activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        scanResultAdapter.notifyItemInserted(scanResults.size() - 1);
+                        if (scanResults.isEmpty()) {
+                            scanResultAdapter.notifyItemInserted(scanResults.size() - 1);
+                        }
                     }
                 });
             }
