@@ -1,18 +1,20 @@
 package com.example.healthcare.Fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
 import com.example.healthcare.DeviceInfoActivity;
+import com.example.healthcare.Permissions.BluetoothUtil;
+import com.example.healthcare.Permissions.LocationUtil;
 import com.example.healthcare.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -24,6 +26,7 @@ public class HomeFragment extends Fragment {
 
     private String mParam1;
     private String mParam2;
+    Context context;
     ImageView weighScaleImage, bpMeterImage, ecgMeterImage, glucometerImage;
 
 
@@ -56,6 +59,10 @@ public class HomeFragment extends Fragment {
 
         //Assign Id here
         idAssignMethod(view);
+
+        //location and Bluetooth check
+        LocationUtil.requestLocationEnable(requireActivity());
+        BluetoothUtil.requestBluetoothEnable(requireActivity(),requireContext());
 
         // Set click listener for the FAB
         floatingActionButtonMethod(view);
@@ -101,11 +108,14 @@ public class HomeFragment extends Fragment {
             FloatingActionButton fab = view.findViewById(R.id.fabHomeFragment);
             fab.setOnClickListener(v -> {
                 // Show the bottom sheet dialog
-                MyBottomSheetDialogFragment bottomSheetDialogFragment = new MyBottomSheetDialogFragment();
+                MyBottomSheetDialogFragment bottomSheetDialogFragment = new MyBottomSheetDialogFragment(context);
                 bottomSheetDialogFragment.show(getChildFragmentManager(), bottomSheetDialogFragment.getTag());
             });
     }
 
-
-
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
 }
