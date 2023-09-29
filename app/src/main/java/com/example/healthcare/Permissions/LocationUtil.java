@@ -36,11 +36,11 @@ public class LocationUtil {
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.S)
     public static void requestFineLocationConnectPermission(Activity activity) {
         if (!isFineLocationPermissionGranted(activity)) {
             ActivityCompat.requestPermissions(activity,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION_REQUEST_CODE);
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    FINE_LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
 

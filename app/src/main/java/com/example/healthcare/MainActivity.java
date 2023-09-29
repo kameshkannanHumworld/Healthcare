@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     Toast.makeText(MainActivity.this, "Response Unsucessfull", Toast.LENGTH_SHORT).show();
-//                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                    startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     Log.d(TAG, "onResponse: "+response.code());
                 }
             }

@@ -12,6 +12,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
@@ -24,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +47,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 import com.example.healthcare.BluetoothModule.ScanResultAdapter;
 import com.example.healthcare.Permissions.BluetoothUtil;
 import com.example.healthcare.Permissions.LocationUtil;
@@ -53,11 +57,13 @@ import com.example.healthcare.R;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
-
-    BluetoothManager bluetoothManager;
+    private Timer scanTimer;
+    private static final long SCAN_INTERVAL = 5000;
     private static final String TAG = "TAGi";
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanResultAdapter scanResultAdapter;
@@ -65,6 +71,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private ScanSettings scanSettings;
     private List<ScanResult> scanResults = new ArrayList<>();
     private boolean isScanning = false;
+
 
     ImageView cancelButton;
     int indexQuery;
@@ -93,15 +100,14 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         idAssigningMethod(view);
 
         //location and Bluetooth check
-        LocationUtil.isFineLocationPermissionGranted(requireActivity());
+        LocationUtil.requestFineLocationConnectPermission(requireActivity());
         LocationUtil.requestLocationEnable(requireActivity());
         BluetoothUtil.requestBluetoothEnable(requireActivity(), requireContext());
 
-        //further needed settings
+//        further needed settings
         scanSettings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .build();
-
 
         //Start and Stop scan
         startAndStopScanMethod();
@@ -119,10 +125,44 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     private void startAndStopScanMethod() {
         if (isScanning) {
-            stopBleScan();
+            stopPeriodicScan();
         } else {
-            startBleScan();
+            startPeriodicScan();
         }
+
+
+    }
+
+    private void startPeriodicScan() {
+        scanTimer = new Timer();
+        scanTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isScanning) {
+                            stopBleScan();
+                        } else {
+                            startBleScan();
+                        }
+                    }
+                });
+            }
+        }, 0, SCAN_INTERVAL);
+    }
+
+    private void stopPeriodicScan() {
+        if (scanTimer != null) {
+            scanTimer.cancel();
+            scanTimer = null;
+        }
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                stopBleScan();
+            }
+        });
     }
 
     public boolean hasRequiredRuntimePermissions() {
@@ -146,9 +186,8 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private void startBleScan() {
         if (!hasRequiredRuntimePermissions()) {
             requestRelevantRuntimePermissions();
-            Log.d(TAG, "startBleScan: 139");
         } else {
-            Log.d(TAG, "startBleScan: 141");
+            Log.d(TAG, "startBleScan");
             scanResults.clear();
             scanResultAdapter.notifyDataSetChanged();
 
@@ -160,7 +199,6 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
             }
             bluetoothLeScanner.startScan(null, scanSettings, scanCallback);
             isScanning = true;
-
 
         }
     }
@@ -180,17 +218,17 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
 
         } else {
-            LocationUtil.isFineLocationPermissionGranted(requireActivity());
+            LocationUtil.requestFineLocationConnectPermission(requireActivity());
             LocationUtil.requestLocationEnable(requireActivity());
-            Log.d(TAG, "requestRelevantRuntimePermissions: 173");
         }
 
     }
 
     private void stopBleScan() {
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+        Log.d(TAG, "stopBleScan: ");
         bluetoothLeScanner.stopScan(scanCallback);
         isScanning = false;
     }
@@ -212,7 +250,10 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
             scanResultAdapter = new ScanResultAdapter(scanResults, new ScanResultAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(ScanResult item) {
-                    Toast.makeText(requireContext(), "Hello " + item.getDevice(), Toast.LENGTH_SHORT).show();
+                    BluetoothDevice device = item.getDevice();
+                    Log.w("ScanResultAdapter", "Connecting to " + device.getAddress());
+                    @SuppressLint("MissingPermission")
+                    BluetoothGatt gatt = device.connectGatt(context, false, new MyBluetoothGattCallback());
                 }
             });
         }
@@ -231,6 +272,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
     private ScanCallback scanCallback = new ScanCallback() {
+
         @SuppressLint("MissingPermission")
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -257,8 +299,9 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 //                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 //                    return;
 //                }
-                @SuppressLint("MissingPermission") String deviceName = result.getDevice().getName() != null ? result.getDevice().getName() : "Unnamed";
-//                Log.i("ScanCallback", "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
+                @SuppressLint("MissingPermission")
+                String deviceName = result.getDevice().getName() != null ? result.getDevice().getName() : "Unnamed";
+//              Log.i("ScanCallback", "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
                 if (result.getDevice().getName() != null) {
                     Log.i("ScanCallback", "Found BLE device! Name: " + result.getDevice().getName());
                     scanResults.add(result);
