@@ -70,6 +70,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanResultAdapter scanResultAdapter;
     private BluetoothAdapter bluetoothAdapter;
+    Animation rotation;
     private ScanSettings scanSettings;
     private List<ScanResult> scanResults = new ArrayList<>();
     private boolean isScanning = false;
@@ -205,7 +206,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
             isScanning = true;
 
             // Load the animation
-            Animation rotation = AnimationUtils.loadAnimation(context, R.anim.rotate_animation);
+            rotation = AnimationUtils.loadAnimation(context, R.anim.rotate_animation);
             refreshButton.startAnimation(rotation);
         }
     }
@@ -238,6 +239,10 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         Log.d(TAG, "stopBleScan: ");
         bluetoothLeScanner.stopScan(scanCallback);
         isScanning = false;
+
+        // Clear the animation
+        rotation = AnimationUtils.loadAnimation(context, R.anim.rotate_animation);
+        refreshButton.clearAnimation();
     }
 
     private BluetoothAdapter getBluetoothAdapter() {

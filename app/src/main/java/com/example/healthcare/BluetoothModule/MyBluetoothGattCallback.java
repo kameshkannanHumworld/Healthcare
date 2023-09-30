@@ -21,16 +21,21 @@ import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
 import com.example.healthcare.Converters.ConverterClass;
 import com.example.healthcare.DeviceInfoActivity;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class MyBluetoothGattCallback extends BluetoothGattCallback {
     BluetoothGatt bluetoothGatt;
-    MyBottomSheetDialogFragment bottomSheetDialogFragment;
 
 
     private static final String TAG = "TAGi";
+    public static String DEVICE_INFO_CLASS_SET_TEXT = null;
+    private static final int REQUEST_CODE = 100;
+    public static final int RESULT_REFRESH = 101;
+
+    public static final int REQUEST_CODE_DEVICE_INFO = 101;
     Context context;
 
     public MyBluetoothGattCallback(Context context) {
@@ -71,13 +76,15 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
             // Services discovered, you can now communicate with characteristics
             Log.d(TAG, "onConnectionStateChange: GATT_SUCCESS " + status);
             Log.d("BluetoothGattCallback", "Discovered " + gatt.getServices().size() + " services for " + gatt.getDevice().getAddress());
+
+            //intent to Device information Activity
             Intent intent = new Intent(context, DeviceInfoActivity.class);
+            intent.putExtra("DEVICE_NAME", gatt.getDevice().getName());
             context.startActivity(intent);
-//            ((Activity)context).finish();
             ((Activity) context).getParentActivityIntent();
+
+            //Get Readings Method
             printGattTable(gatt);
-
-
         }
     }
 
@@ -85,6 +92,12 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         super.onCharacteristicChanged(gatt, characteristic);
         byte[] byteArray = characteristic.getValue();
+
+        if (Objects.equals(ConverterClass.byteToHexadecimal(byteArray, false), "a5")) {
+            DEVICE_INFO_CLASS_SET_TEXT = "Please Start the Device to take reading";
+        }else{
+            DEVICE_INFO_CLASS_SET_TEXT = "Please wait Device is Taking reading";
+        }
 
         List<String> pairs = ConverterClass.getPairsFromHexString(byteArray);
 
@@ -97,10 +110,11 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
             URION_BP_SYSTOLIC_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(3));
             URION_BP_DIASTOLIC_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(4));
             URION_BP_PULSE_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(5));
+
+
         }
 
 
-//        Log.d(TAG, "onCharacteristicChanged: "+ ConverterClass.byteToHexadecimal(byteArray,true));
     }
 
     @SuppressLint("MissingPermission")
@@ -130,6 +144,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
                 Log.w(TAG, "printGattTable: --" + characteristic.getUuid());
             }
             Log.i("printGattTable", "\nService " + service.getUuid() + "\nCharacteristics:\n" + characteristicsTable.toString());
+
         }
 
         //use the below method to understand the UUID read/write/notify
