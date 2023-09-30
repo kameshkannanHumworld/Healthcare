@@ -219,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
         usernameTextInputLayout = findViewById(R.id.usernameTextInputLayout);
         passwordTextInputLayout = findViewById(R.id.passwordTextInputLayout);
     }
+
+
 }
 
 

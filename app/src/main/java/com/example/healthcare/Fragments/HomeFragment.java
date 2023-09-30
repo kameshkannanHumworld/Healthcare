@@ -7,10 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
 import com.example.healthcare.DeviceInfoActivity;
 import com.example.healthcare.Permissions.BluetoothUtil;
@@ -28,6 +30,7 @@ public class HomeFragment extends Fragment {
     private String mParam2;
     Context context;
     ImageView weighScaleImage, bpMeterImage, ecgMeterImage, glucometerImage;
+
 
 
 
@@ -51,6 +54,8 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+
     }
 
     @Override
@@ -61,8 +66,8 @@ public class HomeFragment extends Fragment {
         idAssignMethod(view);
 
         //location and Bluetooth check
-        LocationUtil.requestLocationEnable(requireActivity());
-        BluetoothUtil.requestBluetoothEnable(requireActivity(),requireContext());
+//        LocationUtil.requestLocationEnable(requireActivity());
+//        BluetoothUtil.requestBluetoothEnable(requireActivity(),requireContext());
 
         // Set click listener for the FAB
         floatingActionButtonMethod(view);
@@ -118,4 +123,6 @@ public class HomeFragment extends Fragment {
         super.onAttach(context);
         this.context = context;
     }
+
+
 }

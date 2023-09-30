@@ -31,6 +31,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -72,11 +74,10 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private List<ScanResult> scanResults = new ArrayList<>();
     private boolean isScanning = false;
 
-
-    ImageView cancelButton;
+    ImageView refreshButton;
     int indexQuery;
     Context context;
-
+    Activity activity;
     RecyclerView bluetoothDeviceRecyclerView;
 
     LinearLayout linearLayoutAvailableDevices;
@@ -93,6 +94,8 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.bottomsheet_layout, container, false);
 
         // Initialize Bluetooth
+        activity = (Activity) context;
+
         bluetoothLeScanner = getBluetoothLeScanner();
         getScanResultAdapter();
 
@@ -100,9 +103,9 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         idAssigningMethod(view);
 
         //location and Bluetooth check
-        LocationUtil.requestFineLocationConnectPermission(requireActivity());
-        LocationUtil.requestLocationEnable(requireActivity());
-        BluetoothUtil.requestBluetoothEnable(requireActivity(), requireContext());
+        LocationUtil.requestFineLocationConnectPermission(activity);
+        LocationUtil.requestLocationEnable(activity);
+        BluetoothUtil.requestBluetoothEnable(activity, context);
 
 //        further needed settings
         scanSettings = new ScanSettings.Builder()
@@ -114,11 +117,11 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
         //set adapter
         //recycler view
-        bluetoothDeviceRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        bluetoothDeviceRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         bluetoothDeviceRecyclerView.setAdapter(getScanResultAdapter());
 
         //cancel button Method
-        cancelButtonMethod();
+        refreshButtonMethod();
 
         return view;
     }
@@ -128,6 +131,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
             stopPeriodicScan();
         } else {
             startPeriodicScan();
+
         }
 
 
@@ -178,7 +182,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
     public boolean hasPermission(String permissionType) {
-        return ContextCompat.checkSelfPermission(requireContext(), permissionType) ==
+        return ContextCompat.checkSelfPermission(context, permissionType) ==
                 PackageManager.PERMISSION_GRANTED;
     }
 
@@ -191,15 +195,18 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
             scanResults.clear();
             scanResultAdapter.notifyDataSetChanged();
 
-            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    BluetoothUtil.requestBluetoothScanPermission(requireActivity());
+                    BluetoothUtil.requestBluetoothScanPermission(activity);
                 }
 
             }
             bluetoothLeScanner.startScan(null, scanSettings, scanCallback);
             isScanning = true;
 
+            // Load the animation
+            Animation rotation = AnimationUtils.loadAnimation(context, R.anim.rotate_animation);
+            refreshButton.startAnimation(rotation);
         }
     }
 
@@ -211,22 +218,22 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
             return;
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            BluetoothUtil.requestBluetoothEnable(requireActivity(), requireContext());
-            BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
-            BluetoothUtil.requestBluetoothScanPermission(requireActivity());
+            BluetoothUtil.requestBluetoothEnable(activity, context);
+            BluetoothUtil.requestBluetoothConnectPermission(activity);
+            BluetoothUtil.requestBluetoothScanPermission(activity);
             Log.d(TAG, "requestRelevantRuntimePermissions: 171");
 
 
         } else {
-            LocationUtil.requestFineLocationConnectPermission(requireActivity());
-            LocationUtil.requestLocationEnable(requireActivity());
+            LocationUtil.requestFineLocationConnectPermission(activity);
+            LocationUtil.requestLocationEnable(activity);
         }
 
     }
 
-    private void stopBleScan() {
+    public void stopBleScan() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-            return;
+            BluetoothUtil.requestBluetoothScanPermission(activity);
         }
         Log.d(TAG, "stopBleScan: ");
         bluetoothLeScanner.stopScan(scanCallback);
@@ -235,8 +242,9 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     private BluetoothAdapter getBluetoothAdapter() {
         if (bluetoothAdapter == null) {
-            BluetoothManager bluetoothManager = (BluetoothManager) requireContext().getSystemService(Context.BLUETOOTH_SERVICE);
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
             bluetoothAdapter = bluetoothManager.getAdapter();
+
         }
         return bluetoothAdapter;
     }
@@ -253,7 +261,8 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
                     BluetoothDevice device = item.getDevice();
                     Log.w("ScanResultAdapter", "Connecting to " + device.getAddress());
                     @SuppressLint("MissingPermission")
-                    BluetoothGatt gatt = device.connectGatt(context, false, new MyBluetoothGattCallback());
+                    BluetoothGatt gatt = device.connectGatt(context, false, new MyBluetoothGattCallback(context));
+                    stopPeriodicScan();
                 }
             });
         }
@@ -261,19 +270,18 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
 
-    private void cancelButtonMethod() {
-        cancelButton.setOnClickListener(view -> dismiss());
+    public void refreshButtonMethod() {
+        refreshButton.setOnClickListener(view -> startPeriodicScan());
     }
 
     private void idAssigningMethod(View view) {
-        cancelButton = view.findViewById(R.id.cancelButton);
+        refreshButton = view.findViewById(R.id.refreshButton);
         bluetoothDeviceRecyclerView = view.findViewById(R.id.bluetoothDeviceRecyclerView);
         linearLayoutAvailableDevices = view.findViewById(R.id.linearLayoutAvailableDevices);
     }
 
     private ScanCallback scanCallback = new ScanCallback() {
 
-        @SuppressLint("MissingPermission")
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             Activity activity = (Activity) context;
@@ -287,7 +295,6 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
             if (indexQuery != -1) {
                 // A scan result already exists with the same address
-
                 scanResults.set(indexQuery, result);
                 activity.runOnUiThread(new Runnable() {
                     @Override
@@ -296,14 +303,15 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
                     }
                 });
             } else {
-//                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-//                    return;
-//                }
-                @SuppressLint("MissingPermission")
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        BluetoothUtil.isBluetoothConnectPermissionGranted(activity);
+                    }
+                }
                 String deviceName = result.getDevice().getName() != null ? result.getDevice().getName() : "Unnamed";
-//              Log.i("ScanCallback", "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
+//              Log.i(TAG, "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
                 if (result.getDevice().getName() != null) {
-                    Log.i("ScanCallback", "Found BLE device! Name: " + result.getDevice().getName());
+                    Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                     scanResults.add(result);
                 }
                 activity.runOnUiThread(new Runnable() {
@@ -337,7 +345,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
                 for (int i = 0; i < permissions.length; i++) {
                     if (grantResults[i] == PackageManager.PERMISSION_DENIED &&
-                            !ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), permissions[i])) {
+                            !ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions[i])) {
                         containsPermanentDenial = true;
                     }
                     if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
@@ -349,17 +357,17 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
                 }
 
                 if (containsPermanentDenial) {
-                    Toast.makeText(requireContext(), "containsPermanentDenial", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "containsPermanentDenial", Toast.LENGTH_SHORT).show();
                 } else if (containsDenial) {
                     requestRelevantRuntimePermissions();
                 } else if (allGranted && hasRequiredRuntimePermissions()) {
                     startBleScan();
                 } else {
                     // Unexpected scenario encountered when handling permissions
-                    recreate(requireActivity());
+                    recreate(activity);
                 }
             } else {
-                Toast.makeText(requireContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -372,7 +380,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
                 for (int i = 0; i < permissions.length; i++) {
                     if (grantResults[i] == PackageManager.PERMISSION_DENIED &&
-                            !ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), permissions[i])) {
+                            !ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions[i])) {
                         containsPermanentDenial = true;
                     }
                     if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
@@ -384,18 +392,32 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
                 }
 
                 if (containsPermanentDenial) {
-                    Toast.makeText(requireContext(), "containsPermanentDenial", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "containsPermanentDenial", Toast.LENGTH_SHORT).show();
                 } else if (containsDenial) {
                     requestRelevantRuntimePermissions();
                 } else if (allGranted && hasRequiredRuntimePermissions()) {
                     startBleScan();
                 } else {
                     // Unexpected scenario encountered when handling permissions
-                    recreate(requireActivity());
+                    recreate(activity);
                 }
             } else {
-                Toast.makeText(requireContext(), "Permission Denied", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopPeriodicScan();
+
+    }
+
+    public void dismissDialog() {
+        if (getDialog() != null) {
+            getDialog().dismiss();
         }
     }
 

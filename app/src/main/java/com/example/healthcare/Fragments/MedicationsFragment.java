@@ -258,6 +258,7 @@ public class MedicationsFragment extends Fragment {
                 }).show();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onResume() {
         super.onResume();

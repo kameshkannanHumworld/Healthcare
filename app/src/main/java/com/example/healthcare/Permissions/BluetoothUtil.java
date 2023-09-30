@@ -28,12 +28,14 @@ public class BluetoothUtil {
         return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
     }
 
-    @SuppressLint("MissingPermission")
     public static void requestBluetoothEnable(Activity activity, Context context) {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
             Log.d(TAG, "requestBluetoothEnable: BluetoothUtil");
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                requestBluetoothConnectPermission(activity);
+            }
             activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BLUETOOTH);
 
         }
