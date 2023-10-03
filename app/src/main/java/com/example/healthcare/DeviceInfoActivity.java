@@ -1,20 +1,23 @@
 package com.example.healthcare;
 
-import static com.example.healthcare.BleDevices.UrionBp.*;
-import static com.example.healthcare.BluetoothModule.MyBluetoothGattCallback.*;
+        import static com.example.healthcare.BleDevices.UrionBp.*;
+        import static com.example.healthcare.BluetoothModule.MyBluetoothGattCallback.*;
 
-import androidx.appcompat.app.AppCompatActivity;
+        import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+        import android.annotation.SuppressLint;
+        import android.app.Activity;
+        import android.content.Context;
+        import android.content.Intent;
+        import android.os.AsyncTask;
+        import android.os.Bundle;
+        import android.os.Handler;
+        import android.util.Log;
+        import android.view.View;
+        import android.view.ViewGroup;
+        import android.widget.ImageView;
+        import android.widget.LinearLayout;
+        import android.widget.TextView;
 
 
 public class DeviceInfoActivity extends AppCompatActivity {
@@ -22,11 +25,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
     Handler handler = new Handler();
     Runnable runnable;
     String deviceName;
+    public  LinearLayout linearLayoutDeviceInfo;
     TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, deviceInfoTextView;
 
 
-
     private BackgroundTask backgroundTask;
+
+
 
     private class BackgroundTask extends AsyncTask<Void, Void, Void> {
         @Override
@@ -37,7 +42,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 }
                 publishProgress(); // This will call onProgressUpdate()
                 try {
-                    Thread.sleep(1000); // Sleep for 1 second
+                    Thread.sleep(50); // Sleep for 1 second
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -50,7 +55,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
             refresh();
         }
     }
-
 
 
     @Override
@@ -68,58 +72,50 @@ public class DeviceInfoActivity extends AppCompatActivity {
         //get device name
         deviceNameTextView.setText(getIntent().getStringExtra("DEVICE_NAME"));
 
-        //Assign Readings Value here
-//        assignReadingsValueHere();
-
         //back Button Method
         backButtonMethod();
     }
 
-    private void refreshMethod() {
+    public void createTextViews(Context context,  String setTextValue) {
 
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                refresh();
-                handler.postDelayed(this, 1000); // Refresh every 1000 milliseconds (1 second)
-            }
-        };
-        startAutoRefresh();
+        // Create a new TextView
+        TextView textView = new TextView(context);
+
+        // Generate a unique ID for the TextView
+        int id = View.generateViewId();
+        textView.setId(id);
+
+        // Set text and other attributes
+        textView.setText(setTextValue);
+        textView.setTextSize(15);
+
+        // Set layout parameters with margins
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        layoutParams.setMargins(8, 8, 8, 8);
+        textView.setLayoutParams(layoutParams);
+
+        // Add the TextView to the provided LinearLayout
+        linearLayoutDeviceInfo.addView(textView);
 
     }
 
-    private void startAutoRefresh() {
-        handler.postDelayed(runnable, 1000); // Start the auto-refresh runnable
-    }
-
-    private void stopAutoRefresh() {
-        handler.removeCallbacks(runnable); // Stop the auto-refresh runnable
-    }
 
     @SuppressLint("SetTextI18n")
     private void refresh() {
         deviceInfoTextView.setText(DEVICE_INFO_CLASS_SET_TEXT);
-        if (URION_BP_SYSTOLIC_READINGS != null && URION_BP_DIASTOLIC_READINGS != null && URION_BP_PULSE_READINGS != null) {
-            Log.d("TAGi", "refresh: ");
-            systolicReadingTextView.setText("Systolic reading: " + URION_BP_SYSTOLIC_READINGS);
+        if (URION_BP_DIASTOLIC_READINGS != null) {
             diastolicReadingTextView.setText("Diastolic reading: " + URION_BP_DIASTOLIC_READINGS);
+        }
+        if (URION_BP_SYSTOLIC_READINGS != null &&  URION_BP_PULSE_READINGS != null) {
+            systolicReadingTextView.setText("Systolic reading: " + URION_BP_SYSTOLIC_READINGS);
             pulseReadingTextView.setText("Pulse reading: " + URION_BP_PULSE_READINGS);
             deviceInfoTextView.setVisibility(View.GONE);
         }
     }
 
-    @SuppressLint("SetTextI18n")
-    private void assignReadingsValueHere() {
-        if (URION_BP_SYSTOLIC_READINGS != null && URION_BP_DIASTOLIC_READINGS != null && URION_BP_PULSE_READINGS != null) {
-            systolicReadingTextView.setText("Systolic reading: " + URION_BP_SYSTOLIC_READINGS);
-            diastolicReadingTextView.setText("Diastolic reading: " + URION_BP_DIASTOLIC_READINGS);
-            pulseReadingTextView.setText("Pulse reading: " + URION_BP_PULSE_READINGS);
-        } else {
-            systolicReadingTextView.setVisibility(View.GONE);
-            diastolicReadingTextView.setVisibility(View.GONE);
-            pulseReadingTextView.setVisibility(View.GONE);
-        }
-    }
 
     private void idAssignHere() {
         systolicReadingTextView = findViewById(R.id.systolicReading);
@@ -128,6 +124,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         backButton = findViewById(R.id.deviceInfoBackButton);
         deviceNameTextView = findViewById(R.id.deviceNameTextView);
         deviceInfoTextView = findViewById(R.id.deviceInfoTextView);
+        linearLayoutDeviceInfo = findViewById(R.id.linearLayoutDeviceInfo);
     }
 
     private void backButtonMethod() {
@@ -138,16 +135,21 @@ public class DeviceInfoActivity extends AppCompatActivity {
     }
 
 
-
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         backgroundTask.cancel(true);
     }
 
+    private void startAutoRefresh() {
+        handler.postDelayed(runnable, 1000);
+    }
 
+    private void stopAutoRefresh() {
+        handler.removeCallbacks(runnable);
+    }
 
 
 }
+
+

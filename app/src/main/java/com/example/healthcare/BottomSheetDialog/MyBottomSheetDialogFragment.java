@@ -339,7 +339,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == REQUEST_ENABLE_BLUETOOTH) {

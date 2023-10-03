@@ -15,15 +15,10 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
-import com.example.healthcare.Converters.ConverterClass;
+
 import com.example.healthcare.DeviceInfoActivity;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 public class MyBluetoothGattCallback extends BluetoothGattCallback {
@@ -31,7 +26,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
 
 
     private static final String TAG = "TAGi";
-    public static String DEVICE_INFO_CLASS_SET_TEXT = null;
+
     private static final int REQUEST_CODE = 100;
     public static final int RESULT_REFRESH = 101;
 
@@ -88,35 +83,6 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         }
     }
 
-    @Override
-    public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        super.onCharacteristicChanged(gatt, characteristic);
-        byte[] byteArray = characteristic.getValue();
-
-        if (Objects.equals(ConverterClass.byteToHexadecimal(byteArray, false), "a5")) {
-            DEVICE_INFO_CLASS_SET_TEXT = "Please Start the Device to take reading";
-        }else{
-            DEVICE_INFO_CLASS_SET_TEXT = "Please wait Device is Taking reading";
-        }
-
-        List<String> pairs = ConverterClass.getPairsFromHexString(byteArray);
-
-        if (pairs.size() > 5 && Objects.equals(pairs.get(2), "fc")) {
-            Log.w(TAG, "Systolic reading: " + ConverterClass.hexadecimalToDecimal(pairs.get(3)));
-            Log.w(TAG, "Diastolic reading: " + ConverterClass.hexadecimalToDecimal(pairs.get(4)));
-            Log.w(TAG, "Pulse reading: " + ConverterClass.hexadecimalToDecimal(pairs.get(5)));
-
-            //Assign Value
-            URION_BP_SYSTOLIC_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(3));
-            URION_BP_DIASTOLIC_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(4));
-            URION_BP_PULSE_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(5));
-
-
-        }
-
-
-    }
-
     @SuppressLint("MissingPermission")
     private void printGattTable(BluetoothGatt gatt) {
 
@@ -141,7 +107,6 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
                 }
 
 
-                Log.w(TAG, "printGattTable: --" + characteristic.getUuid());
             }
             Log.i("printGattTable", "\nService " + service.getUuid() + "\nCharacteristics:\n" + characteristicsTable.toString());
 
@@ -150,6 +115,19 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         //use the below method to understand the UUID read/write/notify
 //        DeviceCharacteristicsMethod(gatt);
     }
+
+    @Override
+    public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+        super.onCharacteristicChanged(gatt, characteristic);
+        byte[] byteArray = characteristic.getValue();
+
+       //Urion Bp
+        onCharacteristicChangedMethodUrionBp(byteArray);
+
+
+    }
+
+
 
     private static void DeviceCharacteristicsMethod(BluetoothGatt gatt) {
         for (BluetoothGattService service : gatt.getServices()) {
