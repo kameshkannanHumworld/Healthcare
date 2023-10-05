@@ -1,8 +1,24 @@
 package com.example.healthcare.Fragments;
 
+import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
+import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
+import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_IS_CONNECTED;
+import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_READING;
+import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
+
+import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.le.ScanCallback;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +28,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.healthcare.BleDevices.WeightScale;
+import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
 import com.example.healthcare.DeviceInfoActivity;
@@ -19,19 +37,25 @@ import com.example.healthcare.Permissions.BluetoothUtil;
 import com.example.healthcare.Permissions.LocationUtil;
 import com.example.healthcare.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 public class HomeFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private boolean isScanning = true;
 
 
     private String mParam1;
     private String mParam2;
+    Runnable runnable;
+    View viewFragment;
+    private BluetoothScanner bluetoothScanner;
+    private Handler handler;
+
     Context context;
     ImageView weighScaleImage, bpMeterImage, ecgMeterImage, glucometerImage;
-
-
+    private BroadcastReceiver receiver;
 
 
     public HomeFragment() {
@@ -58,16 +82,21 @@ public class HomeFragment extends Fragment {
 
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         //Assign Id here
         idAssignMethod(view);
+        viewFragment = view;
 
         //location and Bluetooth check
-//        LocationUtil.requestLocationEnable(requireActivity());
-//        BluetoothUtil.requestBluetoothEnable(requireActivity(),requireContext());
+        LocationUtil.requestLocationEnable(requireActivity());
+        LocationUtil.requestFineLocationConnectPermission(requireActivity());
+        BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
+        BluetoothUtil.requestBluetoothScanPermission(requireActivity());
+        BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
 
         // Set click listener for the FAB
         floatingActionButtonMethod(view);
@@ -78,16 +107,45 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+
     private void ImageListenersMethod() {
 
         //Weight Scale Listener
         weighScaleImage.setOnClickListener(view -> {
-          startActivity(new Intent(requireContext(), DeviceInfoActivity.class));
+            bluetoothScanner = new BluetoothScanner(WEIGHT_SCALE_DEVICE_NAME, context);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    bluetoothScanner.startScan();
+//                    if (WEIGHT_SCALE_IS_CONNECTED) {
+
+
+                }
+            }).start();
+            //page intent
+            Intent intent = new Intent(context, DeviceInfoActivity.class);
+            intent.putExtra("DEVICE_NAME",WEIGHT_SCALE_DEVICE_NAME);
+            context.startActivity(intent);
+
         });
 
         //BP Meter Listener
         bpMeterImage.setOnClickListener(view -> {
-            startActivity(new Intent(requireContext(), DeviceInfoActivity.class));
+            bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    startBackgroundScan();
+                    if(deviceConnected) {
+                        bluetoothScanner.stopScan();
+                    }
+                }
+            }).start();
+
+
+
         });
 
         //ECG meter Listener
@@ -101,6 +159,10 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    private void startBackgroundScan() {
+        bluetoothScanner.startScan();
+    }
+
     private void idAssignMethod(View view) {
         weighScaleImage = view.findViewById(R.id.weighScaleImage);
         glucometerImage = view.findViewById(R.id.glucometerImage);
@@ -110,12 +172,12 @@ public class HomeFragment extends Fragment {
 
 
     private void floatingActionButtonMethod(View view) {
-            FloatingActionButton fab = view.findViewById(R.id.fabHomeFragment);
-            fab.setOnClickListener(v -> {
-                // Show the bottom sheet dialog
-                MyBottomSheetDialogFragment bottomSheetDialogFragment = new MyBottomSheetDialogFragment(context);
-                bottomSheetDialogFragment.show(getChildFragmentManager(), bottomSheetDialogFragment.getTag());
-            });
+        FloatingActionButton fab = view.findViewById(R.id.fabHomeFragment);
+        fab.setOnClickListener(v -> {
+            // Show the bottom sheet dialog
+            MyBottomSheetDialogFragment bottomSheetDialogFragment = new MyBottomSheetDialogFragment(context);
+            bottomSheetDialogFragment.show(getChildFragmentManager(), bottomSheetDialogFragment.getTag());
+        });
     }
 
     @Override

@@ -10,9 +10,9 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/TOOLBAR"
-        android:background="@color/k_blue"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="@color/k_blue"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
@@ -22,8 +22,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            android:padding="5dp"
             android:contentDescription="@string/back"
+            android:padding="5dp"
             android:src="@drawable/baseline_arrow_back_ios_24" />
 
         <TextView
@@ -31,60 +31,125 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:text="@string/device_name"
-            android:textStyle="bold"
+            android:textColor="#ffffff"
             android:textSize="20sp"
-            android:textColor="#ffffff" />
+            android:textStyle="bold" />
 
     </androidx.appcompat.widget.Toolbar>
 
-    <ScrollView
+    <LinearLayout
+        android:id="@+id/devConnection"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:id="@+id/linearLayoutDeviceInfo"
-            android:layout_width="match_parent"
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:paddingLeft="8dp"
+            android:src="@drawable/wifi" />
+
+        <TextView
+            android:id="@+id/deviceNameTextView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:padding="8dp"
+            android:text="bluetooth device Name"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/isConnectedTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Connected"
+            android:textAlignment="textEnd"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <ScrollView
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/devConnection">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/deviceNameTextView"
+            <LinearLayout
+                android:id="@+id/linearLayoutUrionBp"
                 android:layout_width="match_parent"
-                android:layout_margin="8dp"
                 android:layout_height="wrap_content"
-                android:text="Device Name" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/deviceInfoTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="Device Info" />
+
+                <TextView
+                    android:id="@+id/systolicReading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="Systolic Reading" />
+
+                <TextView
+                    android:id="@+id/diastolicReading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="Diastolic Reading" />
+
+                <TextView
+                    android:id="@+id/pulseReading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="Pulse Reading" />
+
+                <TextView
+                    android:id="@+id/errorMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text=""
+                    android:visibility="gone" />
+            </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutWeightScale"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
 
             <TextView
-                android:id="@+id/deviceInfoTextView"
+                android:id="@+id/weightScaleReadings"
                 android:layout_width="match_parent"
                 android:layout_margin="8dp"
                 android:layout_height="wrap_content"
                 android:text="Device Info" />
 
-            <TextView
-                android:id="@+id/systolicReading"
-                android:layout_width="match_parent"
-                android:layout_margin="8dp"
-                android:layout_height="wrap_content"
-                android:text="Systolic Reading" />
-
-            <TextView
-                android:id="@+id/diastolicReading"
-                android:layout_margin="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Diastolic Reading" />
-
-            <TextView
-                android:id="@+id/pulseReading"
-                android:layout_margin="8dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Pulse Reading" />
         </LinearLayout>
+
+        </LinearLayout>
+
+
     </ScrollView>
 
 </RelativeLayout>

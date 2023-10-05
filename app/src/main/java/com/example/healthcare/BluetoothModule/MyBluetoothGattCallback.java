@@ -1,6 +1,7 @@
 package com.example.healthcare.BluetoothModule;
 
 import static com.example.healthcare.BleDevices.UrionBp.*;
+import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -18,7 +19,10 @@ import android.util.Log;
 
 
 import com.example.healthcare.DeviceInfoActivity;
+import com.google.android.material.snackbar.Snackbar;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 
 public class MyBluetoothGattCallback extends BluetoothGattCallback {
@@ -41,11 +45,14 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
+        Activity activity = (Activity) context;
         String deviceAddress = gatt.getDevice().getAddress();
 
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             // Device connected, start discovering services
             Log.w(TAG, "Sucessfully connected to " + deviceAddress);
+            deviceConnected = true;
+//            Snackbar.make(Objects.requireNonNull(activity.getCurrentFocus()),"Device Connected", Snackbar.LENGTH_SHORT).show();
 
             bluetoothGatt = gatt;
             new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -59,6 +66,10 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
             // Device disconnected, handle accordingly
             Log.d(TAG, "onConnectionStateChange: STATE_DISCONNECTED " + deviceAddress);
+            deviceConnected = false;
+            if ((activity.getCurrentFocus()) != null) {
+                Snackbar.make((activity.getCurrentFocus()), "Device Not Connected", Snackbar.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -121,12 +132,11 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         super.onCharacteristicChanged(gatt, characteristic);
         byte[] byteArray = characteristic.getValue();
 
-       //Urion Bp
+        //Urion Bp
         onCharacteristicChangedMethodUrionBp(byteArray);
 
 
     }
-
 
 
     private static void DeviceCharacteristicsMethod(BluetoothGatt gatt) {
@@ -150,5 +160,6 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
             }
         }
     }
+
 
 }

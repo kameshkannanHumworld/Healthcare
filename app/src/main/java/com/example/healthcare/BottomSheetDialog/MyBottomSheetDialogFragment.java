@@ -57,6 +57,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.healthcare.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
@@ -314,7 +315,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
                     }
                 }
                 String deviceName = result.getDevice().getName() != null ? result.getDevice().getName() : "Unnamed";
-//              Log.i(TAG, "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
+//                Log.i(TAG, "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
                 if (result.getDevice().getName() != null) {
                     Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                     scanResults.add(result);
@@ -334,6 +335,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         @Override
         public void onScanFailed(int errorCode) {
             Log.e("ScanCallback", "onScanFailed: code " + errorCode);
+
         }
     };
 
