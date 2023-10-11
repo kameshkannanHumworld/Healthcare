@@ -69,7 +69,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     public final Integer VISIT_ID = null;
     public static Integer MEDICTION_ID;
     private final String MEDICTION_NAME = "";
-    String medName,frequency,recordDateTime,endDateTime,notes;
+    String medName, frequency, recordDateTime, endDateTime, notes;
     int quantity;
     static String proprietaryNameWithDosage, nonProprietaryNameWithDosage, mediProprietaryName, onlyTime, FREQUENCY_CODE;
     static Integer mediProdId;
@@ -105,7 +105,6 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     }
 
 
-
     private void swipeRightEditIntentMehthod() {
         Intent intent = getIntent();
 
@@ -118,12 +117,14 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
         medicineNameInput.setText(medName);
         medicineFrequencyInput.setText(frequency);
-        medicineQuantityInput.setText(String.valueOf(quantity));
         recordDateTimeInput.setText(recordDateTime);
         endDateTimeInput.setText(endDateTime);
         notesInput.setText(notes);
-
-
+        if (quantity == 0) {
+            medicineQuantityInput.setText(null);
+        } else {
+            medicineQuantityInput.setText(String.valueOf(quantity));
+        }
     }
 
 
@@ -398,6 +399,8 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     private void medicationsSaveApiMethod() {
         SaveApiService saveApiService = ApiClient.getWebClient().create(SaveApiService.class);
         String notes = Objects.requireNonNull(notesInput.getText()).toString().trim();
+        String quantityText = Objects.requireNonNull(medicineQuantityInput.getText()).toString();
+
         SaveApiRequest saveApiRequest = new SaveApiRequest();
         saveApiRequest.setPatientId(PATIENT_ID);
         saveApiRequest.setCareplanId(CAREPLAN_ID);
@@ -409,7 +412,11 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         saveApiRequest.setLastEffectiveDate(Objects.requireNonNull(endDateTimeInput.getText()).toString());
         saveApiRequest.setFrequency(FREQUENCY_CODE);
         saveApiRequest.setCustomFrequency("");
-        saveApiRequest.setQuantity(Integer.valueOf(Objects.requireNonNull(medicineQuantityInput.getText()).toString()));
+        if (!quantityText.isEmpty()) {
+            saveApiRequest.setQuantity(Integer.valueOf(quantityText));
+        } else {
+            saveApiRequest.setQuantity(null);
+        }
         saveApiRequest.setActiveFlag("Y");
         saveApiRequest.setProductCode("CCM");
         saveApiRequest.setVisitId(VISIT_ID);

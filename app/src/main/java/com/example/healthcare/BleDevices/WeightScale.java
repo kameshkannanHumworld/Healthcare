@@ -43,15 +43,20 @@ public class WeightScale {
         String constant = weightScaleByteArray.substring(36, 38);
         String reading = weightScaleByteArray.substring(41, 48);
 
+
         if (uniqueId.equals(WEIGHT_SCALE_UNIQUE_ID) && macAddress.equals(WEIGHT_SCALE_MAC_ADDRESS)) {
             //device discovered
             Log.d(TAG, "Weight Scale Device discovered ");
+
+            //reading convert to decimal
+            float decimalReading = (float) ConverterClass.hexadecimalToDecimal(reading);
             WEIGHT_SCALE_IS_CONNECTED = true;
+
+            //Assign Values
+            WEIGHT_SCALE_READING = decimalReading / 10; // in kg
 
 
             if (constant.equals(WEIGHT_SCALE_CONSTANT_VALUE1) || constant.equals(WEIGHT_SCALE_CONSTANT_VALUE2)) {
-                //reading convert to decimal
-                float decimalReading = (float) ConverterClass.hexadecimalToDecimal(reading);
 
                 //Assign Values
                 WEIGHT_SCALE_READING = decimalReading / 10; // in kg

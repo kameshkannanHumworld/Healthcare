@@ -210,7 +210,6 @@ public class MedicationsFragment extends Fragment {
         MEDICTION_ID = viewMedicationData.getMedicationId();
         startActivity(intent);
 
-        Toast.makeText(requireContext(), "updated work "+MEDICTION_ID, Toast.LENGTH_SHORT).show();
         medicationAdapter.notifyDataSetChanged();
     }
 
@@ -247,7 +246,6 @@ public class MedicationsFragment extends Fragment {
         });
 
 
-        Toast.makeText(requireContext(), "deleted work ", Toast.LENGTH_SHORT).show();
         medicationAdapter.notifyDataSetChanged();
     }
 

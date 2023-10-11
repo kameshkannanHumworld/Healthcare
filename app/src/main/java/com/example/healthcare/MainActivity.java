@@ -2,6 +2,7 @@ package com.example.healthcare;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -10,6 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.example.healthcare.Animation.AnimationLoading;
 import com.example.healthcare.ApiClass.ApiClient;
 import com.example.healthcare.LoginModule.LoginRequest;
 import com.example.healthcare.LoginModule.LoginResponse;
@@ -35,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "TAGi";
     public static String TOKEN;
     TextInputEditText userNameInput, passwordInput;
+    private LottieAnimationView loadingAnimation;
+    private AnimationLoading animationLoading;
     TextInputLayout usernameTextInputLayout, passwordTextInputLayout;
 
 
@@ -45,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Assing Id Here
         idAssignMethod();
+        animationLoading = new AnimationLoading(this);
 
         //sharedpreference
         sharedPreferenceMethod();
@@ -96,10 +102,20 @@ public class MainActivity extends AppCompatActivity {
                     userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));
                     passwordInput.addTextChangedListener(new ClearErrorTextWatcher(passwordTextInputLayout));
 
+                    //loading animation
+//                    animationLoading.show();
+//                    Handler handler = new Handler();
+//                    Runnable runnable = new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                            animationLoading.cancel();
+//                        }
+//                    };
+//                    handler.postDelayed(runnable, 5000);
                     //login credentials to database here
-//                    loginMethod(name, password);   //for mobdev base url
+//                            loginMethod(name, password);   //for mobdev base url
                     loginMethodWeb(name, password);  // for web dev base url
-
                 }
             }
         });
@@ -143,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(MainActivity.this, "Response Unsucessfull", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                    Log.d(TAG, "onResponse: "+response.code());
+                    Log.d(TAG, "onResponse: " + response.code());
                 }
             }
 
@@ -178,16 +194,8 @@ public class MainActivity extends AppCompatActivity {
                     if (Objects.equals(loginResponse.getStatus(), "success")) {
                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                         Toast.makeText(MainActivity.this, "Login Sucessfull", Toast.LENGTH_SHORT).show();
-
-//                        assert loginResponse.getData() != null;
-//                            TOKEN = loginResponse.getData().getToken();
-//                        String isNewUser = loginResponse.getData().getIsNewUser();
-//                        int userId = loginResponse.getData().getUserId();
-//                        String fullname = loginResponse.getData().getFullName();
                         Log.d(TAG, "Login response token: " + TOKEN);
-//                        Log.d(TAG, "Login response isNewUser: " + isNewUser);
-//                        Log.d(TAG, "Login response userId: " + userId);
-//                        Log.d(TAG, "Login response fullname: " + fullname);
+
 
                     } else {
                         // Handle unsuccessful login
@@ -199,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     Toast.makeText(MainActivity.this, "Response Unsucessfull", Toast.LENGTH_SHORT).show();
-                    Log.d(TAG, "onResponse: "+response.code());
+                    Log.d(TAG, "onResponse: " + response.code());
                 }
             }
 
@@ -208,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 // Handle network failure
                 Log.e(TAG, "Throwable: " + t.getMessage());
                 Toast.makeText(MainActivity.this, "Login Failure", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
             }
         });
     }
@@ -218,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.passwordInput);
         usernameTextInputLayout = findViewById(R.id.usernameTextInputLayout);
         passwordTextInputLayout = findViewById(R.id.passwordTextInputLayout);
+        loadingAnimation = findViewById(R.id.loadingAnimation);
     }
 
 

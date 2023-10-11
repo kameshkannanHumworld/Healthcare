@@ -80,6 +80,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     int indexQuery;
     Context context;
     Activity activity;
+    BluetoothGatt gatt;
     RecyclerView bluetoothDeviceRecyclerView;
 
     LinearLayout linearLayoutAvailableDevices;
@@ -262,12 +263,12 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     private ScanResultAdapter getScanResultAdapter() {
         if (scanResultAdapter == null) {
             scanResultAdapter = new ScanResultAdapter(scanResults, new ScanResultAdapter.OnItemClickListener() {
+                @SuppressLint("MissingPermission")
                 @Override
                 public void onItemClick(ScanResult item) {
                     BluetoothDevice device = item.getDevice();
                     Log.w("ScanResultAdapter", "Connecting to " + device.getAddress());
-                    @SuppressLint("MissingPermission")
-                    BluetoothGatt gatt = device.connectGatt(context, false, new MyBluetoothGattCallback(context));
+                     gatt = device.connectGatt(context, false, new MyBluetoothGattCallback(context));
                     stopPeriodicScan();
                 }
             });
@@ -428,5 +429,16 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         }
     }
 
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (gatt != null) {
+            gatt.disconnect();
+            gatt.close();
+            gatt = null;
+        }
+    }
 
 }

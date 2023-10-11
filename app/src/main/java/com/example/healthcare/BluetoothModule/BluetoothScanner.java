@@ -32,7 +32,7 @@ public class BluetoothScanner {
     private static final String TAG = "TAGi";
     private BluetoothLeScanner bluetoothLeScanner;
     private BluetoothAdapter bluetoothAdapter;
-    private BluetoothDevice urionBpDevice;
+    public static BluetoothDevice urionBpDevice,bloodGlucometer;
     public static boolean deviceConnected = false;
 
     String DEVICE_NAME_SCAN;
@@ -114,22 +114,38 @@ public class BluetoothScanner {
 
             //ECG Meter
             //Blood Glucometer
+            if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+                Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
+                bloodGlucometer = result.getDevice(); // Store the device for future connection
+                if (!deviceConnected) {
+                    connectToDevice(activity);
+                }
+            }
 
 
         }
 
         @SuppressLint("MissingPermission")
         private void connectToDevice(Activity activity) {
+            //urion Bp
             if (urionBpDevice != null) {
                 if (urionBpDevice.connectGatt(context, false, new MyBluetoothGattCallback(context)) != null) {
                     stopScan();
                     deviceConnected = true;
                     Log.i(TAG, "Connecting to device: " + urionBpDevice.getName());
-//                    urionBpDevice.connectGatt(context, false, new MyBluetoothGattCallback(context));
-//                    Snackbar.make(Objects.requireNonNull(activity.getCurrentFocus()),"Device Connected", Snackbar.LENGTH_SHORT).show();
                 } else {
                     Log.e(TAG, "Failed to connect to device: " + urionBpDevice.getName());
-//                    Snackbar.make(Objects.requireNonNull(activity.getCurrentFocus()),"Device Not Connected", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            //Blood Glucometer
+            else if (bloodGlucometer != null) {
+                if (bloodGlucometer.connectGatt(context, false, new MyBluetoothGattCallback(context)) != null) {
+                    stopScan();
+                    deviceConnected = true;
+                    Log.i(TAG, "Connecting to device: " + bloodGlucometer.getName());
+                } else {
+                    Log.e(TAG, "Failed to connect to device: " + bloodGlucometer.getName());
                 }
             }
         }

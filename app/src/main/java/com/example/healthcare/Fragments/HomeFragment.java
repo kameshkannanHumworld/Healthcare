@@ -1,34 +1,24 @@
 package com.example.healthcare.Fragments;
 
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
-import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_IS_CONNECTED;
-import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_READING;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
 
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.le.ScanCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.healthcare.BleDevices.WeightScale;
+import com.example.healthcare.BleDevices.BloodGlucometer;
 import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
@@ -37,7 +27,6 @@ import com.example.healthcare.Permissions.BluetoothUtil;
 import com.example.healthcare.Permissions.LocationUtil;
 import com.example.healthcare.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 public class HomeFragment extends Fragment {
 
@@ -118,7 +107,6 @@ public class HomeFragment extends Fragment {
                 @Override
                 public void run() {
                     bluetoothScanner.startScan();
-//                    if (WEIGHT_SCALE_IS_CONNECTED) {
 
 
                 }
@@ -134,13 +122,10 @@ public class HomeFragment extends Fragment {
         bpMeterImage.setOnClickListener(view -> {
             bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    startBackgroundScan();
-                    if(deviceConnected) {
-                        bluetoothScanner.stopScan();
-                    }
+            new Thread(() -> {
+                startBackgroundScan();
+                if(deviceConnected) {
+                    bluetoothScanner.stopScan();
                 }
             }).start();
 
@@ -155,7 +140,13 @@ public class HomeFragment extends Fragment {
 
         //Glucometer Listener
         glucometerImage.setOnClickListener(view -> {
-            startActivity(new Intent(requireContext(), DeviceInfoActivity.class));
+            bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME, context);
+            new Thread(() -> {
+                startBackgroundScan();
+                if(deviceConnected) {
+                    bluetoothScanner.stopScan();
+                }
+            }).start();
         });
     }
 

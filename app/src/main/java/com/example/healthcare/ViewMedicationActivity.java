@@ -46,7 +46,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
         String medName = intent.getStringExtra("MED_NAME");
         String frequency = intent.getStringExtra("FREQUENCY");
-        int quantity = intent.getIntExtra("QUANTITY", 0); // Default value is 0 if not found
+        Integer quantity = intent.getIntExtra("QUANTITY", 0); // Default value is 0 if not found
         String recordDateTime = intent.getStringExtra("RECORD_DATE_TIME");
         String endDateTime = intent.getStringExtra("END_DATE_TIME");
         String notes = intent.getStringExtra("NOTES");
@@ -55,10 +55,15 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
         medicineName.setText(medName);
         frequencyTV.setText(frequency);
-        quantityTV.setText(String.valueOf(quantity));
         recordDateTimeTV.setText(recordDateTime);
         endDateTimeTV.setText(endDateTime);
-        notesTV.setText(notes+" "+medictionId);
+        notesTV.setText(notes);
+        if (quantity == 0) {
+            quantityTV.setText(null);
+        } else {
+            quantityTV.setText(String.valueOf(quantity));
+        }
+
     }
 
     private void idAssignHere() {

@@ -64,4 +64,28 @@ public class ConverterClass {
     }
 
 
+    public static byte[] hexStringToByteArray(String hexString) {
+        int len = hexString.length();
+        byte[] byteArray = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            byteArray[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
+                    + Character.digit(hexString.charAt(i+1), 16));
+        }
+        return byteArray;
+    }
+
+    public static String formatHexString(String hexString) {
+        StringBuilder formattedString = new StringBuilder("(0x) ");
+
+        for (int i = 0; i < hexString.length(); i += 2) {
+            formattedString.append(hexString.substring(i, i + 2));
+            if (i < hexString.length() - 2) {
+                formattedString.append("-");
+            }
+        }
+
+        return formattedString.toString();
+    }
+
+
 }

@@ -1,9 +1,11 @@
 package com.example.healthcare;
 
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.UrionBp.*;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_IS_CONNECTED;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_READING;
+import static com.example.healthcare.BluetoothModule.BluetoothScanner.bloodGlucometer;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
 import static com.example.healthcare.BluetoothModule.MyBluetoothGattCallback.*;
 
@@ -23,8 +25,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.healthcare.BleDevices.BloodGlucometer;
 import com.example.healthcare.BleDevices.WeightScale;
 import com.example.healthcare.BluetoothModule.BluetoothScanner;
+import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 
 
 public class DeviceInfoActivity extends AppCompatActivity {
@@ -32,10 +36,11 @@ public class DeviceInfoActivity extends AppCompatActivity {
     Handler handler = new Handler();
     Runnable runnable;
     String deviceName;
-    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale;
+    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer;
     TextView isConnectedTextView;
     TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, deviceInfoTextView, errorMessageTextView;
     TextView weightScaleReadings;
+    TextView bloodGlucometerReadings;
 
 
     private BackgroundTask backgroundTask;
@@ -95,9 +100,32 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 urionBpRefresh();
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
                 weightScaleRefresh();
+            } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME)) {
+                bloodGlucometerRefresh();
             }
 
             //For WeightScale
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void bloodGlucometerRefresh() {
+        linearLayoutUrionBp.setVisibility(View.GONE);
+        linearLayoutWeightScale.setVisibility(View.GONE);
+        linearLayoutBloodGlucometer.setVisibility(View.VISIBLE);
+
+        if (deviceConnected) {
+            isConnectedTextView.setText("Connected");
+            isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
+
+            bloodGlucometerReadings.setText("Blood Glucometer Reading: ");
+//            if (WEIGHT_SCALE_READING != null) {
+//                String floatConversionReading = String.valueOf(WEIGHT_SCALE_READING);
+//
+//            }
+        } else {
+            isConnectedTextView.setText("Not Connected");
+            isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
         }
     }
 
@@ -112,7 +140,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
             if (WEIGHT_SCALE_READING != null) {
                 String floatConversionReading = String.valueOf(WEIGHT_SCALE_READING);
-                Log.d("TAGi", "weightScaleRefresh: inside if");
                 weightScaleReadings.setText("Weight Scale Reading(Kg): " + floatConversionReading);
 
             }
@@ -169,12 +196,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
         weightScaleReadings = findViewById(R.id.weightScaleReadings);
         linearLayoutWeightScale = findViewById(R.id.linearLayoutWeightScale);
         isConnectedTextView = findViewById(R.id.isConnectedTextView);
+        linearLayoutBloodGlucometer = findViewById(R.id.linearLayoutBloodGlucometer);
+        bloodGlucometerReadings = findViewById(R.id.bloodGlucometerReadings);
     }
 
     private void backButtonMethod() {
         backButton.setOnClickListener(v -> {
             onBackPressed();
             backgroundTask.cancel(true);
+            MyBluetoothGattCallback myBluetoothGattCallback = new MyBluetoothGattCallback(getApplicationContext());
+            myBluetoothGattCallback.disconnectDevice();
         });
     }
 
@@ -183,6 +214,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         backgroundTask.cancel(true);
+        MyBluetoothGattCallback myBluetoothGattCallback = new MyBluetoothGattCallback(getApplicationContext());
+        myBluetoothGattCallback.disconnectDevice();
+
     }
 
     private void startAutoRefresh() {

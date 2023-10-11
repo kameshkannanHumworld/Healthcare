@@ -86,70 +86,85 @@
             android:layout_margin="20dp"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/linearLayoutUrionBp"
+        <LinearLayout
+            android:id="@+id/linearLayoutUrionBp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/deviceInfoTextView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_margin="8dp"
+                android:text="Device Info" />
 
-                <TextView
-                    android:id="@+id/deviceInfoTextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text="Device Info" />
+            <TextView
+                android:id="@+id/systolicReading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="Systolic Reading" />
 
-                <TextView
-                    android:id="@+id/systolicReading"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text="Systolic Reading" />
+            <TextView
+                android:id="@+id/diastolicReading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="Diastolic Reading" />
 
-                <TextView
-                    android:id="@+id/diastolicReading"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text="Diastolic Reading" />
+            <TextView
+                android:id="@+id/pulseReading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="Pulse Reading" />
 
-                <TextView
-                    android:id="@+id/pulseReading"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text="Pulse Reading" />
-
-                <TextView
-                    android:id="@+id/errorMessage"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:text=""
-                    android:visibility="gone" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/errorMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text=""
+                android:visibility="gone" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/linearLayoutWeightScale"
             android:layout_width="match_parent"
-            android:visibility="gone"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
+            android:orientation="vertical"
+            android:visibility="gone">
 
 
             <TextView
                 android:id="@+id/weightScaleReadings"
                 android:layout_width="match_parent"
-                android:layout_margin="8dp"
                 android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="Device Info" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutBloodGlucometer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+
+            <TextView
+                android:id="@+id/bloodGlucometerReadings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
                 android:text="Device Info" />
 
         </LinearLayout>
 
         </LinearLayout>
-
-
     </ScrollView>
 
 </RelativeLayout>

@@ -48,8 +48,8 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
 
         holder.medicineName.setText(medication.getName());
         holder.medicineFrequency.setText(medication.getFrequency());
-        holder.medicineQuantity.setText(String.valueOf(medication.getQuantity()));
         holder.medicineImage.setImageResource(R.drawable.img);
+        holder.medicineQuantity.setVisibility(View.GONE);
     }
 
     @Override
