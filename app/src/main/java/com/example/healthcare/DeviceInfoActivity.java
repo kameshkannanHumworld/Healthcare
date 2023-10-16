@@ -1,33 +1,21 @@
 package com.example.healthcare;
 
-import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME;
+import static com.example.healthcare.BleDevices.BloodGlucometer.*;
 import static com.example.healthcare.BleDevices.UrionBp.*;
-import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
-import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_IS_CONNECTED;
-import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_READING;
-import static com.example.healthcare.BluetoothModule.BluetoothScanner.bloodGlucometer;
+import static com.example.healthcare.BleDevices.WeightScale.*;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
-import static com.example.healthcare.BluetoothModule.MyBluetoothGattCallback.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.healthcare.BleDevices.BloodGlucometer;
-import com.example.healthcare.BleDevices.WeightScale;
-import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 
 
@@ -40,7 +28,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     TextView isConnectedTextView;
     TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, deviceInfoTextView, errorMessageTextView;
     TextView weightScaleReadings;
-    TextView bloodGlucometerReadings;
+    TextView bloodGlucometerReadings,bloodGlucometerReadingsDateTime;
 
 
     private BackgroundTask backgroundTask;
@@ -95,16 +83,14 @@ public class DeviceInfoActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void refresh() {
         if (deviceName != null) {
-            //for Urion Bp
             if (deviceName.equals(URION_BP_DEVICE_NAME)) {
-                urionBpRefresh();
+                urionBpRefresh();               //for Urion Bp
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
-                weightScaleRefresh();
-            } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME)) {
-                bloodGlucometerRefresh();
+                weightScaleRefresh();             //for Weight Scale
+            } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
+                bloodGlucometerRefresh();             //for Blood Glucometer
             }
 
-            //For WeightScale
         }
     }
 
@@ -118,11 +104,12 @@ public class DeviceInfoActivity extends AppCompatActivity {
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
 
-            bloodGlucometerReadings.setText("Blood Glucometer Reading: ");
-//            if (WEIGHT_SCALE_READING != null) {
-//                String floatConversionReading = String.valueOf(WEIGHT_SCALE_READING);
-//
-//            }
+            if (BLOOD_GLUCOMETER_RESULT != null) {
+                bloodGlucometerReadings.setText(BLOOD_GLUCOMETER_RESULT);
+            }
+            if (BLOOD_GLUCOMETER_RESULT_DATE_TIME != null) {
+                bloodGlucometerReadingsDateTime.setText("Date-Time : " + BLOOD_GLUCOMETER_RESULT_DATE_TIME);
+            }
         } else {
             isConnectedTextView.setText("Not Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
@@ -198,6 +185,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         isConnectedTextView = findViewById(R.id.isConnectedTextView);
         linearLayoutBloodGlucometer = findViewById(R.id.linearLayoutBloodGlucometer);
         bloodGlucometerReadings = findViewById(R.id.bloodGlucometerReadings);
+        bloodGlucometerReadingsDateTime = findViewById(R.id.bloodGlucometerReadingsDateTime);
     }
 
     private void backButtonMethod() {

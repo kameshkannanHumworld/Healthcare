@@ -141,8 +141,7 @@
                 android:id="@+id/weightScaleReadings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="Device Info" />
+                android:layout_margin="8dp"/>
 
 
         </LinearLayout>
@@ -159,8 +158,12 @@
                 android:id="@+id/bloodGlucometerReadings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="Device Info" />
+                android:layout_margin="8dp"/>
+            <TextView
+                android:id="@+id/bloodGlucometerReadingsDateTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"/>
 
         </LinearLayout>
 

@@ -1,5 +1,6 @@
 package com.example.healthcare.BluetoothModule;
 
+import static com.example.healthcare.BleDevices.BloodGlucometer.*;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.weightScaleReadingsMethod;
 
@@ -32,7 +33,7 @@ public class BluetoothScanner {
     private static final String TAG = "TAGi";
     private BluetoothLeScanner bluetoothLeScanner;
     private BluetoothAdapter bluetoothAdapter;
-    public static BluetoothDevice urionBpDevice,bloodGlucometer;
+    public static BluetoothDevice urionBpDevice, bloodGlucometer;
     public static boolean deviceConnected = false;
 
     String DEVICE_NAME_SCAN;
@@ -112,9 +113,14 @@ public class BluetoothScanner {
             }
 
 
-            //ECG Meter
             //Blood Glucometer
             if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+                Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
+                bloodGlucometer = result.getDevice(); // Store the device for future connection
+                if (!deviceConnected) {
+                    connectToDevice(activity);
+                }
+            } else if (Objects.equals(result.getDevice().getName(), BLOOD_GLUCOMETER_DEVICE_NAME2)) {
                 Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                 bloodGlucometer = result.getDevice(); // Store the device for future connection
                 if (!deviceConnected) {

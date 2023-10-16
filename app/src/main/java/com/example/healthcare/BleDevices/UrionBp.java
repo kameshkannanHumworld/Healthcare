@@ -11,6 +11,7 @@ import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 import com.example.healthcare.Converters.ConverterClass;
 import com.example.healthcare.DeviceInfoActivity;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 

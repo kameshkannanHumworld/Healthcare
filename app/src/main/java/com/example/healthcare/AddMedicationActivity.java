@@ -23,7 +23,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.healthcare.ApiClass.ApiClient;
-import com.example.healthcare.DatePicker.CurrentDate;
 import com.example.healthcare.DatePicker.DatePickerDialog;
 import com.example.healthcare.MedicationsModule.FrequencyDropdown.MedicationFrequency;
 import com.example.healthcare.MedicationsModule.FrequencyDropdown.MedicationFrequencyResponse;

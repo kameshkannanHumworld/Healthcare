@@ -135,9 +135,6 @@ public class MedicationsFragment extends Fragment {
                 final int position = viewHolder.getAdapterPosition();
                 if (direction == ItemTouchHelper.LEFT) { // From left to right swipe
                     deleteItem(position); // Delete the item from the database
-
-                    // Show a Snackbar with an "Undo" action
-//                    undoMethodHere();
                 }
 
                 if (direction == ItemTouchHelper.RIGHT) { // From right to left swipe
@@ -234,19 +231,22 @@ public class MedicationsFragment extends Fragment {
             public void onResponse(Call<DeleteApiResponse> call, Response<DeleteApiResponse> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(requireContext(), "Deleted Sucessfully", Toast.LENGTH_SHORT).show();
+                    medicationAdapter.notifyDataSetChanged();
                 }else{
                     Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_SHORT).show();
+                    medicationAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onFailure(Call<DeleteApiResponse> call, Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
+                medicationAdapter.notifyDataSetChanged();
             }
         });
 
 
-        medicationAdapter.notifyDataSetChanged();
+
     }
 
     private void undoMethodHere() {

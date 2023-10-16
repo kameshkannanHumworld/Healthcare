@@ -69,7 +69,7 @@ public class ConverterClass {
         byte[] byteArray = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             byteArray[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
-                    + Character.digit(hexString.charAt(i+1), 16));
+                    + Character.digit(hexString.charAt(i + 1), 16));
         }
         return byteArray;
     }
@@ -85,6 +85,80 @@ public class ConverterClass {
         }
 
         return formattedString.toString();
+    }
+
+    public static String convertDateToHex(String currentDate, String currentTime) {
+        // Split the input date into components
+        String[] dateComponents = currentDate.split("-");
+        String[] timeComponents = currentTime.split(":");
+
+        // Convert each component to hexadecimal and concatenate
+        StringBuilder hexDate = new StringBuilder();
+
+        for (String component : dateComponents) {
+            int intValue = Integer.parseInt(component);
+            String hexValue = Integer.toHexString(intValue);
+            if (hexValue.length() == 1) {
+                hexValue = "0" + hexValue; // Add leading zero if needed
+            }
+            hexDate.append(hexValue).append(" ");
+        }
+
+        for (String component : timeComponents) {
+            int intValue = Integer.parseInt(component);
+            String hexValue = Integer.toHexString(intValue);
+            if (hexValue.length() == 1) {
+                hexValue = "0" + hexValue; // Add leading zero if needed
+            }
+            hexDate.append(hexValue).append(" ");
+        }
+
+        return hexDate.toString().trim();
+    }
+
+    public static List<String> getValuesFromPairs(String hexString) {
+        List<String> values = new ArrayList<>();
+        String[] hexValues = hexString.split(" ");
+
+        for (int i = 0; i < hexValues.length; i += 2) {
+            String value1 = hexValues[i];
+            String value2 = hexValues[i + 1];
+
+            values.add(value1);
+            values.add(value2);
+        }
+
+        return values;
+    }
+
+    public static String decodeHexDateTime(String hexDateTime) {
+        List<Integer> decimalValues = new ArrayList<>();
+        String[] hexValues = hexDateTime.split(" ");
+
+        for (String hexValue : hexValues) {
+            int decimalValue = Integer.parseInt(hexValue, 16);
+            decimalValues.add(decimalValue);
+        }
+
+        int day = decimalValues.get(0);
+        int month = decimalValues.get(1);
+        int year = decimalValues.get(2);
+        int hour = decimalValues.get(3);
+        int minute = decimalValues.get(4);
+        int second = decimalValues.get(5);
+
+        String dateAndTime = day+"/"+month+"/"+year+"-"+hour+":"+minute+":"+second;
+
+        return dateAndTime;
+    }
+
+    public static byte[] hexStringToByteArrayDT(String s) {
+        String[] tokens = s.split(" ");
+        byte[] byteArray = new byte[tokens.length];
+        for (int i = 0; i < tokens.length; i++) {
+            byteArray[i] = (byte) Integer.parseInt(tokens[i], 16);
+        }
+        return byteArray;
     }
 
 

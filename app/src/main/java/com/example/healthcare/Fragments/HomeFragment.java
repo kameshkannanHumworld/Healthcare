@@ -1,6 +1,6 @@
 package com.example.healthcare.Fragments;
 
-import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME;
+import static com.example.healthcare.BleDevices.BloodGlucometer.*;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
@@ -18,9 +18,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.healthcare.BleDevices.BloodGlucometer;
 import com.example.healthcare.BluetoothModule.BluetoothScanner;
-import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
 import com.example.healthcare.DeviceInfoActivity;
 import com.example.healthcare.Permissions.BluetoothUtil;
@@ -102,13 +100,10 @@ public class HomeFragment extends Fragment {
         //Weight Scale Listener
         weighScaleImage.setOnClickListener(view -> {
             bluetoothScanner = new BluetoothScanner(WEIGHT_SCALE_DEVICE_NAME, context);
-
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     bluetoothScanner.startScan();
-
-
                 }
             }).start();
             //page intent
@@ -118,29 +113,31 @@ public class HomeFragment extends Fragment {
 
         });
 
+
+
         //BP Meter Listener
         bpMeterImage.setOnClickListener(view -> {
             bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
-
             new Thread(() -> {
                 startBackgroundScan();
                 if(deviceConnected) {
                     bluetoothScanner.stopScan();
                 }
             }).start();
-
-
-
         });
+
+
 
         //ECG meter Listener
         ecgMeterImage.setOnClickListener(view -> {
             startActivity(new Intent(requireContext(), DeviceInfoActivity.class));
         });
 
+
+
         //Glucometer Listener
         glucometerImage.setOnClickListener(view -> {
-            bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME, context);
+            bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
             new Thread(() -> {
                 startBackgroundScan();
                 if(deviceConnected) {

@@ -21,8 +21,9 @@
         android:id="@+id/navigationDrawerUserName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/username"
+        android:text="Kameshkannan Dev"
         android:textStyle="bold"
+        android:textSize="18sp"
         tools:ignore="TextContrastCheck" />
 
     <TextView
@@ -30,8 +31,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="@string/username_unique_id"
-        android:textSize="14sp"
+        android:text="Patient ID : 53279"
+        android:textSize="15sp"
+        android:textStyle="bold"
         tools:ignore="TextContrastCheck" />
 
 </LinearLayout>
