@@ -1,15 +1,18 @@
 package com.example.healthcare.Fragments;
 
 import static com.example.healthcare.BleDevices.BloodGlucometer.*;
+import static com.example.healthcare.BleDevices.ECGMeter.*;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
-import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
+import static com.example.healthcare.BluetoothModule.BluetoothScanner.*;
+import static com.example.healthcare.DeviceInfoActivity.isDeviceInfoActivityRunning;
 
-import android.content.BroadcastReceiver;
+import android.bluetooth.BluetoothGatt;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,8 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.example.healthcare.Animation.AnimationLoading;
+import com.example.healthcare.BleDevices.BloodGlucometer;
 import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
 import com.example.healthcare.DeviceInfoActivity;
@@ -26,11 +31,16 @@ import com.example.healthcare.Permissions.LocationUtil;
 import com.example.healthcare.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeFragment extends Fragment {
+    public static List<BluetoothGatt> connectedGatts = new ArrayList<>();
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private boolean isScanning = true;
+    private static final String TAG = "TAGi";
 
 
     private String mParam1;
@@ -42,7 +52,8 @@ public class HomeFragment extends Fragment {
 
     Context context;
     ImageView weighScaleImage, bpMeterImage, ecgMeterImage, glucometerImage;
-    private BroadcastReceiver receiver;
+    private Handler scanHandler = new Handler();
+    private AnimationLoading animationLoading;
 
 
     public HomeFragment() {
@@ -77,6 +88,7 @@ public class HomeFragment extends Fragment {
         //Assign Id here
         idAssignMethod(view);
         viewFragment = view;
+        animationLoading = new AnimationLoading(getActivity());
 
         //location and Bluetooth check
         LocationUtil.requestLocationEnable(requireActivity());
@@ -98,57 +110,93 @@ public class HomeFragment extends Fragment {
     private void ImageListenersMethod() {
 
         //Weight Scale Listener
-        weighScaleImage.setOnClickListener(view -> {
-            bluetoothScanner = new BluetoothScanner(WEIGHT_SCALE_DEVICE_NAME, context);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    bluetoothScanner.startScan();
-                }
-            }).start();
-            //page intent
-            Intent intent = new Intent(context, DeviceInfoActivity.class);
-            intent.putExtra("DEVICE_NAME",WEIGHT_SCALE_DEVICE_NAME);
-            context.startActivity(intent);
+        if (!isDeviceInfoActivityRunning) {
+            weighScaleImage.setOnClickListener(view -> {
+                bluetoothScanner = new BluetoothScanner(WEIGHT_SCALE_DEVICE_NAME, context);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        bluetoothScanner.startScan();
+                    }
+                }).start();
+                //page intent
+                Intent intent = new Intent(context, DeviceInfoActivity.class);
+                intent.putExtra("DEVICE_NAME", WEIGHT_SCALE_DEVICE_NAME);
+                context.startActivity(intent);
 
-        });
-
-
+            });
+        }
 
         //BP Meter Listener
-        bpMeterImage.setOnClickListener(view -> {
-            bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
-            new Thread(() -> {
+        if (!isDeviceInfoActivityRunning) {
+            bpMeterImage.setOnClickListener(view -> {
+                bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
+                animationLoading.startLoadingDialogBlutoothScan();
                 startBackgroundScan();
-                if(deviceConnected) {
-                    bluetoothScanner.stopScan();
-                }
-            }).start();
-        });
-
-
+                new Thread(() -> {
+                    if (deviceConnected) {
+                        animationLoading.dismissLoadingDialog();
+                        bluetoothScanner.stopScan();
+                    }
+                }).start();
+            });
+        }
 
         //ECG meter Listener
-        ecgMeterImage.setOnClickListener(view -> {
-            startActivity(new Intent(requireContext(), DeviceInfoActivity.class));
-        });
-
-
+        if (!isDeviceInfoActivityRunning) {
+            ecgMeterImage.setOnClickListener(view -> {
+                bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME1, context);
+                animationLoading.startLoadingDialogBlutoothScan();
+                startBackgroundScan();
+                new Thread(() -> {
+                    if (deviceConnected) {
+                        animationLoading.dismissLoadingDialog();
+                        bluetoothScanner.stopScan();
+                    } else {
+                        // If the first device is not connected, try connecting to the second device
+                        bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME2, context);
+                        startBackgroundScan(); // Start scanning for the second device
+                        if (deviceConnected) {
+                            animationLoading.dismissLoadingDialog();
+                            bluetoothScanner.stopScan();
+                        }
+                    }
+                }).start();
+            });
+        }
 
         //Glucometer Listener
-        glucometerImage.setOnClickListener(view -> {
-            bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
-            new Thread(() -> {
+        if (!isDeviceInfoActivityRunning) {
+            glucometerImage.setOnClickListener(view -> {
+                bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
+                animationLoading.startLoadingDialogBlutoothScan();
                 startBackgroundScan();
-                if(deviceConnected) {
-                    bluetoothScanner.stopScan();
-                }
-            }).start();
-        });
+                new Thread(() -> {
+                    if (deviceConnected) {
+                        animationLoading.dismissLoadingDialog();
+                        bluetoothScanner.stopScan();
+                    } else {
+                        // If the first device is not connected, try connecting to the second device
+                        bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
+                        startBackgroundScan(); // Start scanning for the second device
+                        if (deviceConnected) {
+                            animationLoading.dismissLoadingDialog();
+                            bluetoothScanner.stopScan();
+                        }
+                    }
+                }).start();
+            });
+        }
+
+
     }
 
     private void startBackgroundScan() {
-        bluetoothScanner.startScan();
+        scanHandler.post(() -> {
+            if (bluetoothScanner != null) {
+                bluetoothScanner.startScan();
+            }
+        });
     }
 
     private void idAssignMethod(View view) {
@@ -172,6 +220,21 @@ public class HomeFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        animationLoading.dismissLoadingDialog();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: HomeFragment");
+        animationLoading.dismissLoadingDialog();
+        disconnectAllDevices();
+
     }
 
 

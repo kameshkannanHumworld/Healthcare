@@ -9,6 +9,12 @@ public class CurrentDateTime {
         return sdf.format(calendar.getTime());
     }
 
+    public static String getCurrentDateFullYear() {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        return sdf.format(calendar.getTime());
+    }
+
     public static String getCurrentTime() {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());

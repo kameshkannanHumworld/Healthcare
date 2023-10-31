@@ -5,6 +5,7 @@ import static android.app.Activity.RESULT_OK;
 import static androidx.core.app.ActivityCompat.recreate;
 
 
+import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
 import static com.example.healthcare.Permissions.BluetoothUtil.REQUEST_ENABLE_BLUETOOTH;
 import static com.example.healthcare.Permissions.LocationUtil.REQUEST_ENABLE_LOCATION;
 
@@ -55,6 +56,7 @@ import com.example.healthcare.Permissions.BluetoothUtil;
 import com.example.healthcare.Permissions.LocationUtil;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.healthcare.R;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -266,10 +268,12 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
                 @SuppressLint("MissingPermission")
                 @Override
                 public void onItemClick(ScanResult item) {
-                    BluetoothDevice device = item.getDevice();
-                    Log.w("ScanResultAdapter", "Connecting to " + device.getAddress());
-                     gatt = device.connectGatt(context, false, new MyBluetoothGattCallback(context));
-                    stopPeriodicScan();
+
+                        BluetoothDevice device = item.getDevice();
+                        Log.w("ScanResultAdapter", "Connecting to " + device.getAddress());
+                        gatt = device.connectGatt(context, false, new MyBluetoothGattCallback(context));
+                        stopPeriodicScan();
+
                 }
             });
         }

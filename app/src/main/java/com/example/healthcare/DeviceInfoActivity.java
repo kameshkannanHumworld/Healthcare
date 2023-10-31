@@ -1,9 +1,13 @@
 package com.example.healthcare;
 
 import static com.example.healthcare.BleDevices.BloodGlucometer.*;
+import static com.example.healthcare.BleDevices.ECGMeter.ECG_DEVICE_NAME1;
+import static com.example.healthcare.BleDevices.ECGMeter.ECG_DEVICE_NAME2;
+import static com.example.healthcare.BleDevices.ECGMeter.ecgDisconnectDeviceMethod;
 import static com.example.healthcare.BleDevices.UrionBp.*;
 import static com.example.healthcare.BleDevices.WeightScale.*;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
+import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnectAllDevices;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,64 +15,63 @@ import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
+import com.example.healthcare.BleDevices.ECGMeter;
+
+import java.util.Objects;
 
 
 public class DeviceInfoActivity extends AppCompatActivity {
+    public static boolean isDeviceInfoActivityRunning = false;
+    private static final String TAG = "TAGi";
+
     ImageView backButton;
-    Handler handler = new Handler();
-    Runnable runnable;
     String deviceName;
-    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer;
+    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter;
     TextView isConnectedTextView;
     TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, deviceInfoTextView, errorMessageTextView;
     TextView weightScaleReadings;
-    TextView bloodGlucometerReadings,bloodGlucometerReadingsDateTime;
+    TextView bloodGlucometerReadings, bloodGlucometerReadingsDateTime;
+    TextView ecgReadings;
 
 
-    private BackgroundTask backgroundTask;
+    private final Handler mHandler = new Handler();
 
-
-    private class BackgroundTask extends AsyncTask<Void, Void, Void> {
+    private final Runnable mRunnable = new Runnable() {
         @Override
-        protected Void doInBackground(Void... voids) {
-            while (true) {
-                if (isCancelled()) {
-                    break;
-                }
-                publishProgress(); // This will call onProgressUpdate()
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
+        public void run() {
+            // Update UI here
+            // This code will be executed every second
             refresh();
+            mHandler.postDelayed(this, 500); // Schedule the code to run again in 0.5 second
         }
-    }
+    };
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_info);
+        Log.d("TAGi", "onCreate ");
+
+        //prevent
+        if (isDeviceInfoActivityRunning) {
+            // Activity is already running, you can finish it or do something else.
+            finish();
+            return;
+        } else {
+            Log.d(TAG, "onCreate: else part");
+        }
+        isDeviceInfoActivityRunning = true;
+
 
         //Assign Id Here
         idAssignHere();
-
-        // Start background task
-        backgroundTask = new BackgroundTask();
-        backgroundTask.execute();
 
         //get device name
         deviceName = getIntent().getStringExtra("DEVICE_NAME");
@@ -89,8 +92,31 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 weightScaleRefresh();             //for Weight Scale
             } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
                 bloodGlucometerRefresh();             //for Blood Glucometer
+            } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
+                ecgMeterRefresh();             //for ECG meter
             }
+        } else {
+            Log.d(TAG, "refresh: Device name null");
+        }
+    }
 
+    @SuppressLint("SetTextI18n")
+    private void ecgMeterRefresh() {
+        linearLayoutUrionBp.setVisibility(View.GONE);
+        linearLayoutWeightScale.setVisibility(View.GONE);
+        linearLayoutBloodGlucometer.setVisibility(View.GONE);
+        linearLayoutEcgMeter.setVisibility(View.VISIBLE);
+
+        if (deviceConnected) {
+            isConnectedTextView.setText("Connected");
+            isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
+
+            //logic here
+
+
+        } else {
+            isConnectedTextView.setText("Not Connected");
+            isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
         }
     }
 
@@ -98,6 +124,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private void bloodGlucometerRefresh() {
         linearLayoutUrionBp.setVisibility(View.GONE);
         linearLayoutWeightScale.setVisibility(View.GONE);
+        linearLayoutEcgMeter.setVisibility(View.GONE);
         linearLayoutBloodGlucometer.setVisibility(View.VISIBLE);
 
         if (deviceConnected) {
@@ -119,6 +146,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void weightScaleRefresh() {
         linearLayoutUrionBp.setVisibility(View.GONE);
+        linearLayoutBloodGlucometer.setVisibility(View.GONE);
+        linearLayoutEcgMeter.setVisibility(View.GONE);
         linearLayoutWeightScale.setVisibility(View.VISIBLE);
 
         if (WEIGHT_SCALE_IS_CONNECTED) {
@@ -139,20 +168,28 @@ public class DeviceInfoActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void urionBpRefresh() {
         linearLayoutWeightScale.setVisibility(View.GONE);
+        linearLayoutBloodGlucometer.setVisibility(View.GONE);
+        linearLayoutEcgMeter.setVisibility(View.GONE);
+        linearLayoutUrionBp.setVisibility(View.VISIBLE);
+
+
         if (deviceConnected) {
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
 
             //logic
             deviceInfoTextView.setText(DEVICE_INFO_CLASS_SET_TEXT);
+
             if (URION_BP_DIASTOLIC_READINGS != null) {
                 diastolicReadingTextView.setText("Diastolic reading: " + URION_BP_DIASTOLIC_READINGS);
             }
+
             if (URION_BP_SYSTOLIC_READINGS != null && URION_BP_PULSE_READINGS != null) {
                 systolicReadingTextView.setText("Systolic reading: " + URION_BP_SYSTOLIC_READINGS);
                 pulseReadingTextView.setText("Pulse reading: " + URION_BP_PULSE_READINGS);
                 deviceInfoTextView.setVisibility(View.GONE);
             }
+
             if (URION_BP_DEVICE_ERROR_MESSAGES != null) {
                 errorMessageTextView.setVisibility(View.VISIBLE);
                 systolicReadingTextView.setVisibility(View.GONE);
@@ -186,33 +223,70 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutBloodGlucometer = findViewById(R.id.linearLayoutBloodGlucometer);
         bloodGlucometerReadings = findViewById(R.id.bloodGlucometerReadings);
         bloodGlucometerReadingsDateTime = findViewById(R.id.bloodGlucometerReadingsDateTime);
+        ecgReadings = findViewById(R.id.ecgReadings);
+        linearLayoutEcgMeter = findViewById(R.id.linearLayoutEcgMeter);
     }
 
     private void backButtonMethod() {
         backButton.setOnClickListener(v -> {
-            onBackPressed();
-            backgroundTask.cancel(true);
-            MyBluetoothGattCallback myBluetoothGattCallback = new MyBluetoothGattCallback(getApplicationContext());
-            myBluetoothGattCallback.disconnectDevice();
+            if (deviceName != null) {
+                if (deviceName.equals(URION_BP_DEVICE_NAME)) {
+                    urionBpDisconnectDeviceMethod();         //for Urion Bp
+                } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
+                    ecgDisconnectDeviceMethod();             //for ECG meter
+                } else {
+                    Log.d(TAG, "refresh: Other Device");
+                }
+
+            } else {
+                Log.d(TAG, "refresh: Device name null");
+            }
+
+            getOnBackPressedDispatcher().onBackPressed();
+
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mHandler.post(mRunnable); // Start the periodic updates when the activity is resumed
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mHandler.removeCallbacks(mRunnable); // Stop the periodic updates when the activity is paused
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("TAGi", "onStop");
+        isDeviceInfoActivityRunning = false;
+        if (deviceName != null) {
+            if (deviceName.equals(URION_BP_DEVICE_NAME)) {
+                urionBpDisconnectDeviceMethod();         //for Urion Bp
+            } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
+                ecgDisconnectDeviceMethod();             //for ECG meter
+            } else {
+                Log.d(TAG, "refresh: Other Device");
+            }
+
+        } else {
+            Log.d(TAG, "refresh: Device name null");
+        }
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        backgroundTask.cancel(true);
-        MyBluetoothGattCallback myBluetoothGattCallback = new MyBluetoothGattCallback(getApplicationContext());
-        myBluetoothGattCallback.disconnectDevice();
+        Log.d("TAGi", "onDestroy");
 
-    }
+        // Disconnect the device in onDestroy
+        disconnectAllDevices();
 
-    private void startAutoRefresh() {
-        handler.postDelayed(runnable, 1000);
-    }
 
-    private void stopAutoRefresh() {
-        handler.removeCallbacks(runnable);
     }
 
 

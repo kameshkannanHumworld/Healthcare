@@ -161,5 +161,16 @@ public class ConverterClass {
         return byteArray;
     }
 
+    public static List<String> reverseHexaDecimal(String hexString) {
+        if (hexString.length() % 2 != 0) {
+            hexString = "0" + hexString; // Add leading zero if length is odd
+        }
+
+        List<String> parts = new ArrayList<>();
+        parts.add(hexString.substring(0, hexString.length() / 2));
+        parts.add(hexString.substring(hexString.length() / 2));
+
+        return parts;
+    }
 
 }

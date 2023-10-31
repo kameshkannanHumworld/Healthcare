@@ -1,16 +1,23 @@
 package com.example.healthcare.BleDevices;
 
+import static com.example.healthcare.BleDevices.ECGMeter.ECG_INCREMENT_NUMBER;
+import static com.example.healthcare.BleDevices.ECGMeter.ECG_UUID_SERVICE;
+import static com.example.healthcare.BleDevices.ECGMeter.ECG_UUID_WRITE;
+import static com.example.healthcare.BluetoothModule.MyBluetoothGattCallback.ecgMeterDelayWriteMethod;
 import static com.example.healthcare.Converters.ConverterClass.convertDateToHex;
 import static com.example.healthcare.DatePicker.CurrentDateTime.*;
 
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 
 import com.example.healthcare.BleDevices.CRC.CRCUtil;
 import com.example.healthcare.Converters.ConverterClass;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class BloodGlucometer {
     public static String BLOOD_GLUCOMETER_DEVICE_NAME1 = "Vivaguard";
@@ -29,14 +36,11 @@ public class BloodGlucometer {
     public static byte[] BLOOD_GLUCOMETER_TIME_SET_BYTE_ARRAY;
 
 
-//    public static final String VIVA_UUID_SERVICE_1 = "0003cdd0-0000-1000-8000-00805f9b0131";
-//    public static final String VIVA_UUID_CHARACTERISTIC_1_NOTIFY = "0003cdd1-0000-1000-8000-00805f9b0131";
-//    public static final String VIVA_UUID_CHARACTERISTIC_1_READ_WRITE = "0003cdd2-0000-1000-8000-00805f9b0131";
-
     private static final String TAG = "TAGi";
 
 
-    public static void onCharacteristicChangedMethodBloodGlucometer(byte[] byteArray) {
+
+    public static void onCharacteristicChangedMethodBloodGlucometer(byte[] byteArray, BluetoothGatt gatt) {
         Log.w(TAG, "onCharacteristicChangedMethodBloodGlucometer: " + ConverterClass.byteToHexadecimal(byteArray, true));
         List<String> pairs = ConverterClass.getPairsFromHexString(byteArray);
 
@@ -54,9 +58,9 @@ public class BloodGlucometer {
                 if (protocoalCode.equalsIgnoreCase("12 66")) {
                     //ready for test
                     if (frameLength.equalsIgnoreCase("05")) {
-                        String lastTestResult_HexaDecimal;
                         String crcValue = pairs.get(14) + " " + pairs.get(15) + " " + pairs.get(16) + " " + pairs.get(17);
-                        lastTestResult_HexaDecimal = pairs.get(10) + "" + pairs.get(11);
+                        String lastTestResult_HexaDecimal_FirstBit = pairs.get(10) ;
+                        String lastTestResult_HexaDecimal_SecondBit = pairs.get(11);
 //                        Log.w(TAG, "BloodGlucometer Result Hexadecimal: " + lastTestResult_HexaDecimal);
 //                        Log.w(TAG, "BloodGlucometer CRC value: " + crcValue);
 
@@ -84,7 +88,7 @@ public class BloodGlucometer {
 
                         } else if (pairs.get(9).equals("44") && pairs.get(13).equals("00")) {
                             //fetch  result
-                            fetchLastTestResultMethod(lastTestResult_HexaDecimal);
+                            fetchLastTestResultMethod(lastTestResult_HexaDecimal_FirstBit,lastTestResult_HexaDecimal_SecondBit);
 
                         } else if (pairs.get(9).equals("55") && pairs.get(13).equals("02")) {
                             //Error
@@ -122,10 +126,15 @@ public class BloodGlucometer {
 
     }
 
-    private static void fetchLastTestResultMethod(String lastTestResultHexaDecimal) {
-        float lastTestResult_Decimal = ConverterClass.hexadecimalToDecimal(lastTestResultHexaDecimal);
-        Log.w(TAG, "lastTestResult_Decimal(mg/dL): " + lastTestResult_Decimal);
-        BLOOD_GLUCOMETER_RESULT = "Blood Glucometer Reading: "+lastTestResult_Decimal + "mg/dL";
+
+
+    public static void fetchLastTestResultMethod(String lastTestResultHexaDecimal_FirstBit, String lastTestResult_HexaDecimal_SecondBit) {
+        String lastTestResult_Decimal_FirstBit = String.valueOf(ConverterClass.hexadecimalToDecimal(lastTestResultHexaDecimal_FirstBit));
+        String lastTestResult_Decimal_SecondBit = String.valueOf(ConverterClass.hexadecimalToDecimal(lastTestResult_HexaDecimal_SecondBit));
+        String finalOutput = lastTestResult_Decimal_FirstBit + lastTestResult_Decimal_SecondBit;
+
+        Log.d(TAG, "lastTestResult_Decimal(mg/dL): " + finalOutput);
+        BLOOD_GLUCOMETER_RESULT = "Blood Glucometer Reading: "+finalOutput+ "mg/dL";
     }
 
     public static void setCurrentDateTimeInByteArray() {
@@ -203,6 +212,7 @@ public class BloodGlucometer {
 
         return combinedData.array();
     }
+
 
 
 }

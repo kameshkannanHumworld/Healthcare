@@ -39,6 +39,7 @@
             android:exported="false" />
         <activity
             android:name=".DeviceInfoActivity"
+            android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false" />
         <activity

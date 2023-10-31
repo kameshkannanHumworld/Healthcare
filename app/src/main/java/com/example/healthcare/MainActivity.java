@@ -38,9 +38,8 @@ public class MainActivity extends AppCompatActivity {
     private final String TAG = "TAGi";
     public static String TOKEN;
     TextInputEditText userNameInput, passwordInput;
-    private LottieAnimationView loadingAnimation;
-    private AnimationLoading animationLoading;
     TextInputLayout usernameTextInputLayout, passwordTextInputLayout;
+    private AnimationLoading animationLoading;
 
 
     @Override
@@ -64,22 +63,21 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Save the Username and Password using Shared Preference
     private void sharedPreferenceMethod() {
-
-        // Setting the fetched data in the EditTexts
         userNameInput.setText("test_supriyaa");
         passwordInput.setText("Humworld@1");
     }
 
+    //Validate the Username and Password field using TextWatcher
     private void inputValidationMethod() {
-        userNameInput.addTextChangedListener(new AlphanumericTextWatcher(userNameInput));
-        passwordInput.addTextChangedListener(new AlphanumericTextWatcher(passwordInput));
-        userNameInput.addTextChangedListener(new UsernameTextWatcher(userNameInput, usernameTextInputLayout));
-        passwordInput.addTextChangedListener(new PasswordTextWatcher(passwordInput, passwordTextInputLayout));
-
-
+        userNameInput.addTextChangedListener(new AlphanumericTextWatcher(userNameInput)); //validate username field
+        passwordInput.addTextChangedListener(new AlphanumericTextWatcher(passwordInput)); //validate Password field
+        userNameInput.addTextChangedListener(new UsernameTextWatcher(userNameInput, usernameTextInputLayout)); //validate username field
+        passwordInput.addTextChangedListener(new PasswordTextWatcher(passwordInput, passwordTextInputLayout)); //validate Password field
     }
 
+    //login Button Intent Here
     private void intentMethods() {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     usernameTextInputLayout.setError(null);
                     passwordTextInputLayout.setError(null);
                 }
+
                 //check is required or not
                 if (name.equals("")) {
                     usernameTextInputLayout.setError("*Required");
@@ -99,29 +98,32 @@ public class MainActivity extends AppCompatActivity {
                     passwordTextInputLayout.setError("*Required");
                 } else {
                     assert userNameInput != null;
-                    userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));
-                    passwordInput.addTextChangedListener(new ClearErrorTextWatcher(passwordTextInputLayout));
+                    userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));  //Clear the error
+                    passwordInput.addTextChangedListener(new ClearErrorTextWatcher(passwordTextInputLayout));  //Clear the error
 
                     //loading animation
-//                    animationLoading.show();
-//                    Handler handler = new Handler();
-//                    Runnable runnable = new Runnable() {
-//                        @Override
-//                        public void run() {
-//
-//                            animationLoading.cancel();
-//                        }
-//                    };
-//                    handler.postDelayed(runnable, 5000);
-                    //login credentials to database here
-//                            loginMethod(name, password);   //for mobdev base url
-                    loginMethodWeb(name, password);  // for web dev base url
+                    animationLoading.startLoadingDialogLoginActivity();
+                    Handler handler = new Handler();
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            //login credentials to database here
+                            //loginMethod(name, password);   //for mobdev base url
+                            loginMethodWeb(name, password);  // for web dev base url
+                        }
+                    };
+                    handler.postDelayed(runnable, 500);
+
                 }
             }
         });
 
     }
 
+    /*  Login Functionality for the Web Base Url
+            param1 - username
+            param2- Password
+    * */
     private void loginMethodWeb(String name, String password) {
         UserServiceWeb apiService = ApiClient.getWebClient().create(UserServiceWeb.class);
 
@@ -129,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         Log.e(TAG, "loginMethod: " + password);
         LoginRequest loginRequest = new LoginRequest(name, password);
 
+        //Retrofit Api call
         Call<LoginWebResponse> call = apiService.loginUser(name, password);
         call.enqueue(new Callback<LoginWebResponse>() {
             @Override
@@ -142,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                     if (Objects.equals(loginWebResponse.getStatus(), "success")) {
                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                         Toast.makeText(MainActivity.this, "Login Sucessfull", Toast.LENGTH_SHORT).show();
-
+                        animationLoading.dismissLoadingDialog();
 
                         TOKEN = loginWebResponse.getToken();
                         Log.d(TAG, "Login response token: " + TOKEN);
@@ -167,6 +170,8 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<LoginWebResponse> call, Throwable t) {
                 Log.e(TAG, "Throwable: " + t.getMessage());
                 Toast.makeText(MainActivity.this, "Login Failure", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                animationLoading.dismissLoadingDialog();
             }
         });
     }
@@ -227,17 +232,14 @@ public class MainActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.passwordInput);
         usernameTextInputLayout = findViewById(R.id.usernameTextInputLayout);
         passwordTextInputLayout = findViewById(R.id.passwordTextInputLayout);
-        loadingAnimation = findViewById(R.id.loadingAnimation);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        animationLoading.dismissLoadingDialog();
     }
 
 
 }
 
-
-//
-//        List<EnrolledProduct> enrolledProducts = loginResponse.getData().getEnrolledProducts();
-//        for (EnrolledProduct product : enrolledProducts) {
-//        Log.d(TAG, "Product Code: " + product.getProductCode());
-//        Log.d(TAG, "Product Description: " + product.getProductDescription());
-//        Log.d(TAG, "------------------------");
-//        }

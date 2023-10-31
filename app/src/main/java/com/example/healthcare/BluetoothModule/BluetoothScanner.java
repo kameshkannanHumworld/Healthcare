@@ -3,12 +3,14 @@ package com.example.healthcare.BluetoothModule;
 import static com.example.healthcare.BleDevices.BloodGlucometer.*;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.weightScaleReadingsMethod;
+import static com.example.healthcare.Fragments.HomeFragment.connectedGatts;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
@@ -33,7 +35,8 @@ public class BluetoothScanner {
     private static final String TAG = "TAGi";
     private BluetoothLeScanner bluetoothLeScanner;
     private BluetoothAdapter bluetoothAdapter;
-    public static BluetoothDevice urionBpDevice, bloodGlucometer;
+    BluetoothGatt gatt;
+    public static BluetoothDevice urionBpDevice, bloodGlucometer,ecgMeter;
     public static boolean deviceConnected = false;
 
     String DEVICE_NAME_SCAN;
@@ -62,7 +65,7 @@ public class BluetoothScanner {
 
         bluetoothLeScanner.startScan(scanCallback);
         // Stop scan after a certain period of time (15 seconds)
-        handler.postDelayed(this::stopScan, 15000);
+        handler.postDelayed(this::stopScan, 10000);
 
     }
 
@@ -72,12 +75,12 @@ public class BluetoothScanner {
         if (bluetoothLeScanner != null) {
 
             bluetoothLeScanner.stopScan(scanCallback);
-            if ((activity.getCurrentFocus()) != null) {
-                Snackbar.make((activity.getCurrentFocus()), "Device Not Found", Snackbar.LENGTH_SHORT)
-                        .setAction("Retry", view -> startScan())
-                        .show();
-
-            }
+//            if ((activity.getCurrentFocus()) != null) {
+//                Snackbar.make((activity.getCurrentFocus()), "Device Not Found", Snackbar.LENGTH_SHORT)
+//                        .setAction("Retry", view -> startScan())
+//                        .show();
+//
+//            }
         }
     }
 
@@ -128,6 +131,15 @@ public class BluetoothScanner {
                 }
             }
 
+            //ECG meter
+            if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+                Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
+                ecgMeter = result.getDevice(); // Store the device for future connection
+                if (!deviceConnected) {
+                    connectToDevice(activity);
+                }
+            }
+
 
         }
 
@@ -135,10 +147,12 @@ public class BluetoothScanner {
         private void connectToDevice(Activity activity) {
             //urion Bp
             if (urionBpDevice != null) {
-                if (urionBpDevice.connectGatt(context, false, new MyBluetoothGattCallback(context)) != null) {
+                gatt = urionBpDevice.connectGatt(context, false, new MyBluetoothGattCallback(context));
+                if (gatt != null) {
                     stopScan();
                     deviceConnected = true;
                     Log.i(TAG, "Connecting to device: " + urionBpDevice.getName());
+                    connectedGatts.add(gatt);
                 } else {
                     Log.e(TAG, "Failed to connect to device: " + urionBpDevice.getName());
                 }
@@ -146,12 +160,28 @@ public class BluetoothScanner {
 
             //Blood Glucometer
             else if (bloodGlucometer != null) {
-                if (bloodGlucometer.connectGatt(context, false, new MyBluetoothGattCallback(context)) != null) {
+                gatt = bloodGlucometer.connectGatt(context, false, new MyBluetoothGattCallback(context));
+                if (gatt != null) {
                     stopScan();
                     deviceConnected = true;
                     Log.i(TAG, "Connecting to device: " + bloodGlucometer.getName());
+                    connectedGatts.add(gatt);
                 } else {
                     Log.e(TAG, "Failed to connect to device: " + bloodGlucometer.getName());
+                }
+            }
+
+
+            //ECG meter
+            else if (ecgMeter != null) {
+                gatt = ecgMeter.connectGatt(context, false, new MyBluetoothGattCallback(context));
+                if (gatt != null) {
+                    stopScan();
+                    deviceConnected = true;
+                    Log.i(TAG, "Connecting to device: " + ecgMeter.getName());
+                    connectedGatts.add(gatt);
+                } else {
+                    Log.e(TAG, "Failed to connect to device: " + ecgMeter.getName());
                 }
             }
         }
@@ -161,4 +191,17 @@ public class BluetoothScanner {
             Log.e("ScanCallback", "onScanFailed: code " + errorCode);
         }
     };
+
+    @SuppressLint("MissingPermission")
+    public static void disconnectAllDevices() {
+        for (BluetoothGatt gatt : connectedGatts) {
+            if (gatt != null) {
+                gatt.disconnect();
+                gatt.close();
+                deviceConnected = false;
+            }
+        }
+        connectedGatts.clear(); // Clear the list after disconnection
+    }
+
 }
