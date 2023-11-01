@@ -33,11 +33,13 @@ public class WeightScale {
         return kg * 0.157473;
     }
 
-
-
+    /*
+        get the weight scale readings here
+            params1 - scanresult from BLE advertiser in scancallback class
+            params2 - context
+    */
     public static void weightScaleReadingsMethod(ScanResult result, Context context) {
         String weightScaleByteArray = ConverterClass.byteToHexadecimal(Objects.requireNonNull(result.getScanRecord()).getBytes(), false);
-//        Log.d(TAG, "weightScaleByteArray: " + weightScaleByteArray);
         String uniqueId = weightScaleByteArray.substring(8, 24);
         String macAddress = weightScaleByteArray.substring(24, 36);
         String constant = weightScaleByteArray.substring(36, 38);
@@ -45,6 +47,7 @@ public class WeightScale {
 
 
         if (uniqueId.equals(WEIGHT_SCALE_UNIQUE_ID) && macAddress.equals(WEIGHT_SCALE_MAC_ADDRESS)) {
+
             //device discovered
             Log.d(TAG, "Weight Scale Device discovered ");
 
@@ -55,7 +58,7 @@ public class WeightScale {
             //Assign Values
             WEIGHT_SCALE_READING = decimalReading / 10; // in kg
 
-
+            //Condition to checking the constant reading value
             if (constant.equals(WEIGHT_SCALE_CONSTANT_VALUE1) || constant.equals(WEIGHT_SCALE_CONSTANT_VALUE2)) {
 
                 //Assign Values

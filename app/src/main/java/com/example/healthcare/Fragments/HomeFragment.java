@@ -191,6 +191,7 @@ public class HomeFragment extends Fragment {
 
     }
 
+    //Background Bluetooth scan start
     private void startBackgroundScan() {
         scanHandler.post(() -> {
             if (bluetoothScanner != null) {
@@ -199,6 +200,7 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    //Assign ID for the UI here
     private void idAssignMethod(View view) {
         weighScaleImage = view.findViewById(R.id.weighScaleImage);
         glucometerImage = view.findViewById(R.id.glucometerImage);
@@ -206,7 +208,7 @@ public class HomeFragment extends Fragment {
         ecgMeterImage = view.findViewById(R.id.ecgMeterImage);
     }
 
-
+    //floating Action Button Method
     private void floatingActionButtonMethod(View view) {
         FloatingActionButton fab = view.findViewById(R.id.fabHomeFragment);
         fab.setOnClickListener(v -> {

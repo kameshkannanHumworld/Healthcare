@@ -39,7 +39,7 @@ public class BloodGlucometer {
     private static final String TAG = "TAGi";
 
 
-
+    //on characteristics change method
     public static void onCharacteristicChangedMethodBloodGlucometer(byte[] byteArray, BluetoothGatt gatt) {
         Log.w(TAG, "onCharacteristicChangedMethodBloodGlucometer: " + ConverterClass.byteToHexadecimal(byteArray, true));
         List<String> pairs = ConverterClass.getPairsFromHexString(byteArray);
@@ -56,14 +56,12 @@ public class BloodGlucometer {
 
                 //check device ready for test by protocoal code
                 if (protocoalCode.equalsIgnoreCase("12 66")) {
+
                     //ready for test
                     if (frameLength.equalsIgnoreCase("05")) {
                         String crcValue = pairs.get(14) + " " + pairs.get(15) + " " + pairs.get(16) + " " + pairs.get(17);
                         String lastTestResult_HexaDecimal_FirstBit = pairs.get(10) ;
                         String lastTestResult_HexaDecimal_SecondBit = pairs.get(11);
-//                        Log.w(TAG, "BloodGlucometer Result Hexadecimal: " + lastTestResult_HexaDecimal);
-//                        Log.w(TAG, "BloodGlucometer CRC value: " + crcValue);
-
 
                         //check for last test result
                         if (pairs.get(9).equals("10")) {
@@ -82,7 +80,7 @@ public class BloodGlucometer {
                             BLOOD_GLUCOMETER_RESULT = "please Insert the Blood in the Strip..";
 
                         } else if (pairs.get(9).equals("33") && pairs.get(13).equals("00")) {
-                            //Blood in
+                            //calculate result
                             Log.w(TAG, "please wait..");
                             BLOOD_GLUCOMETER_RESULT = "please wait..";
 
@@ -127,7 +125,7 @@ public class BloodGlucometer {
     }
 
 
-
+    //get result value here
     public static void fetchLastTestResultMethod(String lastTestResultHexaDecimal_FirstBit, String lastTestResult_HexaDecimal_SecondBit) {
         String lastTestResult_Decimal_FirstBit = String.valueOf(ConverterClass.hexadecimalToDecimal(lastTestResultHexaDecimal_FirstBit));
         String lastTestResult_Decimal_SecondBit = String.valueOf(ConverterClass.hexadecimalToDecimal(lastTestResult_HexaDecimal_SecondBit));
@@ -137,6 +135,8 @@ public class BloodGlucometer {
         BLOOD_GLUCOMETER_RESULT = "Blood Glucometer Reading: "+finalOutput+ "mg/dL";
     }
 
+
+    //set dynamic datetime in byte array
     public static void setCurrentDateTimeInByteArray() {
 
         String hexDateTime = convertDateToHex(getCurrentDate(), getCurrentTime());
@@ -171,6 +171,8 @@ public class BloodGlucometer {
         Log.d(TAG, "setCurrentDateTimeInByteArray: " + ConverterClass.byteToHexadecimal(BLOOD_GLUCOMETER_TIME_SET_BYTE_ARRAY, true));
     }
 
+
+    //set CRC for the byte array
     private static byte[] setCrcTimeDateMethod(byte[] address, byte[] protocolCode, byte[] frameLength, byte[] dateTime) {
         int length = address.length + protocolCode.length + frameLength.length + dateTime.length;
         ByteBuffer combinedData = ByteBuffer.allocate(length);

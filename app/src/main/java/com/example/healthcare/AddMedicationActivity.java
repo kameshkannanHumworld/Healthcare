@@ -126,26 +126,34 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         }
     }
 
-
+    //Method for frequency dropdown
     private void textInputLayoutDropdownMethod() {
-        // Assuming you have the Retrofit instance set up
-
+        // Retrofit instance set up
         MedicationFrequencyService service = ApiClient.getWebClient().create(MedicationFrequencyService.class);
+
+        /*
+            Below code for Retrofit Call
+                Params1 - X-Auth_Token
+                parms2 - login User Id value from TOKEN, which was decoded from JWT Decoder(Here hardcode)
+        */
         Call<MedicationFrequencyResponse> call = service.getMedicationFrequencies(TOKEN, ID_DROPDOWN);
         call.enqueue(new Callback<MedicationFrequencyResponse>() {
             @Override
             public void onResponse(Call<MedicationFrequencyResponse> call, Response<MedicationFrequencyResponse> response) {
                 if (response.isSuccessful()) {
 
+                    //Use Map (frequency value, freq code)
                     Map<String, MedicationFrequency> data = response.body().getData();
-
                     Log.d(TAG, "textInputLayoutDropdownMethod: " + data);
-                    List<String> frequencyDescriptions = new ArrayList<>();
 
+                    //save the frequency descriptions here
+                    List<String> frequencyDescriptions = new ArrayList<>();
                     for (MedicationFrequency frequency : data.values()) {
+                        //loop to print the descriptions and save in the above List
                         frequencyDescriptions.add(frequency.getDescription());
                     }
 
+                    //Set DropDown Layout
                     arrayAdapterSpinner = new ArrayAdapter<>(getApplicationContext(), R.layout.dropdown, frequencyDescriptions);
                     medicineFrequencyInput.setAdapter(arrayAdapterSpinner);
 
@@ -153,7 +161,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 //                    int defaultSelectionIndex = 0; // Change this to the index of the default item
 //                    medicineFrequencyInput.setText(arrayAdapterSpinner.getItem(defaultSelectionIndex), false);
 
-                    // Set item click listener
+                    // Set dropdown item click listener
                     medicineFrequencyInput.setOnItemClickListener((adapterView, view, i, l) -> {
                         String selectedDescription = adapterView.getItemAtPosition(i).toString();
                         for (Map.Entry<String, MedicationFrequency> entry : data.entrySet()) {
@@ -169,7 +177,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
             @Override
             public void onFailure(Call<MedicationFrequencyResponse> call, Throwable t) {
-                // Handle failure
+                // Handle API call failure
                 Toast.makeText(getApplicationContext(), "Please try again", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "textInputLayoutDropdownMethod: " + t.getLocalizedMessage());
             }
@@ -177,18 +185,28 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
     }
 
+
+    //Method for Date and time to Save
     private void collectDateToSaveMethod() {
+
         //recorded date and time
         recordDateTimeInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Date picker Dialog Fragment
                 DatePickerDialog mDatePickerDialogFragment = new DatePickerDialog();
                 mDatePickerDialogFragment.show(getSupportFragmentManager(), "DATE PICK");
+
+                /*
+                  Below method Trigger the Time picker Dialog
+                  Params1 - textInputEditText (for setText property)
+                */
                 popTimePicker(recordDateTimeInput);
             }
         });
         recordDateTimeInput.setLongClickable(false);
         recordDateTimeInput.setTextIsSelectable(false);
+
 
         //end date and time
         endDateTimeInput.setOnClickListener(new View.OnClickListener() {
@@ -196,6 +214,11 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
             public void onClick(View view) {
                 DatePickerDialog mDatePickerDialogFragment = new DatePickerDialog();
                 mDatePickerDialogFragment.show(getSupportFragmentManager(), "DATE PICK");
+
+                /*
+                  Below method Trigger the Time picker Dialog
+                  Params1 - textInputEditText (for setText property)
+                */
                 popTimePicker(endDateTimeInput);
             }
         });
@@ -203,25 +226,36 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         endDateTimeInput.setTextIsSelectable(false);
     }
 
+
+    //Method for Medicine Search
     private void apiMedicineAutocompleteMethod(String medName) {
-        // Assuming you have already created and configured Retrofit
+        // Retrofit setup
         MedicineNameApiService medicineNameApiService = ApiClient.getWebClient().create(MedicineNameApiService.class);
 
+        /*
+            parms1 - X-Auth-Token
+            params2 - medicineName(type search by autocomplete field)
+            params3 - Y/N (Here hardCode) default "Y"
+        */
         Call<MedicineNameApiResponse> call = medicineNameApiService.searchMedicine(
                 TOKEN,
                 String.valueOf(medName),
                 "Y"
         );
 
+        //Retrofit call
         call.enqueue(new Callback<MedicineNameApiResponse>() {
             @Override
             public void onResponse(Call<MedicineNameApiResponse> call, Response<MedicineNameApiResponse> response) {
                 if (response.isSuccessful()) {
+
+                    //list to save medicines
+                    assert response.body() != null;
                     List<Medicine> medicines = response.body().getData().getOthers();
+
+                    // List to save medicine names only
                     List<String> medicineNames = new ArrayList<>();
-
                     for (Medicine medicine : medicines) {
-
                         String medicineName = medicine.getNonProprietaryNameWithDosage();
 //                        Log.d(TAG, "medicineName: " + medicineName);
                         if (medicineName != null && !medicineName.isEmpty()) {
@@ -229,15 +263,17 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                         }
                     }
 
+                    //Set dropdown Layout
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, medicineNames);
                     medicineNameInput.setAdapter(adapter);
 
+                    //Set dropdown item click Listener
                     medicineNameInput.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             Medicine selectedMedicine = medicines.get(position);
 
-                            // Assuming you have to set these values in your backend
+                            //  get these values from PojoClass and set to String
                             proprietaryNameWithDosage = selectedMedicine.getProprietaryNameWithDosage();
                             nonProprietaryNameWithDosage = selectedMedicine.getNonProprietaryNameWithDosage();
                             mediProprietaryName = selectedMedicine.getMediProprietaryName();
@@ -250,7 +286,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
             @Override
             public void onFailure(Call<MedicineNameApiResponse> call, Throwable t) {
-                // Handle failure
+                // Handle Retrofit call failure
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
             }
         });
@@ -258,30 +294,29 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
     }
 
+
     private void AutocompleteMedicineMethod() {
         // Set up a TextWatcher
         medicineNameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Not used in this case, but required to implement TextWatcher
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Call your API method here
-
             }
-
 
             @Override
             public void afterTextChanged(Editable s) {
-                // Not used in this case, but required to implement TextWatcher
+                // after changed and call the autocomplete method here
                 apiMedicineAutocompleteMethod(s.toString());
                 Log.d(TAG, "afterTextChanged: " + s);
             }
         });
     }
 
+
+    // Assign ID for the UI here
     private void idAssignHere() {
         submitButton = findViewById(R.id.submitButton);
         addMedicineBackButton = findViewById(R.id.addMedicineBackButton);
@@ -295,10 +330,13 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         textInputLayout3 = findViewById(R.id.textInputLayout3);
     }
 
+    //Submit Button Method
     private void submitButtonIntentMethod() {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //get Values for save
                 String medName = Objects.requireNonNull(medicineNameInput.getText()).toString().trim();
                 Integer quantity = null;
                 String quantityString = Objects.requireNonNull(medicineQuantityInput.getText()).toString();
@@ -307,8 +345,6 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                 }
                 String endDate = mDateInput;
                 String notes = Objects.requireNonNull(notesInput.getText()).toString().trim();
-
-                //textwatcher
 
 
                 //submit validation
@@ -336,7 +372,11 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
             }
 
+
+            //Method to Validate the medication here
             private void medicationValidationMethod() {
+
+                //RetroFit Setup
                 ValidationApiService validationApiService = ApiClient.getWebClient().create(ValidationApiService.class);
 
                 ValidationApiRequest validationApiRequest = new ValidationApiRequest();
@@ -357,7 +397,10 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                 Log.d(TAG, "end date and time: " + Objects.requireNonNull(endDateTimeInput.getText()).toString());
                 Log.d(TAG, "Notes: " + Objects.requireNonNull(notesInput.getText()).toString());
 
-
+                /* Below code for Retrofit call
+                       params1 - X-Auth-Token
+                       params2 - ValidationApiRequest
+                */
                 Call<ResponseBody> call = validationApiService.sendDatatoValidation(TOKEN, validationApiRequest);
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
@@ -368,6 +411,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                                 String responseBodyString = responseBody.string();
                                 Log.d(TAG, "Response Body: " + responseBodyString);
                                 Log.d(TAG, "Response Code: " + response.code());
+
                                 // Display responseBodyString in a Snackbar
                                 if (responseBodyString.equals("true")) {
                                     //Medications Save Api Method
@@ -386,6 +430,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
                     @Override
                     public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        //Handle Retrofit Call Failure
                         Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
                     }
                 });
@@ -395,7 +440,11 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         });
     }
 
+
+    //Method to Save Medications in API
     private void medicationsSaveApiMethod() {
+
+        //Retrofit Setup
         SaveApiService saveApiService = ApiClient.getWebClient().create(SaveApiService.class);
         String notes = Objects.requireNonNull(notesInput.getText()).toString().trim();
         String quantityText = Objects.requireNonNull(medicineQuantityInput.getText()).toString();
@@ -424,6 +473,11 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         saveApiRequest.setCareplanLogMessageUserInput("A new medication " + medicineNameInput.getText().toString() + " has been added");
         saveApiRequest.setCareplanLogMessage("An existing medication " + medicineNameInput.getText().toString() + " has been added");
 
+
+        /*  Retrofit Call
+                Params1 - X-Auth-Token
+                params2 - saveApiRequest
+        */
         Call<SaveApiResponse> call = saveApiService.sendDatatoDatabase(TOKEN, saveApiRequest);
         call.enqueue(new Callback<SaveApiResponse>() {
             @Override
@@ -450,12 +504,16 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         });
     }
 
+
+    //Back Button Listener
     private void backButtonListener() {
         addMedicineBackButton.setOnClickListener(view -> onBackPressed());
-
     }
 
-
+    /*
+        Override method for set the Date
+        this override method Called By implements android.app.DatePickerDialog.OnDateSetListener
+    */
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         Calendar mCalendar = Calendar.getInstance();
@@ -472,11 +530,18 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 //        popTimePicker();
     }
 
-    private void popTimePicker(TextInputEditText textInputEditText) {
-        final Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
 
+    //this method for TimePickerDialog
+    private void popTimePicker(TextInputEditText textInputEditText) {
+        final Calendar calendar = Calendar.getInstance();   //get calender
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);      //get Hour
+        int minute = calendar.get(Calendar.MINUTE);         //get minute
+
+        /*  Below code will trigger TimePickerDialog Fragment
+            TimePickerDialog Constructor:
+                Params1 - context
+                params2 - onclickListener
+        */
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {

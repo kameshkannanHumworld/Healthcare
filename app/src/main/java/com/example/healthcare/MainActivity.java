@@ -11,10 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.example.healthcare.Animation.AnimationLoading;
 import com.example.healthcare.ApiClass.ApiClient;
-import com.example.healthcare.LoginModule.LoginRequest;
 import com.example.healthcare.LoginModule.LoginResponse;
 import com.example.healthcare.LoginModule.LoginWebResponse;
 import com.example.healthcare.LoginModule.UserService;
@@ -129,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
 
         Log.e(TAG, "loginMethod: " + name);
         Log.e(TAG, "loginMethod: " + password);
-        LoginRequest loginRequest = new LoginRequest(name, password);
 
         //Retrofit Api call
         Call<LoginWebResponse> call = apiService.loginUser(name, password);
@@ -141,10 +138,12 @@ public class MainActivity extends AppCompatActivity {
                     LoginWebResponse loginWebResponse = response.body();
                     Log.d(TAG, "Response: " + response.body().toString());
 
-
+                    //if Sucess message from Api, then it Intent to next Activity
                     if (Objects.equals(loginWebResponse.getStatus(), "success")) {
                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                         Toast.makeText(MainActivity.this, "Login Sucessfull", Toast.LENGTH_SHORT).show();
+
+                        //Disable the Loader
                         animationLoading.dismissLoadingDialog();
 
                         TOKEN = loginWebResponse.getToken();
@@ -152,15 +151,25 @@ public class MainActivity extends AppCompatActivity {
 
 
                     } else {
-                        // Handle unsuccessful login
+                        // Handle unsuccessful login (Bad Request)
                         Log.e(TAG, "Error Response: " + response.code());
+
+                        //Disable the Loader
+                        animationLoading.dismissLoadingDialog();
+
                         usernameTextInputLayout.setError("Invalid Credentials");
                         Toast.makeText(getApplicationContext(), "Invalid Credentials", Toast.LENGTH_SHORT).show();
                     }
 
 
                 } else {
+                    //handle other unsucessfull login (Build)
                     Toast.makeText(MainActivity.this, "Response Unsucessfull", Toast.LENGTH_SHORT).show();
+
+                    //Disable the Loader
+                    animationLoading.dismissLoadingDialog();
+
+
                     startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                     Log.d(TAG, "onResponse: " + response.code());
                 }
@@ -168,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<LoginWebResponse> call, Throwable t) {
+                //Handle API doesn't call
                 Log.e(TAG, "Throwable: " + t.getMessage());
                 Toast.makeText(MainActivity.this, "Login Failure", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), HomeActivity.class));
@@ -183,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
         // Create a LoginRequest object with your credentials
         Log.e(TAG, "loginMethod: " + name);
         Log.e(TAG, "loginMethod: " + password);
-        LoginRequest loginRequest = new LoginRequest(name, password);
 
         // Make the network request
         Call<LoginResponse> call = apiService.loginUser(name, password);
@@ -226,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //Assign Id for the UI here
     private void idAssignMethod() {
         loginButton = findViewById(R.id.loginButton);
         userNameInput = findViewById(R.id.userNameInput);

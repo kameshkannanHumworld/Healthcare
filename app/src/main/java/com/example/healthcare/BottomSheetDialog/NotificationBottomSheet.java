@@ -84,6 +84,7 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
         return view;
     }
 
+    //clear the remainder
     private void clearAlarmsMethod() {
         clearAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +123,7 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
         });
     }
 
+    //unique id for each remainder
     private void setTagForAlarmButtonMethod() {
         alarmButton1.setTag(1);
         alarmButton2.setTag(2);
@@ -129,9 +131,11 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
         alarmButton4.setTag(4);
     }
 
+
+    //method for remainder
     private void alarmAndNotificationMethod() {
 
-        //// Check if the permission is granted
+        // Check if the permission is granted
         if (!Settings.canDrawOverlays(requireContext())) {
             // If not, request it
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().getPackageName()));
@@ -216,7 +220,7 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
     }
 
 
-
+    // time picker dialog
     private void showTimePicker(Button alarmButton) {
         picker = new MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_12H)
@@ -226,7 +230,7 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
                 .build();
         picker.show(getChildFragmentManager(), "Healthcare");
 
-
+        //time picker positive button
         picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -280,6 +284,7 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
 
     }
 
+    //create push notificaiton channel
     private void createNotificaationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Healthcare";
@@ -295,6 +300,8 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
+
+    //sharedPreferences to save the remainder enable or not / remainder time
     @SuppressLint("UseCompatLoadingForDrawables")
     private void sharedPreferencesRemainderMethod() {
 
@@ -378,7 +385,7 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
 
     }
 
-
+    //Assign ID for the UI here
     private void idAssigningMethod(View view) {
         sharedPreferences = requireContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         cancelButton = view.findViewById(R.id.cancelButton);
@@ -393,6 +400,8 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
 
     }
 
+
+    //method to enable the remainder
     private void enableAlarms() {
         for (int i = 1; i <= 4; i++) {
             int alarmHour = sharedPreferences.getInt("alarm_hour_" + medicationId + "_" + i, -1);
@@ -403,12 +412,15 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
+
+    //method to disable the remainder
     private void disableAlarms() {
         for (int i = 1; i <= 4; i++) {
             cancelAlarm(medicationId * 10 + i);
         }
     }
 
+    //method to cancel the remainder
     private void cancelAlarm(int requestCode) {
         Intent intent = new Intent(requireContext(), AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
@@ -420,7 +432,7 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
         alarmManager.cancel(pendingIntent);
     }
 
-
+    //send data to set  remainder to AlarmReceiver.class
     private void setAlarm(int medicationId, int alarmNumber, int hour, int minute) {
         int requestCode = medicationId * 100 + alarmNumber;
         Intent intent = new Intent(requireContext(), AlarmReceiver.class);

@@ -23,16 +23,24 @@ public class BluetoothUtil {
 
     private static final int BLUETOOTH_CONNECT_REQUEST_CODE = 1001;
 
+
+    //Check Bluetooth is not null and Enabled
     public static boolean isBluetoothEnabled() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         return bluetoothAdapter != null && bluetoothAdapter.isEnabled();
     }
 
+
+    /*
+        request to Enable Bluetooth
+            params1 - Activity
+            params2 - Context
+    */
     public static void requestBluetoothEnable(Activity activity, Context context) {
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
+
+        if (isBluetoothEnabled()) {
             Log.d(TAG, "requestBluetoothEnable: BluetoothUtil");
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //Intent for Request enable
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 requestBluetoothConnectPermission(activity);
             }
@@ -49,16 +57,31 @@ public class BluetoothUtil {
         builder.show();
     }
 
+
+    /*
+        Method to check BLUETOOTH_CONNECT permission granted or not
+            params1 - Activity
+    */
     @RequiresApi(api = Build.VERSION_CODES.S)
     public static boolean isBluetoothConnectPermissionGranted(Activity activity) {
         return ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
     }
 
+
+    /*
+        Method to check BLUETOOTH_SCAN permission granted or not
+            params1 - Activity
+    */
     public static boolean isBluetoothScanPermissionGranted(Activity activity) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                 ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED;
     }
 
+
+    /*
+        Method to request BLUETOOTH_SCAN permission
+            params1 - Activity
+    */
     public static void requestBluetoothConnectPermission(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!isBluetoothConnectPermissionGranted(activity)) {
@@ -67,6 +90,11 @@ public class BluetoothUtil {
         }
     }
 
+
+    /*
+        Method to request BLUETOOTH_SCAN permission
+            params1 - Activity
+    */
     public static void requestBluetoothScanPermission(Activity activity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !isBluetoothScanPermissionGranted(activity)) {
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.BLUETOOTH_SCAN}, BLUETOOTH_SCAN_PERMISSION_REQUEST_CODE);

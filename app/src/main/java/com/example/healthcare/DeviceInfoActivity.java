@@ -46,9 +46,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
         @Override
         public void run() {
             // Update UI here
-            // This code will be executed every second
+            // This code will be executed every 0.5 second
             refresh();
-            mHandler.postDelayed(this, 500); // Schedule the code to run again in 0.5 second
+            mHandler.postDelayed(this, 500);
         }
     };
 
@@ -73,7 +73,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         //Assign Id Here
         idAssignHere();
 
-        //get device name
+        //get device name from Intent
         deviceName = getIntent().getStringExtra("DEVICE_NAME");
         deviceNameTextView.setText(deviceName);
 
@@ -229,6 +229,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
     private void backButtonMethod() {
         backButton.setOnClickListener(v -> {
+
+            //below logic to turn off the BLE device
             if (deviceName != null) {
                 if (deviceName.equals(URION_BP_DEVICE_NAME)) {
                     urionBpDisconnectDeviceMethod();         //for Urion Bp
@@ -242,7 +244,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 Log.d(TAG, "refresh: Device name null");
             }
 
-            getOnBackPressedDispatcher().onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed(); //back button
 
         });
     }
@@ -264,6 +266,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
         super.onStop();
         Log.d("TAGi", "onStop");
         isDeviceInfoActivityRunning = false;
+
+        //below logic to turn off the BLE device
         if (deviceName != null) {
             if (deviceName.equals(URION_BP_DEVICE_NAME)) {
                 urionBpDisconnectDeviceMethod();         //for Urion Bp

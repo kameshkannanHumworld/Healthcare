@@ -45,6 +45,11 @@ public class BluetoothScanner {
     int indexQuery;
     private Handler handler = new Handler(Looper.getMainLooper());
 
+
+    /*    Constructor
+            params1 - devicename(String)
+            params2 - context
+    */
     public BluetoothScanner(String deviceName, Context context) {
         this.DEVICE_NAME_SCAN = deviceName;
         this.context = context;
@@ -55,6 +60,8 @@ public class BluetoothScanner {
         }
     }
 
+
+    //Start scan
     @SuppressLint("MissingPermission")
     public void startScan() {
 
@@ -69,6 +76,8 @@ public class BluetoothScanner {
 
     }
 
+
+    //strop scan
     @SuppressLint("MissingPermission")
     public void stopScan() {
         Activity activity = (Activity) context;
@@ -84,6 +93,8 @@ public class BluetoothScanner {
         }
     }
 
+
+    //scan result / handle scan failure -other functionalities
     private ScanCallback scanCallback = new ScanCallback() {
 
         @Override
@@ -143,6 +154,8 @@ public class BluetoothScanner {
 
         }
 
+
+        //connected to the Device
         @SuppressLint("MissingPermission")
         private void connectToDevice(Activity activity) {
             //urion Bp
@@ -152,7 +165,7 @@ public class BluetoothScanner {
                     stopScan();
                     deviceConnected = true;
                     Log.i(TAG, "Connecting to device: " + urionBpDevice.getName());
-                    connectedGatts.add(gatt);
+                    connectedGatts.add(gatt); // for disconnect the device, you need to add the device in tha list
                 } else {
                     Log.e(TAG, "Failed to connect to device: " + urionBpDevice.getName());
                 }
@@ -165,7 +178,7 @@ public class BluetoothScanner {
                     stopScan();
                     deviceConnected = true;
                     Log.i(TAG, "Connecting to device: " + bloodGlucometer.getName());
-                    connectedGatts.add(gatt);
+                    connectedGatts.add(gatt);  // for disconnect the device, you need to add the device in tha list
                 } else {
                     Log.e(TAG, "Failed to connect to device: " + bloodGlucometer.getName());
                 }
@@ -179,10 +192,15 @@ public class BluetoothScanner {
                     stopScan();
                     deviceConnected = true;
                     Log.i(TAG, "Connecting to device: " + ecgMeter.getName());
-                    connectedGatts.add(gatt);
+                    connectedGatts.add(gatt);  // for disconnect the device, you need to add the device in tha list
                 } else {
                     Log.e(TAG, "Failed to connect to device: " + ecgMeter.getName());
                 }
+            }
+
+            //other device
+            else {
+                Log.d(TAG, "connectToDevice: Other devices");
             }
         }
 
@@ -192,6 +210,8 @@ public class BluetoothScanner {
         }
     };
 
+
+    //Disconnect the device
     @SuppressLint("MissingPermission")
     public static void disconnectAllDevices() {
         for (BluetoothGatt gatt : connectedGatts) {

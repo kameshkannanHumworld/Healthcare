@@ -66,7 +66,7 @@ public class UsernameTextWatcher implements TextWatcher {
         StringBuilder cleanInput = new StringBuilder();
         for (int i = 0; i < username.length(); i++) {
             char c = username.charAt(i);
-            if (Character.isLetterOrDigit(c) || c == '@' || c == '.') {
+            if (Character.isLetterOrDigit(c) || c == '@' || c == '.' || c == '_') {
                 cleanInput.append(c);
             }
         }

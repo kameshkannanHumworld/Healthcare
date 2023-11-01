@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConverterClass {
+
+    /*
+        Convert ByteArray to Hexadecimal
+            params1 - byte array
+            params2 - boolean (need space or not)
+            return string
+    */
     public static String byteToHexadecimal(byte[] data, boolean addSpace) {
         if (data == null || data.length < 1)
             return null;
@@ -21,6 +28,11 @@ public class ConverterClass {
     }
 
 
+    /*
+       Convert hexadecimal to decimal
+           params1 - String Hexdecimal value
+           return int
+   */
     public static int hexadecimalToDecimal(String hexString) {
         int decimalValue = 0;
 
@@ -33,6 +45,12 @@ public class ConverterClass {
         return decimalValue;
     }
 
+
+    /*
+       Convert ByteArray to decimal
+           params1 - byte array
+           return int
+   */
     public static int byteArrayToDecimal(byte[] byteArray) {
         int decimalValue = 0;
 
@@ -45,6 +63,11 @@ public class ConverterClass {
     }
 
 
+    /*
+       get pairs from a Hexadecimal value(String)
+           params1 - byte array
+           return list
+   */
     public static List<String> getPairsFromHexString(byte[] data) {
         if (data == null || data.length < 1) {
             return null;
@@ -64,6 +87,11 @@ public class ConverterClass {
     }
 
 
+    /*
+       Convert hexadecimal(String) to ByteArray
+           params1 - hexadecimal(String)
+          return byteArray
+   */
     public static byte[] hexStringToByteArray(String hexString) {
         int len = hexString.length();
         byte[] byteArray = new byte[len / 2];
@@ -74,19 +102,13 @@ public class ConverterClass {
         return byteArray;
     }
 
-    public static String formatHexString(String hexString) {
-        StringBuilder formattedString = new StringBuilder("(0x) ");
 
-        for (int i = 0; i < hexString.length(); i += 2) {
-            formattedString.append(hexString.substring(i, i + 2));
-            if (i < hexString.length() - 2) {
-                formattedString.append("-");
-            }
-        }
-
-        return formattedString.toString();
-    }
-
+    /*
+       Convert DateTime to hexadecimal(String)
+           params1 - Date(String)
+           params2 - Time(String)
+          return String
+   */
     public static String convertDateToHex(String currentDate, String currentTime) {
         // Split the input date into components
         String[] dateComponents = currentDate.split("-");
@@ -116,6 +138,11 @@ public class ConverterClass {
         return hexDate.toString().trim();
     }
 
+    /*
+      get values from the  Hexadecimal pairs(String)
+           params1 - hexadecimal(String)
+          return list
+   */
     public static List<String> getValuesFromPairs(String hexString) {
         List<String> values = new ArrayList<>();
         String[] hexValues = hexString.split(" ");
@@ -131,6 +158,12 @@ public class ConverterClass {
         return values;
     }
 
+
+    /*
+      decode the Hexadecimal DateTime
+           params1 - hexadecimal(String)
+          return String
+   */
     public static String decodeHexDateTime(String hexDateTime) {
         List<Integer> decimalValues = new ArrayList<>();
         String[] hexValues = hexDateTime.split(" ");
@@ -147,20 +180,18 @@ public class ConverterClass {
         int minute = decimalValues.get(4);
         int second = decimalValues.get(5);
 
-        String dateAndTime = day+"/"+month+"/"+year+"-"+hour+":"+minute+":"+second;
+        String dateAndTime = day + "/" + month + "/" + year + "-" + hour + ":" + minute + ":" + second;
 
         return dateAndTime;
     }
 
-    public static byte[] hexStringToByteArrayDT(String s) {
-        String[] tokens = s.split(" ");
-        byte[] byteArray = new byte[tokens.length];
-        for (int i = 0; i < tokens.length; i++) {
-            byteArray[i] = (byte) Integer.parseInt(tokens[i], 16);
-        }
-        return byteArray;
-    }
 
+
+    /*
+        reverse the  Hexadecimal(String)
+           params1 - hexadecimal(String)
+           return list
+   */
     public static List<String> reverseHexaDecimal(String hexString) {
         if (hexString.length() % 2 != 0) {
             hexString = "0" + hexString; // Add leading zero if length is odd

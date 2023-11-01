@@ -21,51 +21,33 @@ public class AnimationLoading {
     private Activity activity;
     private Dialog alertDialog;
 
+    //contructor [params1 - activity]
     public AnimationLoading(Activity activity) {
         this.activity = activity;
     }
 
+    //start animation for login activity
     public void startLoadingDialogLoginActivity() {
-
         alertDialog = new Dialog (activity);
-
         alertDialog.requestWindowFeature (Window.FEATURE_NO_TITLE);
         alertDialog.setContentView (R.layout.loading_lottie_animation);
         alertDialog.getWindow ().setBackgroundDrawableResource (android.R.color.transparent);
         alertDialog.show ();
 
-        /*
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-
-        LayoutInflater inflater = activity.getLayoutInflater();
-        builder.setView(inflater.inflate(R.layout.loading_lottie_animation, null));
-        builder.setCancelable(false);
-
-        alertDialog = builder.create();
-        alertDialog.show();*/
     }
 
+    //start animation for bluetooth scan
     public void startLoadingDialogBlutoothScan() {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-//
-//        LayoutInflater inflater = activity.getLayoutInflater();
-//        builder.setView(inflater.inflate(R.layout.loading_lottie_animation, null));
-//        builder.setCancelable(true);
-//
-//        alertDialog = builder.create();
-//        alertDialog.show();
-
         alertDialog = new Dialog (activity);
-
         alertDialog.requestWindowFeature (Window.FEATURE_NO_TITLE);
         alertDialog.setContentView (R.layout.loading_lottie_animation);
         alertDialog.getWindow ().setBackgroundDrawableResource (android.R.color.transparent);
         alertDialog.show ();
     }
 
+    //dismiss the animation dialog
     public void dismissLoadingDialog() {
         if (alertDialog != null) {
-
             alertDialog.dismiss();
         }
     }

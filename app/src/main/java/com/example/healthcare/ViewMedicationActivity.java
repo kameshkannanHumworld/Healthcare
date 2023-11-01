@@ -31,7 +31,6 @@ public class ViewMedicationActivity extends AppCompatActivity {
         //data from Medication Fragment
         dataFromMedicationFragment();
 
-
         //back Button Method
         backButtonMethod();
 
@@ -96,7 +95,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
     private void backButtonMethod() {
         backButton.setOnClickListener(v -> {
-            onBackPressed(); // This will simulate the behavior of the back button press
+            onBackPressed(); //back button
         });
     }
 

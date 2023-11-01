@@ -1,3 +1,9 @@
+/*
+    Interface to Delete the medicine
+        params1 - token
+        params2 - delete request
+*/
+
 package com.example.healthcare.MedicationsModule.DeleteMedications;
 
 import com.example.healthcare.MedicationsModule.MedicationsValidations.ValidationApiRequest;

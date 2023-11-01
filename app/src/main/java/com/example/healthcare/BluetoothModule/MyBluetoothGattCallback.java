@@ -46,35 +46,42 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
     public static final int REQUEST_CODE_DEVICE_INFO = 101;
     Context context;
 
+
+    //contructor [ params1 - context ]
     public MyBluetoothGattCallback(Context context) {
         this.context = context;
     }
 
-    @SuppressLint("MissingPermission")
+
+        @SuppressLint("MissingPermission")
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
         Activity activity = (Activity) context;
         String deviceAddress = gatt.getDevice().getAddress();
 
+
+        //Bluetooth connected here
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             // Device connected, start discovering services
             Log.w(TAG, "Sucessfully connected to " + deviceAddress);
-            deviceConnected = true;
+            deviceConnected = true;  //set connected flag
 
             bluetoothGatt = gatt;
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
+                    //discoverServices will call the override method
                     bluetoothGatt.discoverServices();
                 }
-
-
             });
-        } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+        }
+
+        //bluetooth disconnected here
+        else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
             // Device disconnected, handle accordingly
             Log.d(TAG, "onConnectionStateChange: STATE_DISCONNECTED " + deviceAddress);
-            deviceConnected = false;
+            deviceConnected = false; //Set connected Flag
             if ((activity.getCurrentFocus()) != null) {
                 Snackbar.make((activity.getCurrentFocus()), "Device Disconnected", Snackbar.LENGTH_SHORT).show();
             }
@@ -316,6 +323,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
 
                 // Check if the characteristic matches the desired UUID
                 if (characteristic.getUuid().equals(desiredUuid)) {
+
                     // Get the descriptors for this characteristic
                     List<BluetoothGattDescriptor> descriptors = characteristic.getDescriptors();
 
@@ -336,7 +344,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
     private void writeCharacteristicBloodGlucometer(BluetoothGatt gatt) {
         BluetoothGattCharacteristic writeCharacteristic = getWriteCharacteristicBloodGlucometer(gatt);
         assert writeCharacteristic != null;
-        setCurrentDateTimeInByteArray();
+        setCurrentDateTimeInByteArray(); //dynamic date and time method
         writeCharacteristic.setValue(BLOOD_GLUCOMETER_TIME_SET_BYTE_ARRAY);
         boolean isWrite = gatt.writeCharacteristic(writeCharacteristic);
         gatt.setCharacteristicNotification(writeCharacteristic, true);
@@ -420,17 +428,23 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         }
 
         //BloodGlucoMeter
-        if ((gatt.getDevice().getName()).equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || (gatt.getDevice().getName()).equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
+        else if ((gatt.getDevice().getName()).equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || (gatt.getDevice().getName()).equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
             if (characteristic.getUuid().equals(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY))) {
                 onCharacteristicChangedMethodBloodGlucometer(byteArray,gatt);
             }
         }
 
         //ECG meter
-        if ((gatt.getDevice().getName()).equals(ECG_DEVICE_NAME1) || (gatt.getDevice().getName()).equals(ECG_DEVICE_NAME2)) {
+        else if ((gatt.getDevice().getName()).equals(ECG_DEVICE_NAME1) || (gatt.getDevice().getName()).equals(ECG_DEVICE_NAME2)) {
             if (characteristic.getUuid().equals(UUID.fromString(ECG_UUID_NOTIFY))) {
                 onCharacteristicChangedMethodEcgMeter(byteArray,gatt);
             }
+        }
+
+
+        //Handle others
+        else{
+            Log.d(TAG, "onCharacteristicChanged: other devices");
         }
 
     }

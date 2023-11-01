@@ -1,3 +1,12 @@
+/*
+ *   This interface is to view the medicine details
+ *      params1 - patientId
+ *      params2 - careplanID
+ *      params3 - token
+ *      params4 - user ID (decode the Token and get the ID)
+ */
+
+
 package com.example.healthcare.MedicationsModule.ViewMedications;
 
 import com.example.healthcare.MedicationsModule.FrequencyDropdown.MedicationFrequencyResponse;

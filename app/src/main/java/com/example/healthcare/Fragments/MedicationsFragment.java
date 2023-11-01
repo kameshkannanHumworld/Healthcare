@@ -120,6 +120,7 @@ public class MedicationsFragment extends Fragment {
         return view;
     }
 
+    //method for swipe left,right
     private void itemTouchHelperMethod(View view) {
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -149,6 +150,8 @@ public class MedicationsFragment extends Fragment {
 
             }
 
+
+            //method to set swipe left and right button and other styles
             @Override
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 int whiteColor = ContextCompat.getColor(requireContext(), R.color.white);
@@ -174,6 +177,8 @@ public class MedicationsFragment extends Fragment {
         }).attachToRecyclerView(recyclerMedications);
     }
 
+
+    //method to send the medication data to the ViewMedicationActivity by Intent
     @SuppressLint("NotifyDataSetChanged")
     private void viewItem(int position) {
         viewMedicationData = medicationList.get(position);
@@ -193,6 +198,7 @@ public class MedicationsFragment extends Fragment {
         medicationAdapter.notifyDataSetChanged();
     }
 
+    //Method to send the medication data to AddMedicationActivity for Edit/Update by Intent
     @SuppressLint("NotifyDataSetChanged")
     private void updateItem(int position) {
          viewMedicationData = medicationList.get(position);
@@ -210,6 +216,7 @@ public class MedicationsFragment extends Fragment {
         medicationAdapter.notifyDataSetChanged();
     }
 
+    //Method to delete the medicine by swipe left
     @SuppressLint("NotifyDataSetChanged")
     private void deleteItem(int position) {
         ViewMedicationData viewMedicationData = medicationList.get(position);
@@ -223,7 +230,7 @@ public class MedicationsFragment extends Fragment {
         deleteApiRequest.setCareplanLogMessageUserInput("An existing medication \"" + viewMedicationData.getName() + "\" has been deleted");
         deleteApiRequest.setCareplanLogMessage("An existing medication \"" + viewMedicationData.getName() + "\" has been deleted");
 
-        //DeleteApi method
+        //DeleteApi Retrofit call  below
         DeleteApiService service = ApiClient.getWebClient().create(DeleteApiService.class);
         Call<DeleteApiResponse> call = service.deleteMedications(TOKEN, deleteApiRequest);
         call.enqueue(new Callback<DeleteApiResponse>() {
@@ -249,6 +256,7 @@ public class MedicationsFragment extends Fragment {
 
     }
 
+    //method to undo the delete the medicine
     private void undoMethodHere() {
         Snackbar.make(recyclerMedications, "Item deleted", Snackbar.LENGTH_LONG)
                 .setAction("Undo", view -> {
@@ -267,11 +275,10 @@ public class MedicationsFragment extends Fragment {
         swipeRefreshLayout.setRefreshing(false);
     }
 
+    //swipe to refresh the Medicine changes in layout
     @SuppressLint("NotifyDataSetChanged")
     private void swipeRefreshLayoutMethod(View view) {
         Log.d(TAG, "swipeRefreshLayoutMethod: ");
-
-
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             medicationList.clear();
@@ -281,10 +288,14 @@ public class MedicationsFragment extends Fragment {
         });
     }
 
+    //method to fetch the Medicine data from the API
     private void fetchDataFromAPI() {
+
+        //retrofit setup
         ViewMedicationService service = ApiClient.getWebClient().create(ViewMedicationService.class);
         Call<ViewMedicationResponse> call = service.getMedicationsList(PATIENT_ID, CAREPLAN_ID, TOKEN, ID_DROPDOWN);
 
+        //retrofit call
         call.enqueue(new Callback<ViewMedicationResponse>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -309,7 +320,7 @@ public class MedicationsFragment extends Fragment {
         });
     }
 
-
+    //set data to the recycler view
     private void updateRecyclerViewMethod(View view) {
         recyclerMedications = view.findViewById(R.id.recyclerMedications);
         recyclerMedications.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
@@ -317,6 +328,7 @@ public class MedicationsFragment extends Fragment {
         recyclerMedications.setAdapter(medicationAdapter);
     }
 
+    //floating Action Button Method
     private void floatingActionButtonMethod(View view) {
         FloatingActionButton fab = view.findViewById(R.id.fabMedicalFragment);
         fab.setOnClickListener(v -> {
@@ -324,7 +336,7 @@ public class MedicationsFragment extends Fragment {
         });
     }
 
-
+    //Interface for medicine click listener in recycler view
     private final MedicineClickInterface medicineClickInterfaceMethod = new MedicineClickInterface() {
         @Override
         public void onItemClick(int position) {

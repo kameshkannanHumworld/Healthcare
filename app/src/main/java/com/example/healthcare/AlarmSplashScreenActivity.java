@@ -1,5 +1,6 @@
 package com.example.healthcare;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationManagerCompat;
 
+@SuppressLint("CustomSplashScreen")
 public class AlarmSplashScreenActivity extends AppCompatActivity {
     Button alarmCancelButton;
 
@@ -32,6 +34,7 @@ public class AlarmSplashScreenActivity extends AppCompatActivity {
             NotificationChannel channel = new NotificationChannel("Healthcare", name, importance);
             channel.setDescription(description);
 
+            //Notification
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
@@ -41,6 +44,8 @@ public class AlarmSplashScreenActivity extends AppCompatActivity {
         alarmCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //Shared preference for Alarm
                 SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
                 String pendingIntentString = sharedPreferences.getString("pending_intent", null);
 

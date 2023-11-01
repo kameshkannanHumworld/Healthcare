@@ -25,6 +25,11 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
     private List<ScanResult> scanResults;
     private OnItemClickListener onItemClickListener;
 
+    /*
+            Constructor
+                parmas1 - List (scan results)
+                parmas1 - onItemClickListener (onItemClickListener)
+    */
     public ScanResultAdapter(List<ScanResult> scanResults, OnItemClickListener onItemClickListener) {
         this.scanResults = scanResults;
         this.onItemClickListener = onItemClickListener;
@@ -33,6 +38,8 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        //setup the recycler layout
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.listitem_device, parent, false);
         return new ViewHolder(view);
@@ -42,7 +49,7 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ScanResult result = scanResults.get(position);
-
+            //get the recycler position and binding the data
             holder.bind(result);
 
     }
@@ -52,16 +59,19 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
         return scanResults.size();
     }
 
+
+    //interface for on item click listener
     public interface OnItemClickListener {
         void onItemClick(ScanResult item);
     }
 
-
+    //Inner class view holder
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         private TextView deviceName;
         private TextView deviceAddress;
 
+        //constructor
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             deviceName = itemView.findViewById(R.id.device_name);
@@ -69,6 +79,8 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
             itemView.setOnClickListener(this);
         }
 
+
+        //bind the data to the UI
         @SuppressLint("MissingPermission")
         public void bind(ScanResult result) {
 //            if (ActivityCompat.checkSelfPermission(itemView.getContext(), android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
@@ -79,6 +91,8 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
 
         }
 
+
+        //on item click listener
         @Override
         public void onClick(View view) {
             int position = getAbsoluteAdapterPosition();

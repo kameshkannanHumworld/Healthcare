@@ -101,6 +101,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         // Initialize Bluetooth
         activity = (Activity) context;
 
+        //ble scanner init
         bluetoothLeScanner = getBluetoothLeScanner();
         getScanResultAdapter();
 
@@ -112,7 +113,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         LocationUtil.requestLocationEnable(activity);
         BluetoothUtil.requestBluetoothEnable(activity, context);
 
-//        further needed settings
+//        further needed settings for scaning
         scanSettings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .build();
@@ -131,17 +132,17 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         return view;
     }
 
+
+    //method to start and stop and check scaning
     private void startAndStopScanMethod() {
         if (isScanning) {
             stopPeriodicScan();
         } else {
             startPeriodicScan();
-
         }
-
-
     }
 
+    //start the scan
     private void startPeriodicScan() {
         scanTimer = new Timer();
         scanTimer.scheduleAtFixedRate(new TimerTask() {
@@ -161,6 +162,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         }, 0, SCAN_INTERVAL);
     }
 
+    //stop the scan
     private void stopPeriodicScan() {
         if (scanTimer != null) {
             scanTimer.cancel();
@@ -174,6 +176,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         });
     }
 
+    //check the required permission here
     public boolean hasRequiredRuntimePermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             Log.d(TAG, "hasRequiredRuntimePermissions:122 " + hasPermission(Manifest.permission.BLUETOOTH_SCAN));
@@ -186,11 +189,13 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         }
     }
 
+    //check the permission is given as parameter
     public boolean hasPermission(String permissionType) {
         return ContextCompat.checkSelfPermission(context, permissionType) ==
                 PackageManager.PERMISSION_GRANTED;
     }
 
+    //start BLE scan
     @SuppressLint("NotifyDataSetChanged")
     private void startBleScan() {
         if (!hasRequiredRuntimePermissions()) {
@@ -216,12 +221,13 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
 
+    //request to enable the runtime permissions
     @SuppressLint("NewApi")
     private void requestRelevantRuntimePermissions() {
         if (hasRequiredRuntimePermissions()) {
-
             return;
         }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             BluetoothUtil.requestBluetoothEnable(activity, context);
             BluetoothUtil.requestBluetoothConnectPermission(activity);
@@ -236,6 +242,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     }
 
+    //stop BLE scan
     public void stopBleScan() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             BluetoothUtil.requestBluetoothScanPermission(activity);
@@ -249,6 +256,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         refreshButton.clearAnimation();
     }
 
+    //init Bluetooth adapter
     private BluetoothAdapter getBluetoothAdapter() {
         if (bluetoothAdapter == null) {
             BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -258,10 +266,12 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         return bluetoothAdapter;
     }
 
+    //init BLE scanner
     private BluetoothLeScanner getBluetoothLeScanner() {
         return getBluetoothAdapter().getBluetoothLeScanner();
     }
 
+    //on click listener for the bluetooth device in the recycler view and connect the device which we click
     private ScanResultAdapter getScanResultAdapter() {
         if (scanResultAdapter == null) {
             scanResultAdapter = new ScanResultAdapter(scanResults, new ScanResultAdapter.OnItemClickListener() {
@@ -280,17 +290,21 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         return scanResultAdapter;
     }
 
-
+    //refresh button to start the scan
     public void refreshButtonMethod() {
         refreshButton.setOnClickListener(view -> startPeriodicScan());
     }
 
+
+    //Assign ID for the UI here
     private void idAssigningMethod(View view) {
         refreshButton = view.findViewById(R.id.refreshButton);
         bluetoothDeviceRecyclerView = view.findViewById(R.id.bluetoothDeviceRecyclerView);
         linearLayoutAvailableDevices = view.findViewById(R.id.linearLayoutAvailableDevices);
     }
 
+
+    //ScanCallback for get the scan result and other funtionalities with the device / handle scan failure
     private ScanCallback scanCallback = new ScanCallback() {
 
         @Override
@@ -344,7 +358,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         }
     };
 
-
+    //for handling the permissions
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

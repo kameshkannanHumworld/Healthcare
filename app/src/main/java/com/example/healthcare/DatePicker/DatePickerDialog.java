@@ -26,7 +26,7 @@ public class DatePickerDialog extends DialogFragment {
         long maxDate = mCalendar.getTimeInMillis();
 
         // Set the minimum date
-        mCalendar.set(Calendar.YEAR, 1900); // Assuming you want to set a very old year as the minimum
+        mCalendar.set(Calendar.YEAR, 1900); //set a very old year as the minimum
         long minDate = mCalendar.getTimeInMillis();
 
         android.app.DatePickerDialog dialog = null;

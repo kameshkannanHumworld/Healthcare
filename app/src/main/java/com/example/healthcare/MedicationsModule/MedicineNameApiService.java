@@ -1,3 +1,7 @@
+/*
+*   this interface is to search the medicine by type the medicine name
+*/
+
 package com.example.healthcare.MedicationsModule;
 
 

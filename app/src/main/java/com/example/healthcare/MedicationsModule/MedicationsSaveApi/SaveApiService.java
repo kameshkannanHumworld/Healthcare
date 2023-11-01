@@ -1,3 +1,9 @@
+/*
+*       Interface to save the medicine in Api
+*           params1 - token
+*           params2 - save request
+*/
+
 package com.example.healthcare.MedicationsModule.MedicationsSaveApi;
 
 import com.example.healthcare.MedicationsModule.MedicationsValidations.ValidationApiRequest;

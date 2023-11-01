@@ -1,3 +1,9 @@
+/*
+*   Interface to Validate the medication
+*       params1 - token
+*       parms2 - validation request
+*/
+
 package com.example.healthcare.MedicationsModule.MedicationsValidations;
 
 import okhttp3.ResponseBody;

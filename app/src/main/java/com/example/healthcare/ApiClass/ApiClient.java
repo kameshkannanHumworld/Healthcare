@@ -20,7 +20,7 @@ public class ApiClient {
     public static Retrofit retrofit = null;
     public static Retrofit retrofitWeb = null;
 
-
+    //For the mobile dev base url
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
@@ -31,8 +31,8 @@ public class ApiClient {
         return retrofit;
     }
 
+    //for the web dev base url
     public static Retrofit getWebClient() {
-
         if (retrofitWeb == null) {
             retrofitWeb = new Retrofit.Builder()
                     .baseUrl("https://dev-api.humhealth.com/HumHealthDevAPI/")

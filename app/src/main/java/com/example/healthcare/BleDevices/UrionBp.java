@@ -35,6 +35,8 @@ public class UrionBp {
     //Urion Bp  onCharacteristicChanged method
     public static void onCharacteristicChangedMethodUrionBp(byte[] byteArray, BluetoothGatt gatt) {
         bluetoothGattUrionBp = gatt;
+
+        //checking the readings
         if (Objects.equals(ConverterClass.byteToHexadecimal(byteArray, false), "a5")) {
             DEVICE_INFO_CLASS_SET_TEXT = "Please Start the Device to take reading";
             URION_BP_DEVICE_ERROR_MESSAGES = null;
@@ -110,6 +112,8 @@ public class UrionBp {
         }
     }
 
+
+    //turn off the device here
     public static  void urionBpDisconnectDeviceMethod(){
         BluetoothGattService service = bluetoothGattUrionBp.getService(UUID.fromString(URION_BP_UUID_SERVICE));
         if (service != null) {
@@ -117,6 +121,7 @@ public class UrionBp {
 
             if (characteristic != null) {
 
+                //write characteristics
                 byte[] byteArray = {(byte) 0xFD, (byte) 0xFD, (byte) 0xFA, 0x06, 0x0D, 0x0A};
                 characteristic.setValue(byteArray);
                 boolean isWrite = bluetoothGattUrionBp.writeCharacteristic(characteristic);

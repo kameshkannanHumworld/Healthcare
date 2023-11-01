@@ -1,3 +1,9 @@
+/*
+        Interface to get the Medication Frequencies List
+            params1 - token
+            params2 - user ID (decode the Token and get the ID)
+*/
+
 package com.example.healthcare.MedicationsModule.FrequencyDropdown;
 
 import retrofit2.Call;

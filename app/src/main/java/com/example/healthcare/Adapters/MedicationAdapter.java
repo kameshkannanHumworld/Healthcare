@@ -26,7 +26,12 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
     private List<ViewMedicationData> medicationList;
     Context context;
 
-
+    /*
+     *       constructor
+     *           params1 - context
+     *           params2 - medicationList from scanCallBack class
+     *           params3 - medicineClickInterfaceOnClickListener
+     * */
     public MedicationAdapter(Context context, List<ViewMedicationData> medicationList, MedicineClickInterface medicineClickInterfaceOnClickListener) {
         this.medicineClickInterfaceOnClickListener = medicineClickInterfaceOnClickListener;
         this.medicationList = medicationList;
@@ -37,6 +42,8 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
     @NonNull
     @Override
     public MedicationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        //Setup the Layout
         View inflate = LayoutInflater.from(parent.getContext()).inflate(R.layout.medications_recycler_layout, parent, false);
         context = parent.getContext();
         return new MedicationViewHolder(inflate, medicineClickInterfaceOnClickListener);
@@ -46,6 +53,7 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
     public void onBindViewHolder(@NonNull MedicationViewHolder holder, int position) {
         ViewMedicationData medication = medicationList.get(position);
 
+        //Bind the data to the UI
         holder.medicineName.setText(medication.getName());
         holder.medicineFrequency.setText(medication.getFrequency());
         holder.medicineImage.setImageResource(R.drawable.img);
@@ -58,10 +66,12 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
     }
 }
 
+//Inner Class
 class MedicationViewHolder extends RecyclerView.ViewHolder {
     TextView medicineName, medicineQuantity, medicineFrequency;
     ImageView medicineImage;
 
+    //constructor
     public MedicationViewHolder(@NonNull View itemView, MedicineClickInterface medicineClickInterfaceOnClickListener) {
         super(itemView);
         medicineName = itemView.findViewById(R.id.medicineName);
