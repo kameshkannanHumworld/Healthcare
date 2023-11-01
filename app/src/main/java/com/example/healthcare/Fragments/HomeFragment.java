@@ -94,8 +94,8 @@ public class HomeFragment extends Fragment {
         LocationUtil.requestLocationEnable(requireActivity());
         LocationUtil.requestFineLocationConnectPermission(requireActivity());
         BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
-        BluetoothUtil.requestBluetoothScanPermission(requireActivity());
         BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
+        BluetoothUtil.requestBluetoothScanPermission(requireActivity());
 
         // Set click listener for the FAB
         floatingActionButtonMethod(view);

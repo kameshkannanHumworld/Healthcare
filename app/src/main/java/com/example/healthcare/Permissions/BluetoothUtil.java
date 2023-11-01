@@ -38,7 +38,8 @@ public class BluetoothUtil {
     */
     public static void requestBluetoothEnable(Activity activity, Context context) {
 
-        if (isBluetoothEnabled()) {
+
+        if (!isBluetoothEnabled()) {
             Log.d(TAG, "requestBluetoothEnable: BluetoothUtil");
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); //Intent for Request enable
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {

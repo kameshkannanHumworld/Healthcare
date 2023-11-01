@@ -35,8 +35,10 @@ public class LocationUtil {
     */
     public static void requestLocationEnable(Activity activity) {
         if (!isLocationEnabled(activity)) {
-            Intent locationSettingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            activity.startActivityForResult(locationSettingsIntent, REQUEST_ENABLE_LOCATION);
+//            Intent locationSettingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//            activity.startActivityForResult(locationSettingsIntent, REQUEST_ENABLE_LOCATION);
+            GpsUtil.requestLocationPermission(activity);
+
         }
     }
 

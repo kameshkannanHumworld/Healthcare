@@ -236,8 +236,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     urionBpDisconnectDeviceMethod();         //for Urion Bp
                 } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
                     ecgDisconnectDeviceMethod();             //for ECG meter
-                } else {
-                    Log.d(TAG, "refresh: Other Device");
                 }
 
             } else {

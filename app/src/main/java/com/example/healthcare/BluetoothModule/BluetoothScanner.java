@@ -198,10 +198,7 @@ public class BluetoothScanner {
                 }
             }
 
-            //other device
-            else {
-                Log.d(TAG, "connectToDevice: Other devices");
-            }
+
         }
 
         @Override
