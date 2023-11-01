@@ -4,22 +4,23 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.AutoCompleteTextView;
 
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
-public class AlphanumericTextWatcher implements TextWatcher {
-    private final TextInputEditText textInputEditText;
+public class MedicineNameTextWatcher implements TextWatcher {
 
-    public AlphanumericTextWatcher(TextInputEditText editText) {
-        this.textInputEditText = editText;
-    }
+    private final AutoCompleteTextView autoCompleteTextView;
 
-   @Override
-    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    public MedicineNameTextWatcher(AutoCompleteTextView autoCompleteTextView) {
+        this.autoCompleteTextView = autoCompleteTextView;
     }
 
     @Override
-    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
     }
 
     @Override
@@ -37,8 +38,8 @@ public class AlphanumericTextWatcher implements TextWatcher {
 
         // Update the input field with the cleaned input
         if (!editable.toString().equals(cleanInput.toString())) {
-            textInputEditText.setText(cleanInput.toString());
-            textInputEditText.setSelection(cleanInput.length());
+            autoCompleteTextView.setText(cleanInput.toString());
+            autoCompleteTextView.setSelection(cleanInput.length());
         }
     }
 
@@ -48,3 +49,4 @@ public class AlphanumericTextWatcher implements TextWatcher {
         return allowedSpecialCharacters.contains(String.valueOf(c));
     }
 }
+

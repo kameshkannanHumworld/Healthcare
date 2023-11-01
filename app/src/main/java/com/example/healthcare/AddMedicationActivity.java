@@ -35,6 +35,8 @@ import com.example.healthcare.MedicationsModule.MedicationsValidations.Validatio
 import com.example.healthcare.MedicationsModule.Medicine;
 import com.example.healthcare.MedicationsModule.MedicineNameApiResponse;
 import com.example.healthcare.MedicationsModule.MedicineNameApiService;
+import com.example.healthcare.TextWatcher.AlphanumericTextWatcher;
+import com.example.healthcare.TextWatcher.MedicineNameTextWatcher;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -82,6 +84,9 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
         //id Assign here
         idAssignHere();
+
+        //input validation
+        medicineNameInput.addTextChangedListener(new MedicineNameTextWatcher(medicineNameInput));
 
         //swipe right edit from MedicationFragment.class
         swipeRightEditIntentMehthod();
