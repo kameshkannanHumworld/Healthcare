@@ -430,7 +430,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         //BloodGlucoMeter
         else if ((gatt.getDevice().getName()).equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || (gatt.getDevice().getName()).equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
             if (characteristic.getUuid().equals(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY))) {
-                onCharacteristicChangedMethodBloodGlucometer(byteArray,gatt);
+                onCharacteristicChangedMethodBloodGlucometer(byteArray,gatt,context);
             }
         }
 

@@ -1,23 +1,20 @@
 package com.example.healthcare.BleDevices;
 
-import static com.example.healthcare.BleDevices.ECGMeter.ECG_INCREMENT_NUMBER;
-import static com.example.healthcare.BleDevices.ECGMeter.ECG_UUID_SERVICE;
-import static com.example.healthcare.BleDevices.ECGMeter.ECG_UUID_WRITE;
-import static com.example.healthcare.BluetoothModule.MyBluetoothGattCallback.ecgMeterDelayWriteMethod;
 import static com.example.healthcare.Converters.ConverterClass.convertDateToHex;
 import static com.example.healthcare.DatePicker.CurrentDateTime.*;
+import static com.example.healthcare.DeviceInfoActivity.BLOOD_GLUCOMETER_READING_ALERT_ERROR;
+import static com.example.healthcare.DeviceInfoActivity.BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL;
 
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
+import android.content.Context;
 import android.util.Log;
 
 import com.example.healthcare.BleDevices.CRC.CRCUtil;
 import com.example.healthcare.Converters.ConverterClass;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.UUID;
 
 public class BloodGlucometer {
     public static String BLOOD_GLUCOMETER_DEVICE_NAME1 = "Vivaguard";
@@ -29,6 +26,7 @@ public class BloodGlucometer {
     public static String BLOOD_GLUCOMETER_UUID_WRITE_SERIALNUMBER = "0003cdd2-0000-1000-8000-00805f9b0131";
     public static String BLOOD_GLUCOMETER_RESULT = null;
     public static String BLOOD_GLUCOMETER_RESULT_DATE_TIME = null;
+    public static boolean BLOOD_GLUCOMETER_SEND_ALERT = false;
     public static final byte[] BLOOD_GLUCOMETER_SERIAL_NUMBER_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x77, 0x55, 0x00, 0x00, 0x01, 0x0B, 0x0B, 0x04, 0x7D};
     public static final byte[] BLOOD_GLUCOMETER_STRIP_IN_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x12, (byte) 0x99, 0x00, 0x00, 0x0C, 0x05, 0x04, 0x07, 0x7D};
     public static final byte[] BLOOD_GLUCOMETER_READ_TIME_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x44, 0x55, 0x00, 0x00, 0x01, 0x04, 0x0F, 0x00, 0x7D};
@@ -40,7 +38,7 @@ public class BloodGlucometer {
 
 
     //on characteristics change method
-    public static void onCharacteristicChangedMethodBloodGlucometer(byte[] byteArray, BluetoothGatt gatt) {
+    public static void onCharacteristicChangedMethodBloodGlucometer(byte[] byteArray, BluetoothGatt gatt, Context context) {
         Log.w(TAG, "onCharacteristicChangedMethodBloodGlucometer: " + ConverterClass.byteToHexadecimal(byteArray, true));
         List<String> pairs = ConverterClass.getPairsFromHexString(byteArray);
 
@@ -92,6 +90,10 @@ public class BloodGlucometer {
                             //Error
                             Log.w(TAG, "Blood Glucometer Strip Error ");
                             BLOOD_GLUCOMETER_RESULT = "Blood Glucometer Strip Error ";
+
+                            //error dialog method here
+                            BLOOD_GLUCOMETER_READING_ALERT_ERROR = true;
+
                         } else {
                             Log.w(TAG, "Blood Glucometer other Result set..");
                         }
@@ -133,7 +135,10 @@ public class BloodGlucometer {
 
         Log.d(TAG, "lastTestResult_Decimal(mg/dL): " + finalOutput);
         BLOOD_GLUCOMETER_RESULT = "Blood Glucometer Reading: "+finalOutput+ "mg/dL";
+        BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = true;
     }
+
+
 
 
     //set dynamic datetime in byte array

@@ -3,6 +3,8 @@ package com.example.healthcare.BleDevices;
 import android.annotation.SuppressLint;
 
 import static com.example.healthcare.BluetoothModule.MyBluetoothGattCallback.*;
+import static com.example.healthcare.DeviceInfoActivity.BLOOD_PRESSURE_READING_ALERT_ERROR;
+import static com.example.healthcare.DeviceInfoActivity.BLOOD_PRESSURE_READING_ALERT_SUCESSFULL;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -66,6 +68,7 @@ public class UrionBp {
                     URION_BP_SYSTOLIC_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(3));
                     URION_BP_DIASTOLIC_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(4));
                     URION_BP_PULSE_READINGS = ConverterClass.hexadecimalToDecimal(pairs.get(5));
+                    BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = true;
                 }
             }
 
@@ -73,41 +76,48 @@ public class UrionBp {
             if (Objects.equals(pairs.get(3), "0e")) {
                 URION_BP_DEVICE_ERROR_MESSAGES = "please wear the CUFF again according to the instruction manual. \n" +
                         "Keep quiet and re-measure.";
+                BLOOD_PRESSURE_READING_ALERT_ERROR = true;
             }
 
             //heartbeat signal is too small (E-1)
             if (Objects.equals(pairs.get(3), "01")) {
                 URION_BP_DEVICE_ERROR_MESSAGES = "please wear the CUFF again according to the instruction manual. \n" +
                         "Keep quiet and re-measure.";
+                BLOOD_PRESSURE_READING_ALERT_ERROR = true;
             }
 
             //Noise interference (E-2)
             if (Objects.equals(pairs.get(3), "02")) {
                 URION_BP_DEVICE_ERROR_MESSAGES = "please wear the CUFF again according to the instruction manual. \n" +
                         "Keep quiet and re-measure.";
+                BLOOD_PRESSURE_READING_ALERT_ERROR = true;
             }
 
             //Inflation time is too long (E-3)
             if (Objects.equals(pairs.get(3), "03")) {
                 URION_BP_DEVICE_ERROR_MESSAGES = "please wear the CUFF again according to the instruction manual. \n" +
                         "Keep quiet and re-measure.";
+                BLOOD_PRESSURE_READING_ALERT_ERROR = true;
             }
 
             //The measured result is abnormal (E-4)
             if (Objects.equals(pairs.get(3), "04")) {
                 URION_BP_DEVICE_ERROR_MESSAGES = "please wear the CUFF again according to the instruction manual. \n" +
                         "Keep quiet and re-measure.";
+                BLOOD_PRESSURE_READING_ALERT_ERROR = true;
             }
 
             //Correction anomalies (E-c)
             if (Objects.equals(pairs.get(3), "0c")) {
                 URION_BP_DEVICE_ERROR_MESSAGES = "please wear the CUFF again according to the instruction manual. \n" +
                         "Keep quiet and re-measure.";
+                BLOOD_PRESSURE_READING_ALERT_ERROR = true;
             }
 
             //The battery is low, please replace the battery(E-B)
             if (Objects.equals(pairs.get(3), "0b")) {
                 URION_BP_DEVICE_ERROR_MESSAGES = "The battery is low, please replace the battery.";
+                BLOOD_PRESSURE_READING_ALERT_ERROR = true;
             }
         }
     }

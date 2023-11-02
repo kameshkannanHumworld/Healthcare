@@ -1,5 +1,7 @@
 package com.example.healthcare.BleDevices;
 
+import static com.example.healthcare.DeviceInfoActivity.WEIGHT_SCALE_READING_ALERT_SUCESSFULL;
+
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -19,6 +21,7 @@ public class WeightScale {
     public static final String WEIGHT_SCALE_CONSTANT_VALUE2 = "bb";
     public static Float WEIGHT_SCALE_READING = null;
     public static Boolean WEIGHT_SCALE_IS_CONNECTED = false;
+
     private static Boolean conditionAlreadyMet = false;
     private static final String TAG = "TAGi";
     Context context;
@@ -76,6 +79,8 @@ public class WeightScale {
                     Log.d(TAG, "reading Hexa: " + reading);
                     Log.d(TAG, "reading decimal : " + WEIGHT_SCALE_READING);
 
+                    //send alert after readings sucessfull
+                    WEIGHT_SCALE_READING_ALERT_SUCESSFULL  = true;
 
                     // disconnect device  after 15 seconds
                     new Handler().postDelayed(new Runnable() {
@@ -85,7 +90,7 @@ public class WeightScale {
                             WEIGHT_SCALE_IS_CONNECTED = false;
 
                         }
-                    }, 15000); // 15 seconds in milliseconds
+                    }, 20000); // 15 seconds in milliseconds
 
                     //condition flag
                     conditionAlreadyMet = true;

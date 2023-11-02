@@ -12,6 +12,10 @@ import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnect
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +27,7 @@ import android.widget.TextView;
 
 import com.example.healthcare.BleDevices.ECGMeter;
 import com.example.healthcare.BluetoothModule.BluetoothScanner;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Objects;
 
@@ -30,6 +35,7 @@ import java.util.Objects;
 public class DeviceInfoActivity extends AppCompatActivity {
     public static boolean isDeviceInfoActivityRunning = false;
     private static final String TAG = "TAGi";
+    private boolean hasAlertDialogShown = false;
 
     ImageView backButton;
     String deviceName;
@@ -39,6 +45,14 @@ public class DeviceInfoActivity extends AppCompatActivity {
     TextView weightScaleReadings;
     TextView bloodGlucometerReadings, bloodGlucometerReadingsDateTime;
     TextView ecgReadings;
+
+
+    public static Boolean WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
+    public static Boolean BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = false;
+    public static Boolean BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
+    public static Boolean BLOOD_PRESSURE_READING_ALERT_ERROR = false;
+    public static Boolean BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
+    public static Boolean ECG_READING_ALERT_SUCESSFULL = false;
 
 
     private final Handler mHandler = new Handler();
@@ -79,7 +93,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
         //back Button Method
-        backButtonMethod();
+        backButtonConfirmationDialogMethod(this);
 
     }
 
@@ -99,7 +113,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
                 deviceNameTextView.setText("ECG");
                 ecgMeterRefresh();             //for ECG meter
-            }else{
+            } else {
                 deviceNameTextView.setText(deviceName);
             }
         }
@@ -138,9 +152,20 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
             if (BLOOD_GLUCOMETER_RESULT != null) {
                 bloodGlucometerReadings.setText(BLOOD_GLUCOMETER_RESULT);
+
+                if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
+                    alertDialogMethod("BG Measured Failed","The Blood Glucometer has been measured Failed.");
+                    BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
+                }
             }
             if (BLOOD_GLUCOMETER_RESULT_DATE_TIME != null) {
-                bloodGlucometerReadingsDateTime.setText("Date-Time : " + BLOOD_GLUCOMETER_RESULT_DATE_TIME);
+                bloodGlucometerReadingsDateTime.setText(BLOOD_GLUCOMETER_RESULT_DATE_TIME);
+
+                if(BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL){
+                    alertDialogMethod("BP Measured Sucessfully","The Blood Pressure has been measured Sucessfully.");
+                    BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = false;
+                }
+
             }
         } else {
             isConnectedTextView.setText("Not Connected");
@@ -155,6 +180,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutEcgMeter.setVisibility(View.GONE);
         linearLayoutWeightScale.setVisibility(View.VISIBLE);
 
+
         if (WEIGHT_SCALE_IS_CONNECTED) {
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
@@ -162,6 +188,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
             if (WEIGHT_SCALE_READING != null) {
                 String floatConversionReading = String.valueOf(WEIGHT_SCALE_READING);
                 weightScaleReadings.setText("Weight Scale Reading(Kg): " + floatConversionReading);
+
+
+                //sucessfull alert here
+                if(WEIGHT_SCALE_READING_ALERT_SUCESSFULL){
+                    alertDialogMethod("Weight Measured Sucessfully","The Weight has been measured Sucessfully.");
+                    WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
+                }
 
             }
         } else {
@@ -193,6 +226,12 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 systolicReadingTextView.setText("Systolic reading: " + URION_BP_SYSTOLIC_READINGS);
                 pulseReadingTextView.setText("Pulse reading: " + URION_BP_PULSE_READINGS);
                 deviceInfoTextView.setVisibility(View.GONE);
+
+                if(BLOOD_PRESSURE_READING_ALERT_SUCESSFULL){
+                    alertDialogMethod("BP Measured Sucessfully","The Blood pressure has been measured Sucessfully.");
+                    BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
+                }
+
             }
 
             if (URION_BP_DEVICE_ERROR_MESSAGES != null) {
@@ -202,6 +241,11 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 pulseReadingTextView.setVisibility(View.GONE);
                 deviceInfoTextView.setVisibility(View.GONE);
                 errorMessageTextView.setText(URION_BP_DEVICE_ERROR_MESSAGES);
+
+                if(BLOOD_PRESSURE_READING_ALERT_ERROR){
+                    alertDialogMethod("BP Measured Failed","The Blood pressure has been measured Failed.");
+                    BLOOD_PRESSURE_READING_ALERT_ERROR = false;
+                }
             }
         } else {
             isConnectedTextView.setText("Not Connected");
@@ -233,22 +277,40 @@ public class DeviceInfoActivity extends AppCompatActivity {
     }
 
     private void backButtonMethod() {
-        backButton.setOnClickListener(v -> {
 
-            //below logic to turn off the BLE device
-            if (deviceName != null) {
-                if (deviceName.equals(URION_BP_DEVICE_NAME)) {
-                    urionBpDisconnectDeviceMethod();         //for Urion Bp
-                } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
-                    ecgDisconnectDeviceMethod();             //for ECG meter
-                }
-
-            } else {
-                Log.d(TAG, "refresh: Device name null");
+        //below logic to turn off the BLE device
+        if (deviceName != null) {
+            if (deviceName.equals(URION_BP_DEVICE_NAME)) {
+                urionBpDisconnectDeviceMethod();         //for Urion Bp
+                URION_BP_SYSTOLIC_READINGS = null;
+                URION_BP_DIASTOLIC_READINGS = null;
+                URION_BP_PULSE_READINGS = null;
+            } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
+                ecgDisconnectDeviceMethod();             //for ECG meter
+            } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
+                WEIGHT_SCALE_READING = null;
+            } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
+                BLOOD_GLUCOMETER_RESULT = null;
+                WEIGHT_SCALE_IS_CONNECTED = false;
             }
 
-            getOnBackPressedDispatcher().onBackPressed(); //back button
+        } else {
+            Log.d(TAG, "refresh: Device name null");
+        }
 
+        //back button
+        getOnBackPressedDispatcher().onBackPressed();
+    }
+
+    //method ask confirmation for exit , when Click back button
+    public void backButtonConfirmationDialogMethod(Context context) {
+        backButton.setOnClickListener(v -> {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Confirmation")  // Set the title
+                    .setMessage("Are you sure want to Exit?")  // Set the message
+                    .setPositiveButton("OK", (dialog, which) -> backButtonMethod())
+                    .setNegativeButton("Cancel",null)
+                    .show();  // Show the dialog
         });
     }
 
@@ -294,6 +356,20 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
     }
 
+
+    // alert dialog here
+    private  void alertDialogMethod(String title, String message) {
+        if (!hasAlertDialogShown) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(title)  // Set the title
+                    .setCancelable(false)
+                    .setMessage(message)  // Set the message
+                    .setPositiveButton("OK", null)
+                    .show();  // Show the dialog
+
+            hasAlertDialogShown = true;
+        }
+    }
 
 }
 
