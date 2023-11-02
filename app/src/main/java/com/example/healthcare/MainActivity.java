@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.healthcare.Animation.AnimationLoading;
 import com.example.healthcare.ApiClass.ApiClient;
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         //Assing Id Here
         idAssignMethod();
         animationLoading = new AnimationLoading(this);
+        statusBarColorMethod();
 
         //sharedpreference
         sharedPreferenceMethod();
@@ -59,6 +63,16 @@ public class MainActivity extends AppCompatActivity {
         intentMethods();
 
 
+    }
+
+    private void statusBarColorMethod() {
+        Window window = this.getWindow();
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        // finally change the color
+        window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
     }
 
     // Save the Username and Password using Shared Preference

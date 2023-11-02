@@ -64,7 +64,7 @@
 
     <!--    floating button animation-->
     <style name="FLOATING_BUTTON">
-        <item name="backgroundTint">@color/k_rose</item>
+        <item name="backgroundTint">@color/k_blue</item>
     </style>
 
 

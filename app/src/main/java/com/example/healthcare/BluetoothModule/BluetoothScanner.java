@@ -24,7 +24,6 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 
 import com.example.healthcare.Permissions.BluetoothUtil;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +70,8 @@ public class BluetoothScanner {
         }
 
         bluetoothLeScanner.startScan(scanCallback);
-        // Stop scan after a certain period of time (15 seconds)
-        handler.postDelayed(this::stopScan, 10000);
+        // Stop scan after a certain period of time (30 seconds)
+        handler.postDelayed(this::stopScan, 30000);
 
     }
 
@@ -82,8 +81,8 @@ public class BluetoothScanner {
     public void stopScan() {
         Activity activity = (Activity) context;
         if (bluetoothLeScanner != null) {
-
             bluetoothLeScanner.stopScan(scanCallback);
+
 //            if ((activity.getCurrentFocus()) != null) {
 //                Snackbar.make((activity.getCurrentFocus()), "Device Not Found", Snackbar.LENGTH_SHORT)
 //                        .setAction("Retry", view -> startScan())
@@ -118,7 +117,7 @@ public class BluetoothScanner {
 
 
             //Urion Blood Pressure
-            if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+            else if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
                 Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                 urionBpDevice = result.getDevice(); // Store the device for future connection
                 if (!deviceConnected) {
@@ -128,7 +127,7 @@ public class BluetoothScanner {
 
 
             //Blood Glucometer
-            if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+            else if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
                 Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                 bloodGlucometer = result.getDevice(); // Store the device for future connection
                 if (!deviceConnected) {
@@ -143,7 +142,7 @@ public class BluetoothScanner {
             }
 
             //ECG meter
-            if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+            else if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
                 Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                 ecgMeter = result.getDevice(); // Store the device for future connection
                 if (!deviceConnected) {

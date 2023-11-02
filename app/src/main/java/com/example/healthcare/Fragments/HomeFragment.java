@@ -10,6 +10,7 @@ import static com.example.healthcare.DeviceInfoActivity.isDeviceInfoActivityRunn
 import android.bluetooth.BluetoothGatt;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.healthcare.Animation.AnimationLoading;
-import com.example.healthcare.BleDevices.BloodGlucometer;
 import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment;
 import com.example.healthcare.DeviceInfoActivity;
@@ -131,7 +131,7 @@ public class HomeFragment extends Fragment {
         if (!isDeviceInfoActivityRunning) {
             bpMeterImage.setOnClickListener(view -> {
                 bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
-                animationLoading.startLoadingDialogBlutoothScan();
+                animationLoading.startLoadingDialogBlutoothScan(URION_BP_DEVICE_NAME, context);
                 startBackgroundScan();
                 new Thread(() -> {
                     if (deviceConnected) {
@@ -146,7 +146,7 @@ public class HomeFragment extends Fragment {
         if (!isDeviceInfoActivityRunning) {
             ecgMeterImage.setOnClickListener(view -> {
                 bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME1, context);
-                animationLoading.startLoadingDialogBlutoothScan();
+                animationLoading.startLoadingDialogBlutoothScan(ECG_DEVICE_NAME1, context);
                 startBackgroundScan();
                 new Thread(() -> {
                     if (deviceConnected) {
@@ -169,7 +169,7 @@ public class HomeFragment extends Fragment {
         if (!isDeviceInfoActivityRunning) {
             glucometerImage.setOnClickListener(view -> {
                 bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
-                animationLoading.startLoadingDialogBlutoothScan();
+                animationLoading.startLoadingDialogBlutoothScan(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
                 startBackgroundScan();
                 new Thread(() -> {
                     if (deviceConnected) {
@@ -216,6 +216,7 @@ public class HomeFragment extends Fragment {
             MyBottomSheetDialogFragment bottomSheetDialogFragment = new MyBottomSheetDialogFragment(context);
             bottomSheetDialogFragment.show(getChildFragmentManager(), bottomSheetDialogFragment.getTag());
         });
+        fab.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
     }
 
     @Override
@@ -238,6 +239,8 @@ public class HomeFragment extends Fragment {
         disconnectAllDevices();
 
     }
+
+
 
 
 }

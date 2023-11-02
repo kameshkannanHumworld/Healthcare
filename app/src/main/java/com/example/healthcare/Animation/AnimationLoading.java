@@ -1,25 +1,27 @@
 package com.example.healthcare.Animation;
 
+import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
+
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.os.Handler;
 import android.view.Window;
-import android.view.WindowManager;
 
-import androidx.annotation.NonNull;
-
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieDrawable;
+import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.example.healthcare.R;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 
 public class AnimationLoading {
+
     private Activity activity;
     private Dialog alertDialog;
+    private String deviceNameHere;
+    private Context context;
+    private Handler dismissalHandler = new Handler();
+
 
     //contructor [params1 - activity]
     public AnimationLoading(Activity activity) {
@@ -28,29 +30,62 @@ public class AnimationLoading {
 
     //start animation for login activity
     public void startLoadingDialogLoginActivity() {
-        alertDialog = new Dialog (activity);
-        alertDialog.requestWindowFeature (Window.FEATURE_NO_TITLE);
-        alertDialog.setContentView (R.layout.loading_lottie_animation);
-        alertDialog.getWindow ().setBackgroundDrawableResource (android.R.color.transparent);
-        alertDialog.show ();
+        alertDialog = new Dialog(activity);
+        alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        alertDialog.setContentView(R.layout.loading_lottie_animation);
+        alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        alertDialog.setCancelable(false);
+        alertDialog.show();
 
     }
 
     //start animation for bluetooth scan
-    public void startLoadingDialogBlutoothScan() {
-        alertDialog = new Dialog (activity);
-        alertDialog.requestWindowFeature (Window.FEATURE_NO_TITLE);
-        alertDialog.setContentView (R.layout.loading_lottie_animation);
-        alertDialog.getWindow ().setBackgroundDrawableResource (android.R.color.transparent);
-        alertDialog.show ();
+    public void startLoadingDialogBlutoothScan(String deviceName, Context context) {
+        this.deviceNameHere = deviceName;
+        this.context = context;
+        alertDialog = new Dialog(activity);
+        alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        alertDialog.setContentView(R.layout.loading_scan_animation);
+        alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        lottieAutoReplayMethod();
+        alertDialog.setCancelable(true);
+        alertDialog.show();
+
+        // Schedule the dismissal after 15 seconds
+        dismissalHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dismissLoadingDialog();
+
+                //snackbar
+                if ((activity.getCurrentFocus()) != null) {
+                    Snackbar.make((activity.getCurrentFocus()), "Device Not Found", Snackbar.LENGTH_SHORT)
+                            .setAction("Retry", view -> startLoadingDialogBlutoothScan(deviceNameHere, context))
+                            .show();
+
+                }
+            }
+        }, 15000); // 15 seconds in milliseconds
     }
 
     //dismiss the animation dialog
     public void dismissLoadingDialog() {
         if (alertDialog != null) {
             alertDialog.dismiss();
+
+            // Remove any pending callbacks
+            dismissalHandler.removeCallbacksAndMessages(null);
         }
+
     }
 
+
+    //scanning lottie continously auto replay method
+    public void lottieAutoReplayMethod() {
+        LottieAnimationView lottieAnimationView = alertDialog.findViewById(R.id.scanLottieAnimation);
+        lottieAnimationView.setRepeatCount(LottieDrawable.INFINITE);
+        lottieAnimationView.playAnimation();
+
+    }
 
 }

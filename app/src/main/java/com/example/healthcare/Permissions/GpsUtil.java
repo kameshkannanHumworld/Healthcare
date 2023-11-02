@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
@@ -20,6 +21,8 @@ import com.google.android.gms.tasks.Task;
 public class GpsUtil {
 
     private static final int REQUEST_CHECK_SETTINGS = 10001;
+
+
 
     public static void requestLocationPermission(Activity activity) {
         LocationRequest locationRequest = LocationRequest.create();
