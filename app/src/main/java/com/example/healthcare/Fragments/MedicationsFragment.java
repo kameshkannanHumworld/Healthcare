@@ -2,12 +2,15 @@ package com.example.healthcare.Fragments;
 
 import static com.example.healthcare.AddMedicationActivity.CAREPLAN_ID;
 import static com.example.healthcare.AddMedicationActivity.ID_DROPDOWN;
+import static com.example.healthcare.AddMedicationActivity.IS_EDIT;
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
 import static com.example.healthcare.MainActivity.TOKEN;
 import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.os.Bundle;
 
@@ -45,6 +48,7 @@ import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationSe
 import com.example.healthcare.MedicineClickInterface;
 import com.example.healthcare.R;
 import com.example.healthcare.ViewMedicationActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -135,7 +139,9 @@ public class MedicationsFragment extends Fragment {
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 final int position = viewHolder.getAdapterPosition();
                 if (direction == ItemTouchHelper.LEFT) { // From left to right swipe
-                    deleteItem(position); // Delete the item from the database
+
+                    //ask confirmation before delete
+                    deleteConfirmationDialogMethod(requireContext(),position);
                 }
 
                 if (direction == ItemTouchHelper.RIGHT) { // From right to left swipe
@@ -143,10 +149,10 @@ public class MedicationsFragment extends Fragment {
                 }
 
                 // Auto refresh
-                medicationList.clear();
-                fetchDataFromAPI();
-                medicationAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
+//                medicationList.clear();
+//                fetchDataFromAPI();
+//                medicationAdapter.notifyDataSetChanged();
+//                swipeRefreshLayout.setRefreshing(false);
 
             }
 
@@ -177,6 +183,18 @@ public class MedicationsFragment extends Fragment {
         }).attachToRecyclerView(recyclerMedications);
     }
 
+    //method ask confirmation before delete , when swipe right to left
+    public void deleteConfirmationDialogMethod(Context context, int position) {
+
+            new MaterialAlertDialogBuilder(context)
+                    .setTitle("Confirmation")  // Set the title
+                    .setMessage("Are you sure want to Delete?")  // Set the message
+                    .setPositiveButton("OK", (dialog, which) -> deleteItem(position))  // Delete the item from the database
+                    .setNegativeButton("Cancel",null)
+                    .show();  // Show the dialog
+
+    }
+
 
     //method to send the medication data to the ViewMedicationActivity by Intent
     @SuppressLint("NotifyDataSetChanged")
@@ -201,6 +219,7 @@ public class MedicationsFragment extends Fragment {
     //Method to send the medication data to AddMedicationActivity for Edit/Update by Intent
     @SuppressLint("NotifyDataSetChanged")
     private void updateItem(int position) {
+
          viewMedicationData = medicationList.get(position);
 
         Intent intent = new Intent(requireContext(), AddMedicationActivity.class);
@@ -211,6 +230,7 @@ public class MedicationsFragment extends Fragment {
         intent.putExtra("EDIT_END_DATE_TIME", viewMedicationData.getLastEffectiveDate());
         intent.putExtra("EDIT_NOTES", viewMedicationData.getNotes());
         MEDICTION_ID = viewMedicationData.getMedicationId();
+        IS_EDIT = true;
         startActivity(intent);
 
         medicationAdapter.notifyDataSetChanged();
@@ -238,7 +258,12 @@ public class MedicationsFragment extends Fragment {
             public void onResponse(Call<DeleteApiResponse> call, Response<DeleteApiResponse> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(requireContext(), "Deleted Sucessfully", Toast.LENGTH_SHORT).show();
+
+                    //refresh
+                    medicationList.clear();
+                    fetchDataFromAPI();
                     medicationAdapter.notifyDataSetChanged();
+                    swipeRefreshLayout.setRefreshing(false);
                 }else{
                     Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_SHORT).show();
                     medicationAdapter.notifyDataSetChanged();
@@ -334,6 +359,7 @@ public class MedicationsFragment extends Fragment {
         fab.setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), AddMedicationActivity.class));
         });
+        fab.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
     }
 
     //Interface for medicine click listener in recycler view

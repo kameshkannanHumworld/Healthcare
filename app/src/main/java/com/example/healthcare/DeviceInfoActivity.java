@@ -10,6 +10,7 @@ import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConn
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnectAllDevices;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -21,6 +22,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -72,6 +75,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_info);
+        statusBarColorMethod();
         Log.d("TAGi", "onCreate ");
 
         //prevent
@@ -369,6 +373,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
             hasAlertDialogShown = true;
         }
+    }
+
+    private void statusBarColorMethod() {
+        Window window = this.getWindow();
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        // finally change the color
+        window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
     }
 
 }

@@ -5,22 +5,27 @@ import static com.example.healthcare.MainActivity.TOKEN;
 
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.healthcare.ApiClass.ApiClient;
 import com.example.healthcare.DatePicker.DatePickerDialog;
@@ -37,6 +42,7 @@ import com.example.healthcare.MedicationsModule.MedicineNameApiResponse;
 import com.example.healthcare.MedicationsModule.MedicineNameApiService;
 import com.example.healthcare.TextWatcher.AlphanumericTextWatcher;
 import com.example.healthcare.TextWatcher.MedicineNameTextWatcher;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -59,11 +65,12 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     Button submitButton;
     ImageView addMedicineBackButton;
     AutoCompleteTextView medicineNameInput, medicineFrequencyInput;
-
+    TextView toolbarTitle;
     String mDateInput, mFrequencyInput;
-    TextInputLayout textInputLayout4, textInputLayout3;
+    TextInputLayout textInputLayout4, textInputLayout3, textInputLayout5;
     TextInputEditText medicineQuantityInput, endDateTimeInput, notesInput, recordDateTimeInput;
     private final String TAG = "TAGi";
+    public static boolean IS_EDIT = false;
     public static final int ID_DROPDOWN = 33689;
     public static final int PATIENT_ID = 53278;
     public static final int CAREPLAN_ID = 34534;
@@ -81,12 +88,20 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_medication);
+        statusBarColorMethod();
 
         //id Assign here
         idAssignHere();
 
         //input validation
         medicineNameInput.addTextChangedListener(new MedicineNameTextWatcher(medicineNameInput));
+
+        //toolbar title
+        if (IS_EDIT) {
+            toolbarTitle.setText("Edit Medication");
+        } else {
+            toolbarTitle.setText("Add Medication");
+        }
 
         //swipe right edit from MedicationFragment.class
         swipeRightEditIntentMehthod();
@@ -124,6 +139,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         recordDateTimeInput.setText(recordDateTime);
         endDateTimeInput.setText(endDateTime);
         notesInput.setText(notes);
+
         if (quantity == 0) {
             medicineQuantityInput.setText(null);
         } else {
@@ -261,8 +277,10 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                     // List to save medicine names only
                     List<String> medicineNames = new ArrayList<>();
                     for (Medicine medicine : medicines) {
-                        String medicineName = medicine.getNonProprietaryNameWithDosage();
-//                        Log.d(TAG, "medicineName: " + medicineName);
+                        String medicineNameFirst = medicine.getProprietaryNameWithDosage();
+                        String medicineNameSecond = medicine.getNonProprietaryNameWithDosage();
+                        String medicineName = medicineNameFirst+" "+medicineNameSecond;
+//                        Log.d(TAG, "Full medicineName: " + medicineName);
                         if (medicineName != null && !medicineName.isEmpty()) {
                             medicineNames.add(medicineName);
                         }
@@ -333,6 +351,8 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         notesInput = findViewById(R.id.notesInput);
         textInputLayout4 = findViewById(R.id.textInputLayout4);
         textInputLayout3 = findViewById(R.id.textInputLayout3);
+        textInputLayout5 = findViewById(R.id.textInputLayout5);
+        toolbarTitle = findViewById(R.id.toolbarTitle);
     }
 
     //Submit Button Method
@@ -357,6 +377,8 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                     textInputLayout3.setError("Medicine Name is Required");
                 } else if (mFrequencyInput == null) {
                     textInputLayout4.setError("Frequency is Required");
+                } else if (quantity == null || quantity < 0) {
+                    textInputLayout5.setError("Quantity is Required");
                 } else {
                     textInputLayout3.setError(null);
                     textInputLayout4.setError(null);
@@ -510,9 +532,21 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     }
 
 
-    //Back Button Listener
+    //method ask confirmation for exit , when Click back button
     private void backButtonListener() {
-        addMedicineBackButton.setOnClickListener(view -> onBackPressed());
+        addMedicineBackButton.setOnClickListener(v -> {
+            if (!medicineNameInput.getText().toString().isEmpty() || !medicineFrequencyInput.getText().toString().isEmpty() || !medicineQuantityInput.getText().toString().isEmpty()) {
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("Confirmation")  // Set the title
+                        .setMessage("Are you sure want to Exit?")  // Set the message
+                        .setPositiveButton("OK", (dialog, which) -> onBackPressed())
+                        .setNegativeButton("Cancel", null)
+                        .show();  // Show the dialog
+            } else {
+                onBackPressed();
+            }
+        });
+
     }
 
     /*
@@ -568,6 +602,16 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         }, hour, minute, false);
         timePickerDialog.setTitle("Select Time");
         timePickerDialog.show();
+    }
+
+    private void statusBarColorMethod() {
+        Window window = this.getWindow();
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        // finally change the color
+        window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
     }
 
 

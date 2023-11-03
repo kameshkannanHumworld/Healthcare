@@ -4,10 +4,13 @@ import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.healthcare.BottomSheetDialog.NotificationBottomSheet;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,6 +27,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_medication);
+        statusBarColorMethod();
 
         //Assign Id Here
         idAssignHere();
@@ -38,6 +42,16 @@ public class ViewMedicationActivity extends AppCompatActivity {
         floatingActionButtonMethod();
 
 
+    }
+
+    private void statusBarColorMethod() {
+        Window window = this.getWindow();
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        // finally change the color
+        window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
     }
 
     private void dataFromMedicationFragment() {

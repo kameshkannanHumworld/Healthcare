@@ -51,7 +51,7 @@
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:paddingLeft="8dp"
+            android:paddingStart="8dp"
             android:src="@drawable/wifi" />
 
         <TextView
@@ -60,6 +60,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:padding="8dp"
+            android:textStyle="bold"
+            android:textSize="16sp"
             android:text="bluetooth device Name"
             android:textColor="@color/black" />
 
@@ -68,6 +70,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
+            android:textStyle="bold"
+            android:textSize="14sp"
             android:text="Connected"
             android:textAlignment="textEnd"
             android:textColor="@color/black" />
@@ -84,6 +88,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_margin="20dp"
             android:orientation="vertical">
 
@@ -99,6 +104,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:text="Device Info" />
 
                 <TextView
@@ -106,6 +113,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:text="Systolic Reading" />
 
                 <TextView
@@ -113,6 +122,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:text="Diastolic Reading" />
 
                 <TextView
@@ -120,6 +131,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:text="Pulse Reading" />
 
                 <TextView
@@ -143,6 +156,8 @@
                     android:id="@+id/weightScaleReadings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:layout_margin="8dp" />
 
 
@@ -160,12 +175,16 @@
                     android:id="@+id/bloodGlucometerReadings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:layout_margin="8dp" />
 
                 <TextView
                     android:id="@+id/bloodGlucometerReadingsDateTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:layout_margin="8dp" />
 
             </LinearLayout>
@@ -182,6 +201,8 @@
                     android:id="@+id/ecgReadings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
                     android:layout_margin="8dp" />
 
 

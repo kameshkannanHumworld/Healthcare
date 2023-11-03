@@ -1,6 +1,9 @@
 package com.example.healthcare.Adapters;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +21,7 @@ import com.example.healthcare.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder> {
 
@@ -56,8 +60,12 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
         //Bind the data to the UI
         holder.medicineName.setText(medication.getName());
         holder.medicineFrequency.setText(medication.getFrequency());
+        String quantity = String.valueOf(medication.getQuantity());
+        holder.medicineQuantity.setText("Quantity: "+quantity);
         holder.medicineImage.setImageResource(R.drawable.img);
-        holder.medicineQuantity.setVisibility(View.GONE);
+
+
+
     }
 
     @Override
