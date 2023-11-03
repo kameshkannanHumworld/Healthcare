@@ -15,7 +15,7 @@
     <string name="close_nav">Close Navigation</string>
     <string name="add_devices">Add devices</string>
     <string name="img">img\n</string>
-    <string name="device_name">Device Name</string>
+    <string name="device_name">Device Reading</string>
     <string name="connected">Connected</string>
     <string name="frequency">Frequency</string>
     <string name="quantity">Quantity</string>

@@ -1,8 +1,6 @@
 package com.example.healthcare;
 
 import static com.example.healthcare.BleDevices.BloodGlucometer.*;
-import static com.example.healthcare.BleDevices.ECGMeter.ECG_DEVICE_NAME1;
-import static com.example.healthcare.BleDevices.ECGMeter.ECG_DEVICE_NAME2;
 import static com.example.healthcare.BleDevices.ECGMeter.ecgDisconnectDeviceMethod;
 import static com.example.healthcare.BleDevices.UrionBp.*;
 import static com.example.healthcare.BleDevices.WeightScale.*;
@@ -10,14 +8,11 @@ import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConn
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnectAllDevices;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -29,10 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.healthcare.BleDevices.ECGMeter;
-import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-import java.util.Objects;
 
 
 public class DeviceInfoActivity extends AppCompatActivity {
@@ -40,14 +32,17 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private static final String TAG = "TAGi";
     private boolean hasAlertDialogShown = false;
 
+
     ImageView backButton;
     String deviceName;
-    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter;
+    CardView systolicDiastolicLayout;
+    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter,messageResultLayout;
     TextView isConnectedTextView;
-    TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, deviceInfoTextView, errorMessageTextView;
+    TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, errorMessageTextView;
     TextView weightScaleReadings;
-    TextView bloodGlucometerReadings, bloodGlucometerReadingsDateTime;
+    TextView  bloodGlucometerReadingsValue;
     TextView ecgReadings;
+    TextView resultTextViewForMessage;
 
 
     public static Boolean WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
@@ -149,21 +144,22 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutWeightScale.setVisibility(View.GONE);
         linearLayoutEcgMeter.setVisibility(View.GONE);
         linearLayoutBloodGlucometer.setVisibility(View.VISIBLE);
+        messageResultLayout.setVisibility(View.VISIBLE);
 
         if (deviceConnected) {
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
 
             if (BLOOD_GLUCOMETER_RESULT != null) {
-                bloodGlucometerReadings.setText(BLOOD_GLUCOMETER_RESULT);
+                resultTextViewForMessage.setText(BLOOD_GLUCOMETER_RESULT);
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
                     alertDialogMethod("BG Measured Failed","The Blood Glucometer has been measured Failed.");
                     BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
                 }
             }
-            if (BLOOD_GLUCOMETER_RESULT_DATE_TIME != null) {
-                bloodGlucometerReadingsDateTime.setText(BLOOD_GLUCOMETER_RESULT_DATE_TIME);
+            if (BLOOD_GLUCOMETER_RESULT_VALUE != null) {
+                bloodGlucometerReadingsValue.setText(BLOOD_GLUCOMETER_RESULT_VALUE);
 
                 if(BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL){
                     alertDialogMethod("BP Measured Sucessfully","The Blood Pressure has been measured Sucessfully.");
@@ -183,6 +179,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutBloodGlucometer.setVisibility(View.GONE);
         linearLayoutEcgMeter.setVisibility(View.GONE);
         linearLayoutWeightScale.setVisibility(View.VISIBLE);
+        messageResultLayout.setVisibility(View.GONE);
 
 
         if (WEIGHT_SCALE_IS_CONNECTED) {
@@ -191,7 +188,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
             if (WEIGHT_SCALE_READING != null) {
                 String floatConversionReading = String.valueOf(WEIGHT_SCALE_READING);
-                weightScaleReadings.setText("Weight Scale Reading(Kg): " + floatConversionReading);
+                weightScaleReadings.setText(floatConversionReading);
 
 
                 //sucessfull alert here
@@ -213,6 +210,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutBloodGlucometer.setVisibility(View.GONE);
         linearLayoutEcgMeter.setVisibility(View.GONE);
         linearLayoutUrionBp.setVisibility(View.VISIBLE);
+        messageResultLayout.setVisibility(View.VISIBLE);
+        systolicDiastolicLayout.setVisibility(View.VISIBLE);
 
 
         if (deviceConnected) {
@@ -220,16 +219,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
             isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
 
             //logic
-            deviceInfoTextView.setText(DEVICE_INFO_CLASS_SET_TEXT);
+            resultTextViewForMessage.setText(DEVICE_INFO_CLASS_SET_TEXT);
 
             if (URION_BP_DIASTOLIC_READINGS != null) {
-                diastolicReadingTextView.setText("Diastolic reading: " + URION_BP_DIASTOLIC_READINGS);
+                diastolicReadingTextView.setText(""+URION_BP_DIASTOLIC_READINGS);
             }
 
             if (URION_BP_SYSTOLIC_READINGS != null && URION_BP_PULSE_READINGS != null) {
-                systolicReadingTextView.setText("Systolic reading: " + URION_BP_SYSTOLIC_READINGS);
-                pulseReadingTextView.setText("Pulse reading: " + URION_BP_PULSE_READINGS);
-                deviceInfoTextView.setVisibility(View.GONE);
+                systolicReadingTextView.setText(""+URION_BP_SYSTOLIC_READINGS);
+                pulseReadingTextView.setText(""+URION_BP_PULSE_READINGS);
+                resultTextViewForMessage.setVisibility(View.GONE);
 
                 if(BLOOD_PRESSURE_READING_ALERT_SUCESSFULL){
                     alertDialogMethod("BP Measured Sucessfully","The Blood pressure has been measured Sucessfully.");
@@ -243,8 +242,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 systolicReadingTextView.setVisibility(View.GONE);
                 diastolicReadingTextView.setVisibility(View.GONE);
                 pulseReadingTextView.setVisibility(View.GONE);
-                deviceInfoTextView.setVisibility(View.GONE);
-                errorMessageTextView.setText(URION_BP_DEVICE_ERROR_MESSAGES);
+                errorMessageTextView.setVisibility(View.GONE);
+                resultTextViewForMessage.setText(URION_BP_DEVICE_ERROR_MESSAGES);
 
                 if(BLOOD_PRESSURE_READING_ALERT_ERROR){
                     alertDialogMethod("BP Measured Failed","The Blood pressure has been measured Failed.");
@@ -254,7 +253,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         } else {
             isConnectedTextView.setText("Not Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
-            linearLayoutUrionBp.setVisibility(View.GONE);
+            messageResultLayout.setVisibility(View.GONE);
         }
 
 
@@ -268,16 +267,17 @@ public class DeviceInfoActivity extends AppCompatActivity {
         errorMessageTextView = findViewById(R.id.errorMessage);
         backButton = findViewById(R.id.deviceInfoBackButton);
         deviceNameTextView = findViewById(R.id.deviceNameTextView);
-        deviceInfoTextView = findViewById(R.id.deviceInfoTextView);
         linearLayoutUrionBp = findViewById(R.id.linearLayoutUrionBp);
         weightScaleReadings = findViewById(R.id.weightScaleReadings);
         linearLayoutWeightScale = findViewById(R.id.linearLayoutWeightScale);
         isConnectedTextView = findViewById(R.id.isConnectedTextView);
         linearLayoutBloodGlucometer = findViewById(R.id.linearLayoutBloodGlucometer);
-        bloodGlucometerReadings = findViewById(R.id.bloodGlucometerReadings);
-        bloodGlucometerReadingsDateTime = findViewById(R.id.bloodGlucometerReadingsDateTime);
+        resultTextViewForMessage = findViewById(R.id.resultTextViewForMessage);
+        bloodGlucometerReadingsValue = findViewById(R.id.bloodGlucometerReadingsValue);
         ecgReadings = findViewById(R.id.ecgReadings);
         linearLayoutEcgMeter = findViewById(R.id.linearLayoutEcgMeter);
+        messageResultLayout = findViewById(R.id.messageResultLayout);
+        systolicDiastolicLayout = findViewById(R.id.systolicDiastolicLayout);
     }
 
     private void backButtonMethod() {
@@ -384,6 +384,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         // finally change the color
         window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
     }
+
 
 }
 

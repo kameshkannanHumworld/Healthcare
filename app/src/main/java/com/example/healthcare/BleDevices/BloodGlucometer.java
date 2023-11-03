@@ -25,7 +25,7 @@ public class BloodGlucometer {
     public static String BLOOD_GLUCOMETER_UUID_SERVICE = "0003cdd0-0000-1000-8000-00805f9b0131";
     public static String BLOOD_GLUCOMETER_UUID_WRITE_SERIALNUMBER = "0003cdd2-0000-1000-8000-00805f9b0131";
     public static String BLOOD_GLUCOMETER_RESULT = null;
-    public static String BLOOD_GLUCOMETER_RESULT_DATE_TIME = null;
+    public static String BLOOD_GLUCOMETER_RESULT_VALUE = null;
     public static boolean BLOOD_GLUCOMETER_SEND_ALERT = false;
     public static final byte[] BLOOD_GLUCOMETER_SERIAL_NUMBER_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x77, 0x55, 0x00, 0x00, 0x01, 0x0B, 0x0B, 0x04, 0x7D};
     public static final byte[] BLOOD_GLUCOMETER_STRIP_IN_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x12, (byte) 0x99, 0x00, 0x00, 0x0C, 0x05, 0x04, 0x07, 0x7D};
@@ -80,11 +80,11 @@ public class BloodGlucometer {
                         } else if (pairs.get(9).equals("33") && pairs.get(13).equals("00")) {
                             //calculate result
                             Log.w(TAG, "please wait..");
-                            BLOOD_GLUCOMETER_RESULT = "please wait..";
+                            BLOOD_GLUCOMETER_RESULT = "Please wait...";
 
                         } else if (pairs.get(9).equals("44") && pairs.get(13).equals("00")) {
                             //fetch  result
-                            fetchLastTestResultMethod(lastTestResult_HexaDecimal_FirstBit,lastTestResult_HexaDecimal_SecondBit);
+                            BLOOD_GLUCOMETER_RESULT_VALUE = fetchLastTestResultMethod(lastTestResult_HexaDecimal_FirstBit,lastTestResult_HexaDecimal_SecondBit);
 
                         } else if (pairs.get(9).equals("55") && pairs.get(13).equals("02")) {
                             //Error
@@ -113,7 +113,6 @@ public class BloodGlucometer {
                     if (frameLength.equals("06")) {
                         String dateAndTime = pairs.get(9) + " " + pairs.get(10) + " " + pairs.get(11) + " " + pairs.get(12) + " " + pairs.get(13) + " " + pairs.get(14);
                         Log.w(TAG, "Blood Glucometer Result DateTime : " + ConverterClass.decodeHexDateTime(dateAndTime));
-                        BLOOD_GLUCOMETER_RESULT_DATE_TIME = "Blood Glucometer Result DateTime : " + ConverterClass.decodeHexDateTime(dateAndTime);
                     }
                 } else {
                     Log.w(TAG, "Blood Glucometer Other protocoal code..");
@@ -128,14 +127,14 @@ public class BloodGlucometer {
 
 
     //get result value here
-    public static void fetchLastTestResultMethod(String lastTestResultHexaDecimal_FirstBit, String lastTestResult_HexaDecimal_SecondBit) {
+    public static String fetchLastTestResultMethod(String lastTestResultHexaDecimal_FirstBit, String lastTestResult_HexaDecimal_SecondBit) {
         String lastTestResult_Decimal_FirstBit = String.valueOf(ConverterClass.hexadecimalToDecimal(lastTestResultHexaDecimal_FirstBit));
         String lastTestResult_Decimal_SecondBit = String.valueOf(ConverterClass.hexadecimalToDecimal(lastTestResult_HexaDecimal_SecondBit));
-        String finalOutput = lastTestResult_Decimal_FirstBit + lastTestResult_Decimal_SecondBit;
+        String finalOutput = lastTestResult_Decimal_FirstBit +""+ lastTestResult_Decimal_SecondBit;
 
         Log.d(TAG, "lastTestResult_Decimal(mg/dL): " + finalOutput);
-        BLOOD_GLUCOMETER_RESULT = "Blood Glucometer Reading: "+finalOutput+ "mg/dL";
         BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = true;
+        return finalOutput;
     }
 
 

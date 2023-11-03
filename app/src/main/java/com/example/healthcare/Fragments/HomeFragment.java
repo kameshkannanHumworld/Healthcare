@@ -107,11 +107,20 @@ public class HomeFragment extends Fragment {
     }
 
 
+    private void permissionCheckWhenClickDeviceIcon(){
+        LocationUtil.requestLocationEnable(requireActivity());
+        LocationUtil.requestFineLocationConnectPermission(requireActivity());
+        BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
+        BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
+        BluetoothUtil.requestBluetoothScanPermission(requireActivity());
+    }
+
     private void ImageListenersMethod() {
 
         //Weight Scale Listener
         if (!isDeviceInfoActivityRunning) {
             weighScaleImage.setOnClickListener(view -> {
+                permissionCheckWhenClickDeviceIcon();
                 bluetoothScanner = new BluetoothScanner(WEIGHT_SCALE_DEVICE_NAME, context);
                 new Thread(new Runnable() {
                     @Override
@@ -130,6 +139,7 @@ public class HomeFragment extends Fragment {
         //BP Meter Listener
         if (!isDeviceInfoActivityRunning) {
             bpMeterImage.setOnClickListener(view -> {
+                permissionCheckWhenClickDeviceIcon();
                 bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
                 animationLoading.startLoadingDialogBlutoothScan(URION_BP_DEVICE_NAME, context);
                 startBackgroundScan();
@@ -145,6 +155,7 @@ public class HomeFragment extends Fragment {
         //ECG meter Listener
         if (!isDeviceInfoActivityRunning) {
             ecgMeterImage.setOnClickListener(view -> {
+                permissionCheckWhenClickDeviceIcon();
                 bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME1, context);
                 animationLoading.startLoadingDialogBlutoothScan(ECG_DEVICE_NAME1, context);
                 startBackgroundScan();
@@ -168,6 +179,7 @@ public class HomeFragment extends Fragment {
         //Glucometer Listener
         if (!isDeviceInfoActivityRunning) {
             glucometerImage.setOnClickListener(view -> {
+                permissionCheckWhenClickDeviceIcon();
                 bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
                 animationLoading.startLoadingDialogBlutoothScan(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
                 startBackgroundScan();

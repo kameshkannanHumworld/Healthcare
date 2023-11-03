@@ -23,7 +23,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash_screen);
         statusBarColorMethod();
 
-        //Lottie Animation here
+//        //Lottie Animation here
         lottieAnimationView = findViewById(R.id.splashScreenLottieAnimation);
         lottieAnimationView.animate().translationX(2000).setDuration(2000).setStartDelay(2900);
 
