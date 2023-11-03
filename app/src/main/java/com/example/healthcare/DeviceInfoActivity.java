@@ -21,6 +21,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.healthcare.BleDevices.ECGMeter;
@@ -32,7 +33,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private static final String TAG = "TAGi";
     private boolean hasAlertDialogShown = false;
 
-
+    private ProgressBar circularProgressBarBloodGlucometer,circularProgressBarWeightScale,circularProgressBarBloodPressure;
     ImageView backButton;
     String deviceName;
     CardView systolicDiastolicLayout;
@@ -154,6 +155,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 resultTextViewForMessage.setText(BLOOD_GLUCOMETER_RESULT);
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
+
                     alertDialogMethod("BG Measured Failed","The Blood Glucometer has been measured Failed.");
                     BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
                 }
@@ -278,6 +280,10 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutEcgMeter = findViewById(R.id.linearLayoutEcgMeter);
         messageResultLayout = findViewById(R.id.messageResultLayout);
         systolicDiastolicLayout = findViewById(R.id.systolicDiastolicLayout);
+
+        circularProgressBarBloodGlucometer = findViewById(R.id.circularProgressBarBloodGlucometer);
+        circularProgressBarWeightScale = findViewById(R.id.circularProgressBarWeightScale);
+        circularProgressBarBloodPressure = findViewById(R.id.circularProgressBarBloodPressure);
     }
 
     private void backButtonMethod() {
