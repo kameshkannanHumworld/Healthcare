@@ -10,9 +10,12 @@ import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnect
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -33,15 +36,15 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private static final String TAG = "TAGi";
     private boolean hasAlertDialogShown = false;
 
-    private ProgressBar circularProgressBarBloodGlucometer,circularProgressBarWeightScale,circularProgressBarBloodPressure;
+    private ProgressBar circularProgressBarBloodGlucometer, circularProgressBarWeightScale, circularProgressBarBloodPressure;
     ImageView backButton;
     String deviceName;
     CardView systolicDiastolicLayout;
-    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter,messageResultLayout;
+    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter, messageResultLayout;
     TextView isConnectedTextView;
     TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, errorMessageTextView;
     TextView weightScaleReadings;
-    TextView  bloodGlucometerReadingsValue;
+    TextView bloodGlucometerReadingsValue;
     TextView ecgReadings;
     TextView resultTextViewForMessage;
 
@@ -156,15 +159,15 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
 
-                    alertDialogMethod("BG Measured Failed","The Blood Glucometer has been measured Failed.");
+                    alertDialogMethod("BG Measured Failed", "The Blood Glucometer has been measured Failed.");
                     BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
                 }
             }
             if (BLOOD_GLUCOMETER_RESULT_VALUE != null) {
                 bloodGlucometerReadingsValue.setText(BLOOD_GLUCOMETER_RESULT_VALUE);
 
-                if(BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL){
-                    alertDialogMethod("BP Measured Sucessfully","The Blood Pressure has been measured Sucessfully.");
+                if (BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL) {
+                    alertDialogMethod("BP Measured Sucessfully", "The Blood Pressure has been measured Sucessfully.");
                     BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -194,8 +197,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
                 //sucessfull alert here
-                if(WEIGHT_SCALE_READING_ALERT_SUCESSFULL){
-                    alertDialogMethod("Weight Measured Sucessfully","The Weight has been measured Sucessfully.");
+                if (WEIGHT_SCALE_READING_ALERT_SUCESSFULL) {
+                    alertDialogMethod("Weight Measured Sucessfully", "The Weight has been measured Sucessfully.");
                     WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -224,16 +227,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
             resultTextViewForMessage.setText(DEVICE_INFO_CLASS_SET_TEXT);
 
             if (URION_BP_DIASTOLIC_READINGS != null) {
-                diastolicReadingTextView.setText(""+URION_BP_DIASTOLIC_READINGS);
+                diastolicReadingTextView.setText("" + URION_BP_DIASTOLIC_READINGS);
             }
 
             if (URION_BP_SYSTOLIC_READINGS != null && URION_BP_PULSE_READINGS != null) {
-                systolicReadingTextView.setText(""+URION_BP_SYSTOLIC_READINGS);
-                pulseReadingTextView.setText(""+URION_BP_PULSE_READINGS);
+                systolicReadingTextView.setText("" + URION_BP_SYSTOLIC_READINGS);
+                pulseReadingTextView.setText("" + URION_BP_PULSE_READINGS);
                 resultTextViewForMessage.setVisibility(View.GONE);
 
-                if(BLOOD_PRESSURE_READING_ALERT_SUCESSFULL){
-                    alertDialogMethod("BP Measured Sucessfully","The Blood pressure has been measured Sucessfully.");
+                if (BLOOD_PRESSURE_READING_ALERT_SUCESSFULL) {
+                    alertDialogMethod("BP Measured Sucessfully", "The Blood pressure has been measured Sucessfully.");
                     BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -247,8 +250,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 errorMessageTextView.setVisibility(View.GONE);
                 resultTextViewForMessage.setText(URION_BP_DEVICE_ERROR_MESSAGES);
 
-                if(BLOOD_PRESSURE_READING_ALERT_ERROR){
-                    alertDialogMethod("BP Measured Failed","The Blood pressure has been measured Failed.");
+                if (BLOOD_PRESSURE_READING_ALERT_ERROR) {
+                    alertDialogMethod("BP Measured Failed", "The Blood pressure has been measured Failed.");
                     BLOOD_PRESSURE_READING_ALERT_ERROR = false;
                 }
             }
@@ -319,7 +322,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     .setTitle("Confirmation")  // Set the title
                     .setMessage("Are you sure want to Exit?")  // Set the message
                     .setPositiveButton("OK", (dialog, which) -> backButtonMethod())
-                    .setNegativeButton("Cancel",null)
+                    .setNegativeButton("Cancel", null)
                     .show();  // Show the dialog
         });
     }
@@ -368,7 +371,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
     // alert dialog here
-    private  void alertDialogMethod(String title, String message) {
+    private void alertDialogMethod(String title, String message) {
         if (!hasAlertDialogShown) {
             new MaterialAlertDialogBuilder(this)
                     .setTitle(title)  // Set the title
@@ -388,10 +391,24 @@ public class DeviceInfoActivity extends AppCompatActivity {
         // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         // finally change the color
-        window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.k_blue));
     }
 
-
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onBackPressed() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Confirmation")  // Set the title
+                .setMessage("Are you sure want to Exit?")  // Set the message
+                .setPositiveButton("OK", (dialog, which) -> {
+                    DeviceInfoActivity.super.onBackPressed();
+                    backButtonMethod();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();  // Show the dialog
+    }
 }
+
+
 
 

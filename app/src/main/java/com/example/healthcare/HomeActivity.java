@@ -1,6 +1,8 @@
 package com.example.healthcare;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -18,6 +20,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.healthcare.Fragments.HomeFragment;
 import com.example.healthcare.Fragments.MedicationsFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -34,8 +37,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         statusBarColorMethod();
 
         //Set Tool Bar
-         toolbar= findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         //Assign Id for the UI here
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -45,13 +48,13 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
 
         /*
-        *   Navigation Toggle here
-        *   params1 - Activity
-        *   params2 - navigation drawer layout
-        *   params3 - toolbar layout
-        *   params4 - A String resource to describe the "open drawer" action for accessibility (Description)
-        *   params5 - A String resource to describe the "Close drawer" action for accessibility (Description)
-        * */
+         *   Navigation Toggle here
+         *   params1 - Activity
+         *   params2 - navigation drawer layout
+         *   params3 - toolbar layout
+         *   params4 - A String resource to describe the "open drawer" action for accessibility (Description)
+         *   params5 - A String resource to describe the "Close drawer" action for accessibility (Description)
+         * */
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
                 R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
@@ -74,10 +77,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         } else if (itemId == R.id.nav_medications) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MedicationsFragment()).commit();
         } else if (itemId == R.id.nav_logout) {
-            Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Confirmation")  // Set the title
+                    .setMessage("Are you sure want to Logout?")  // Set the message
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();  // Show the dialog
+
         }
 
         //after click the menu navigation bar auto close
@@ -85,14 +96,30 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Confirmation")  // Set the title
+                    .setMessage("Are you sure want to Logout?")  // Set the message
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            HomeActivity.super.onBackPressed();
+                            Intent intent = new Intent(Intent.ACTION_MAIN);
+                            intent.addCategory(Intent.CATEGORY_HOME);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();  // Show the dialog
         }
     }
+
 
     private void statusBarColorMethod() {
         Window window = this.getWindow();
@@ -101,6 +128,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         // finally change the color
-        window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.k_blue));
     }
 }

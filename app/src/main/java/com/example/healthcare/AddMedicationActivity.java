@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -614,5 +615,21 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
     }
 
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onBackPressed() {
+        if (!medicineNameInput.getText().toString().isEmpty() || !medicineFrequencyInput.getText().toString().isEmpty() || !medicineQuantityInput.getText().toString().isEmpty()) {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle("Confirmation")  // Set the title
+                    .setMessage("Are you sure want to Exit?")  // Set the message
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        AddMedicationActivity.super.onBackPressed();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();// Show the dialog
+        } else {
+            AddMedicationActivity.super.onBackPressed();
+        }
+    }
 
 }
