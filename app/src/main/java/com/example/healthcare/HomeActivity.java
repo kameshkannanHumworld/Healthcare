@@ -1,20 +1,22 @@
 package com.example.healthcare;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -34,10 +36,10 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        statusBarColorMethod();
 
         //Set Tool Bar
         toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Devices");
         setSupportActionBar(toolbar);
 
         //Assign Id for the UI here
@@ -74,20 +76,25 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         if (itemId == R.id.nav_home) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+            toolbar.setTitle("Devices");
         } else if (itemId == R.id.nav_medications) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MedicationsFragment()).commit();
+            toolbar.setTitle("Medications");
         } else if (itemId == R.id.nav_logout) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Confirmation")  // Set the title
-                    .setMessage("Are you sure want to Logout?")  // Set the message
-                    .setPositiveButton("OK", (dialog, which) -> {
-                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();  // Show the dialog
+//            new MaterialAlertDialogBuilder(this)
+//                    .setTitle("Confirmation")  // Set the title
+//                    .setMessage("Are you sure want to Logout?")  // Set the message
+//                    .setPositiveButton("OK", (dialog, which) -> {
+//
+//                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                        startActivity(intent);
+//                        finish();
+//
+//                    })
+//                    .setNegativeButton("Cancel", null)
+//                    .show();  // Show the dialog
+            showCustomDialogBox("Are you sure want to Logout?", false);
 
         }
 
@@ -102,32 +109,51 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Confirmation")  // Set the title
-                    .setMessage("Are you sure want to Logout?")  // Set the message
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            HomeActivity.super.onBackPressed();
-                            Intent intent = new Intent(Intent.ACTION_MAIN);
-                            intent.addCategory(Intent.CATEGORY_HOME);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        }
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();  // Show the dialog
+            showCustomDialogBox("Are you sure want to Logout?", true);
         }
     }
 
 
-    private void statusBarColorMethod() {
-        Window window = this.getWindow();
-        // clear FLAG_TRANSLUCENT_STATUS flag:
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        // finally change the color
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.k_blue));
+    private void showCustomDialogBox(String message, boolean isOnBackPressed) {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.custom_dialog_layout);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        TextView tvMessage = dialog.findViewById(R.id.tvMessage);
+        Button btnYes = dialog.findViewById(R.id.btnYes);
+        Button btnNo = dialog.findViewById(R.id.btnNo);
+
+        tvMessage.setText(message);
+
+        btnYes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isOnBackPressed) {
+                    Intent intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_HOME);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
+
+        btnNo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
+
+
 }

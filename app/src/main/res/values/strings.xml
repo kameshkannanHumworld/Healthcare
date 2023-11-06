@@ -3,7 +3,7 @@
     <string name="enter_username">Enter Username</string>
     <string name="enter_password">Enter Password</string>
     <string name="forgot_password">Forgot password ?</string>
-    <string name="login">Login</string>
+    <string name="login">LOGIN</string>
     <string name="or_login_with">Or Login with</string>
     <string name="don_t_have_account_sign_up">Don\'t have account? Sign up</string>
     <string name="home">Home</string>

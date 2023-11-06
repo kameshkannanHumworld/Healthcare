@@ -4,9 +4,12 @@ package com.example.healthcare;
 import static com.example.healthcare.MainActivity.TOKEN;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,6 +45,7 @@ import com.example.healthcare.MedicationsModule.Medicine;
 import com.example.healthcare.MedicationsModule.MedicineNameApiResponse;
 import com.example.healthcare.MedicationsModule.MedicineNameApiService;
 import com.example.healthcare.TextWatcher.AlphanumericTextWatcher;
+import com.example.healthcare.TextWatcher.ClearErrorTextWatcher;
 import com.example.healthcare.TextWatcher.MedicineNameTextWatcher;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -77,6 +81,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     public static final int CAREPLAN_ID = 34534;
     public final Integer VISIT_ID = null;
     public static Integer MEDICTION_ID;
+    private static boolean isSavedForBackPress = false;
     private final String MEDICTION_NAME = "";
     String medName, frequency, recordDateTime, endDateTime, notes;
     int quantity;
@@ -89,7 +94,6 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_medication);
-        statusBarColorMethod();
 
         //id Assign here
         idAssignHere();
@@ -100,8 +104,10 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         //toolbar title
         if (IS_EDIT) {
             toolbarTitle.setText("Edit Medication");
+            submitButton.setText("UPDATE");
         } else {
             toolbarTitle.setText("Add Medication");
+            submitButton.setText("SAVE");
         }
 
         //swipe right edit from MedicationFragment.class
@@ -280,7 +286,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                     for (Medicine medicine : medicines) {
                         String medicineNameFirst = medicine.getProprietaryNameWithDosage();
                         String medicineNameSecond = medicine.getNonProprietaryNameWithDosage();
-                        String medicineName = medicineNameFirst+" "+medicineNameSecond;
+                        String medicineName = medicineNameFirst + " " + medicineNameSecond;
 //                        Log.d(TAG, "Full medicineName: " + medicineName);
                         if (medicineName != null && !medicineName.isEmpty()) {
                             medicineNames.add(medicineName);
@@ -335,6 +341,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                 // after changed and call the autocomplete method here
                 apiMedicineAutocompleteMethod(s.toString());
                 Log.d(TAG, "afterTextChanged: " + s);
+                medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
             }
         });
     }
@@ -376,13 +383,20 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                 //submit validation
                 if (medName.trim().isEmpty()) {
                     textInputLayout3.setError("Medicine Name is Required");
+                    medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
+                    medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
                 } else if (mFrequencyInput == null) {
                     textInputLayout4.setError("Frequency is Required");
+                    medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
+                    medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
                 } else if (quantity == null || quantity < 0) {
                     textInputLayout5.setError("Quantity is Required");
+                    medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
+                    medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
                 } else {
-                    textInputLayout3.setError(null);
-                    textInputLayout4.setError(null);
+                    medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
+                    medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
+                    medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
 
                     Log.d(TAG, "onClick: " + medName);
                     Log.d(TAG, "onClick: " + quantity);
@@ -395,6 +409,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
 
                     //medication validation method here
+                    isSavedForBackPress = true;
                     medicationValidationMethod();
                 }
 
@@ -514,8 +529,14 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                     Log.d(TAG, "onResponse: " + response.code());
                     SaveApiResponse saveApiResponse = response.body();
                     if (Objects.equals(saveApiResponse.getStatus(), "success")) {
-//                        MEDICTION_ID = String.valueOf(saveApiResponse.getId());
-                        Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();
+                        if (IS_EDIT) {
+                            Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
+                            IS_EDIT = false;
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();
+                        }
+
+                        isSavedForBackPress = true;
                         onBackPressed(); // navigation to previous page
                     } else {
                         Toast.makeText(getApplicationContext(), "Saved Unsucessfully", Toast.LENGTH_SHORT).show();
@@ -537,12 +558,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     private void backButtonListener() {
         addMedicineBackButton.setOnClickListener(v -> {
             if (!medicineNameInput.getText().toString().isEmpty() || !medicineFrequencyInput.getText().toString().isEmpty() || !medicineQuantityInput.getText().toString().isEmpty()) {
-                new MaterialAlertDialogBuilder(this)
-                        .setTitle("Confirmation")  // Set the title
-                        .setMessage("Are you sure want to Exit?")  // Set the message
-                        .setPositiveButton("OK", (dialog, which) -> onBackPressed())
-                        .setNegativeButton("Cancel", null)
-                        .show();  // Show the dialog
+                showCustomDialogBox("Are you want to Exit? \n your Entered Data will be Lost..");
             } else {
                 onBackPressed();
             }
@@ -605,31 +621,43 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         timePickerDialog.show();
     }
 
-    private void statusBarColorMethod() {
-        Window window = this.getWindow();
-        // clear FLAG_TRANSLUCENT_STATUS flag:
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        // finally change the color
-        window.setStatusBarColor(ContextCompat.getColor(this,R.color.k_blue));
-    }
 
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        if (!medicineNameInput.getText().toString().isEmpty() || !medicineFrequencyInput.getText().toString().isEmpty() || !medicineQuantityInput.getText().toString().isEmpty()) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Confirmation")  // Set the title
-                    .setMessage("Are you sure want to Exit?")  // Set the message
-                    .setPositiveButton("OK", (dialog, which) -> {
-                        AddMedicationActivity.super.onBackPressed();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();// Show the dialog
+        if (isSavedForBackPress) {
+            AddMedicationActivity.super.onBackPressed();
+        } else if (!medicineNameInput.getText().toString().isEmpty() || !medicineFrequencyInput.getText().toString().isEmpty() || !medicineQuantityInput.getText().toString().isEmpty()) {
+            showCustomDialogBox("Are you want to Exit? \n your Entered Data will be Lost..");
+
         } else {
             AddMedicationActivity.super.onBackPressed();
         }
+
+    }
+
+    //Custom Dialog
+    private void showCustomDialogBox(String message) {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.custom_dialog_layout);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+
+        TextView tvMessage = dialog.findViewById(R.id.tvMessage);
+        Button btnYes = dialog.findViewById(R.id.btnYes);
+        Button btnNo = dialog.findViewById(R.id.btnNo);
+
+        tvMessage.setText(message);
+
+        btnYes.setOnClickListener(v -> {
+            AddMedicationActivity.super.onBackPressed();
+        });
+
+        btnNo.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
 }

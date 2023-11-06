@@ -9,19 +9,24 @@ import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnect
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -35,6 +40,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     public static boolean isDeviceInfoActivityRunning = false;
     private static final String TAG = "TAGi";
     private boolean hasAlertDialogShown = false;
+    private boolean isExitForBackPress = false;
 
     private ProgressBar circularProgressBarBloodGlucometer, circularProgressBarWeightScale, circularProgressBarBloodPressure;
     ImageView backButton;
@@ -74,7 +80,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_info);
-        statusBarColorMethod();
         Log.d("TAGi", "onCreate ");
 
         //prevent
@@ -159,7 +164,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
 
-                    alertDialogMethod("BG Measured Failed", "The Blood Glucometer has been measured Failed.");
+                    alertDialogMethod("The Blood Glucometer has been measured Failed.","---","mg/dl",false);
                     BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
                 }
             }
@@ -167,7 +172,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 bloodGlucometerReadingsValue.setText(BLOOD_GLUCOMETER_RESULT_VALUE);
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("BP Measured Sucessfully", "The Blood Pressure has been measured Sucessfully.");
+                    alertDialogMethod("The Blood Pressure has been measured Sucessfully.",BLOOD_GLUCOMETER_RESULT_VALUE,"mg/dl",true);
                     BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -198,7 +203,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 //sucessfull alert here
                 if (WEIGHT_SCALE_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("Weight Measured Sucessfully", "The Weight has been measured Sucessfully.");
+                    alertDialogMethod("The Weight has been measured Sucessfully.", String.valueOf(WEIGHT_SCALE_READING),"Kilogram",true);
                     WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -236,7 +241,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 resultTextViewForMessage.setVisibility(View.GONE);
 
                 if (BLOOD_PRESSURE_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("BP Measured Sucessfully", "The Blood pressure has been measured Sucessfully.");
+                    alertDialogMethod( "The Blood pressure has been measured Sucessfully.",URION_BP_SYSTOLIC_READINGS+"\n"+URION_BP_DIASTOLIC_READINGS,"mmHg",false);
                     BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -251,7 +256,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 resultTextViewForMessage.setText(URION_BP_DEVICE_ERROR_MESSAGES);
 
                 if (BLOOD_PRESSURE_READING_ALERT_ERROR) {
-                    alertDialogMethod("BP Measured Failed", "The Blood pressure has been measured Failed.");
+                    alertDialogMethod("The Blood pressure has been measured Failed.","---","mmHg",true);
                     BLOOD_PRESSURE_READING_ALERT_ERROR = false;
                 }
             }
@@ -318,12 +323,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     //method ask confirmation for exit , when Click back button
     public void backButtonConfirmationDialogMethod(Context context) {
         backButton.setOnClickListener(v -> {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Confirmation")  // Set the title
-                    .setMessage("Are you sure want to Exit?")  // Set the message
-                    .setPositiveButton("OK", (dialog, which) -> backButtonMethod())
-                    .setNegativeButton("Cancel", null)
-                    .show();  // Show the dialog
+            showCustomDialogBox("Are you sure want tot Exit?");
         });
     }
 
@@ -371,41 +371,77 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
     // alert dialog here
-    private void alertDialogMethod(String title, String message) {
+    private void alertDialogMethod(String message, String reading, String unit, boolean isError) {
         if (!hasAlertDialogShown) {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle(title)  // Set the title
-                    .setCancelable(false)
-                    .setMessage(message)  // Set the message
-                    .setPositiveButton("OK", null)
-                    .show();  // Show the dialog
+            final Dialog dialog = new Dialog(this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.custom_dialog_layout);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+            ConstraintLayout readingConstraintLayout = dialog.findViewById(R.id.readingConstraintLayout);
+            TextView readingValue = dialog.findViewById(R.id.readingValue);
+            TextView unitValue = dialog.findViewById(R.id.unitValue);
+            TextView tvMessage = dialog.findViewById(R.id.tvMessage);
+            Button btnYes = dialog.findViewById(R.id.btnYes);
+            Button btnNo = dialog.findViewById(R.id.btnNo);
+
+            if(isError){
+                readingConstraintLayout.setVisibility(View.GONE);
+                tvMessage.setTextColor(getResources().getColor(R.color.red));
+            }else{
+                readingConstraintLayout.setVisibility(View.VISIBLE);
+            }
+            btnNo.setVisibility(View.GONE);
+            btnYes.setText("OK");
+
+            tvMessage.setText(message);
+            readingValue.setText(reading);
+            unitValue.setText(unit);
+
+            btnYes.setOnClickListener(v -> {
+                DeviceInfoActivity.super.onBackPressed();
+                backButtonMethod();
+            });
+
+            dialog.show();
 
             hasAlertDialogShown = true;
         }
     }
 
-    private void statusBarColorMethod() {
-        Window window = this.getWindow();
-        // clear FLAG_TRANSLUCENT_STATUS flag:
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        // finally change the color
-        window.setStatusBarColor(ContextCompat.getColor(this, R.color.k_blue));
-    }
 
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Confirmation")  // Set the title
-                .setMessage("Are you sure want to Exit?")  // Set the message
-                .setPositiveButton("OK", (dialog, which) -> {
-                    DeviceInfoActivity.super.onBackPressed();
-                    backButtonMethod();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();  // Show the dialog
+
+        showCustomDialogBox("Are you sure want to Exit?");
+
+    }
+
+    //Custom Dialog
+    private void showCustomDialogBox(String message) {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.custom_dialog_layout);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+
+        TextView tvMessage = dialog.findViewById(R.id.tvMessage);
+        Button btnYes = dialog.findViewById(R.id.btnYes);
+        Button btnNo = dialog.findViewById(R.id.btnNo);
+
+        tvMessage.setText(message);
+
+        btnYes.setOnClickListener(v -> {
+            DeviceInfoActivity.super.onBackPressed();
+            backButtonMethod();
+        });
+
+        btnNo.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }
 

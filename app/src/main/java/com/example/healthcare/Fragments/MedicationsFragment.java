@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.healthcare.Adapters.MedicationAdapter;
@@ -71,6 +72,7 @@ public class MedicationsFragment extends Fragment {
     RecyclerView recyclerMedications;
     MedicationAdapter medicationAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
+    TextView noMedicationsTextView;
 
     public MedicationsFragment() {
         // Required empty public constructor
@@ -96,11 +98,13 @@ public class MedicationsFragment extends Fragment {
 
 
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_medications, container, false);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        noMedicationsTextView = view.findViewById(R.id.noMedicationsTextView);
 
         //setup data with arraylist
         medicationList = new ArrayList<>();
@@ -189,6 +193,7 @@ public class MedicationsFragment extends Fragment {
             new MaterialAlertDialogBuilder(context)
                     .setTitle("Confirmation")  // Set the title
                     .setMessage("Are you sure want to Delete?")  // Set the message
+                    .setIcon(R.drawable.baseline_delete_24)
                     .setPositiveButton("OK", (dialog, which) -> deleteItem(position))  // Delete the item from the database
                     .setNegativeButton("Cancel",null)
                     .show();  // Show the dialog
@@ -233,7 +238,7 @@ public class MedicationsFragment extends Fragment {
         IS_EDIT = true;
         startActivity(intent);
 
-        medicationAdapter.notifyDataSetChanged();
+        medicationAdapter.notifyItemChanged(position);
     }
 
     //Method to delete the medicine by swipe left
@@ -260,20 +265,18 @@ public class MedicationsFragment extends Fragment {
                     Toast.makeText(requireContext(), "Deleted Sucessfully", Toast.LENGTH_SHORT).show();
 
                     //refresh
-                    medicationList.clear();
-                    fetchDataFromAPI();
-                    medicationAdapter.notifyDataSetChanged();
+                    medicationList.remove(position);
+                    medicationAdapter.notifyItemRemoved(position);
+//                    fetchDataFromAPI();
                     swipeRefreshLayout.setRefreshing(false);
                 }else{
                     Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_SHORT).show();
-                    medicationAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onFailure(Call<DeleteApiResponse> call, Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
-                medicationAdapter.notifyDataSetChanged();
             }
         });
 
@@ -307,8 +310,8 @@ public class MedicationsFragment extends Fragment {
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             medicationList.clear();
-            fetchDataFromAPI();
             medicationAdapter.notifyDataSetChanged();
+            fetchDataFromAPI();
             swipeRefreshLayout.setRefreshing(false);
         });
     }
@@ -332,6 +335,19 @@ public class MedicationsFragment extends Fragment {
                         Log.d(TAG, "onResponse: " + response.code());
                         medicationList.addAll(dataList);
                         medicationAdapter.notifyDataSetChanged();
+
+                        //if recycler view is null, it shows TextView (noMedicationsTextView)
+                        int itemCount = medicationAdapter.getItemCount();
+                        Log.d(TAG, "Recyeler view count: "+itemCount);
+                        if (recyclerMedications.getAdapter() == null || recyclerMedications.getAdapter().getItemCount() == 0) {
+                            // The RecyclerView is empty
+                            recyclerMedications.setVisibility(View.GONE);
+                            noMedicationsTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            // The RecyclerView is not empty
+                            recyclerMedications.setVisibility(View.VISIBLE);
+                            noMedicationsTextView.setVisibility(View.GONE);
+                        }
                     }
                 } else {
                     Log.d(TAG, "onResponse: else" + response.code());
@@ -351,6 +367,7 @@ public class MedicationsFragment extends Fragment {
         recyclerMedications.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
         medicationAdapter = new MedicationAdapter(requireContext(), medicationList, medicineClickInterfaceMethod);
         recyclerMedications.setAdapter(medicationAdapter);
+
     }
 
     //floating Action Button Method
