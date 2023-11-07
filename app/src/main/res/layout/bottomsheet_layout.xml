@@ -36,7 +36,6 @@
                 android:padding="8dp"
                 android:text="@string/add_devices"
                 android:textAlignment="viewStart"
-                android:textColor="@color/black"
                 android:textSize="25sp" />
 
             <ImageView
@@ -72,7 +71,6 @@
                 android:padding="8dp"
                 android:text="@string/other_available_devices"
                 android:textAlignment="viewStart"
-                android:textColor="@color/black"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 

@@ -31,7 +31,6 @@
             android:layout_height="0dp"
             android:layout_marginStart="20dp"
             android:layout_weight="1"
-            android:textColor="#979595"
             android:textSize="18sp"
             android:text="@string/connected" />
     </LinearLayout>
