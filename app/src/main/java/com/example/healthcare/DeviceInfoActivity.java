@@ -164,7 +164,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
 
-                    alertDialogMethod("The Blood Glucometer has been measured Failed.","---","mg/dl",false);
+                    alertDialogMethod("The Blood Glucometer has been measured Failed.","---","mg/dl",true);
                     BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
                 }
             }
@@ -172,7 +172,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 bloodGlucometerReadingsValue.setText(BLOOD_GLUCOMETER_RESULT_VALUE);
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("The Blood Pressure has been measured Sucessfully.",BLOOD_GLUCOMETER_RESULT_VALUE,"mg/dl",true);
+                    alertDialogMethod("The Blood Pressure has been measured Sucessfully.",BLOOD_GLUCOMETER_RESULT_VALUE,"mg/dl",false);
                     BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -203,7 +203,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 //sucessfull alert here
                 if (WEIGHT_SCALE_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("The Weight has been measured Sucessfully.", String.valueOf(WEIGHT_SCALE_READING),"Kilogram",true);
+                    alertDialogMethod("The Weight has been measured Sucessfully.", String.valueOf(WEIGHT_SCALE_READING),"Kilogram",false);
                     WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -309,6 +309,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 WEIGHT_SCALE_READING = null;
             } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
                 BLOOD_GLUCOMETER_RESULT = null;
+                BLOOD_GLUCOMETER_RESULT_VALUE = null;
                 WEIGHT_SCALE_IS_CONNECTED = false;
             }
 
@@ -385,12 +386,17 @@ public class DeviceInfoActivity extends AppCompatActivity {
             TextView tvMessage = dialog.findViewById(R.id.tvMessage);
             Button btnYes = dialog.findViewById(R.id.btnYes);
             Button btnNo = dialog.findViewById(R.id.btnNo);
+            TextView dialogHeader = dialog.findViewById(R.id.dialogHeader);
+
+
 
             if(isError){
+                dialogHeader.setText("Failed");
                 readingConstraintLayout.setVisibility(View.GONE);
                 tvMessage.setTextColor(getResources().getColor(R.color.red));
             }else{
                 readingConstraintLayout.setVisibility(View.VISIBLE);
+                dialogHeader.setText("Sucess");
             }
             btnNo.setVisibility(View.GONE);
             btnYes.setText("OK");
@@ -400,8 +406,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
             unitValue.setText(unit);
 
             btnYes.setOnClickListener(v -> {
-                DeviceInfoActivity.super.onBackPressed();
                 backButtonMethod();
+                dialog.dismiss();
+                DeviceInfoActivity.super.onBackPressed();
             });
 
             dialog.show();
@@ -431,10 +438,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
         TextView tvMessage = dialog.findViewById(R.id.tvMessage);
         Button btnYes = dialog.findViewById(R.id.btnYes);
         Button btnNo = dialog.findViewById(R.id.btnNo);
+        TextView dialogHeader = dialog.findViewById(R.id.dialogHeader);
 
+        dialogHeader.setText("Confirmation");
         tvMessage.setText(message);
 
         btnYes.setOnClickListener(v -> {
+            dialog.dismiss();
             DeviceInfoActivity.super.onBackPressed();
             backButtonMethod();
         });

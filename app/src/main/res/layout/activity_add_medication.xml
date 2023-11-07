@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".AddMedicationActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         style="@style/TOOLBAR"
         android:layout_width="match_parent"
@@ -37,7 +37,7 @@
             android:textStyle="bold" />
 
 
-    </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.MaterialToolbar>
 
 
     <ScrollView
@@ -169,7 +169,6 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/enter_frequency"
                     android:inputType="none"
-                    android:textColorHint="#757575"
                     tools:ignore="TextContrastCheck,SpeakableTextPresentCheck" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -202,10 +201,10 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/submitButton"
-                style="@style/BUTTON"
                 android:layout_width="match_parent"
+                app:cornerRadius="10dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="60dp"
                 android:layout_marginTop="12dp"

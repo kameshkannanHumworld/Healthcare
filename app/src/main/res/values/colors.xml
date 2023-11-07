@@ -21,14 +21,14 @@
 
     <!--M3 theme builder-->
     <!--Light colors-->
-    <color name="md_theme_light_primary">#018767</color>
+    <color name="md_theme_light_primary">#7093E5</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
-    <color name="md_theme_light_primaryContainer">#97F0FF</color>
-    <color name="md_theme_light_onPrimaryContainer">#001F24</color>
+    <color name="md_theme_light_primaryContainer">#7093E5</color>
+    <color name="md_theme_light_onPrimaryContainer">#FFFFFF</color>
 
-    <color name="md_theme_light_secondary">#006C51</color>
+    <color name="md_theme_light_secondary">#7093E5</color>
     <color name="md_theme_light_onSecondary">#FFFFFF</color>
-    <color name="md_theme_light_secondaryContainer">#83F8CE</color>
+    <color name="md_theme_light_secondaryContainer">#8FD1EF</color>
     <color name="md_theme_light_onSecondaryContainer">#002117</color>
 
     <color name="md_theme_light_tertiary">#525E7D</color>
@@ -62,7 +62,7 @@
 
 
     <!--Dark colors-->
-    <color name="md_theme_dark_primary">#018767</color>
+    <color name="md_theme_dark_primary">#7093E5</color>
     <color name="md_theme_dark_onPrimary">#ffffff</color>
     <color name="md_theme_dark_primaryContainer">#004F58</color>
     <color name="md_theme_dark_onPrimaryContainer">#97F0FF</color>

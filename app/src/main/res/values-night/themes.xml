@@ -83,4 +83,17 @@
         <item name="cardBackgroundColor">@color/white</item>
     </style>
 
+    <!--    TextInput Layout dropdown-->
+    <style name="TEXTINPUTLAYOUT_DROPDOWN" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeColor">@color/k_rose</item>
+        <item name="boxBackgroundColor">@color/md_theme_dark_surfaceVariant</item>
+        <item name="boxCornerRadiusTopStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="hintTextColor">@color/k_rose</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+    </style>
+
 </resources>

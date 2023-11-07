@@ -60,6 +60,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
                 R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
+        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white));
         toggle.syncState();
 
 
@@ -124,12 +125,15 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         TextView tvMessage = dialog.findViewById(R.id.tvMessage);
         Button btnYes = dialog.findViewById(R.id.btnYes);
         Button btnNo = dialog.findViewById(R.id.btnNo);
+        TextView dialogHeader = dialog.findViewById(R.id.dialogHeader);
 
+        dialogHeader.setText("Confirmation");
         tvMessage.setText(message);
 
         btnYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.dismiss();
                 if (isOnBackPressed) {
                     Intent intent = new Intent(Intent.ACTION_MAIN);
                     intent.addCategory(Intent.CATEGORY_HOME);

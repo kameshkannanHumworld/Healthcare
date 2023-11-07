@@ -19,8 +19,12 @@ import com.example.healthcare.MedicineClickInterface;
 import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationResponse;
 import com.example.healthcare.R;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder> {
@@ -60,9 +64,28 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
         //Bind the data to the UI
         holder.medicineName.setText(medication.getName());
         holder.medicineFrequency.setText(medication.getFrequency());
+
         String quantity = String.valueOf(medication.getQuantity());
         holder.medicineQuantity.setText("Quantity: "+quantity);
-        holder.medicineImage.setImageResource(R.drawable.img);
+
+        //start Date
+        if (medication.getEffectiveDate() == null || medication.getEffectiveDate().trim().isEmpty()) {
+            holder.medicineStartDate.setText("----");
+        } else {
+            String startDate = getFormattedDate(medication.getEffectiveDate());
+            holder.medicineStartDate.setText((startDate) + "   to ");
+        }
+
+
+        //end date
+        if(medication.getLastEffectiveDate() == null || medication.getLastEffectiveDate().trim().isEmpty() ){
+            holder.medicineEndDate.setText("----");
+        }else{
+            String endDate = getFormattedDate( medication.getLastEffectiveDate());
+            holder.medicineEndDate.setText(endDate);
+        }
+
+        holder.medicineImage.setImageResource(R.drawable.roundtablet);
 
 
 
@@ -72,11 +95,26 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
     public int getItemCount() {
         return medicationList == null ? 0 : medicationList.size();
     }
+
+    private static String getFormattedDate(String inputDate) {
+        SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+
+        try {
+            Date date = inputFormat.parse(inputDate);
+            assert date != null;
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }
 
 //Inner Class
 class MedicationViewHolder extends RecyclerView.ViewHolder {
-    TextView medicineName, medicineQuantity, medicineFrequency;
+    TextView medicineName, medicineQuantity, medicineFrequency,medicineStartDate,medicineEndDate;
     ImageView medicineImage;
 
     //constructor
@@ -86,6 +124,8 @@ class MedicationViewHolder extends RecyclerView.ViewHolder {
         medicineQuantity = itemView.findViewById(R.id.medicineQuantity);
         medicineFrequency = itemView.findViewById(R.id.medicineFrequency);
         medicineImage = itemView.findViewById(R.id.medicineImage);
+        medicineStartDate = itemView.findViewById(R.id.startDateTextView);
+        medicineEndDate = itemView.findViewById(R.id.endDateTextView);
 
         //onclick listener
         itemView.setOnClickListener(view -> {

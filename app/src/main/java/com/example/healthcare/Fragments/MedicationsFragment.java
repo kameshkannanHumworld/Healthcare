@@ -8,10 +8,14 @@ import static com.example.healthcare.MainActivity.TOKEN;
 import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -26,6 +30,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +45,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import com.example.healthcare.ApiClass.ApiClient;
+import com.example.healthcare.DeviceInfoActivity;
 import com.example.healthcare.MedicationsModule.DeleteMedications.DeleteApiRequest;
 import com.example.healthcare.MedicationsModule.DeleteMedications.DeleteApiResponse;
 import com.example.healthcare.MedicationsModule.DeleteMedications.DeleteApiService;
@@ -55,6 +62,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MedicationsFragment extends Fragment {
 
@@ -190,15 +198,33 @@ public class MedicationsFragment extends Fragment {
     //method ask confirmation before delete , when swipe right to left
     public void deleteConfirmationDialogMethod(Context context, int position) {
 
-            new MaterialAlertDialogBuilder(context)
-                    .setTitle("Confirmation")  // Set the title
-                    .setMessage("Are you sure want to Delete?")  // Set the message
-                    .setIcon(R.drawable.baseline_delete_24)
-                    .setPositiveButton("OK", (dialog, which) -> deleteItem(position))  // Delete the item from the database
-                    .setNegativeButton("Cancel",null)
-                    .show();  // Show the dialog
+        final Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.custom_dialog_layout);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        TextView tvMessage = dialog.findViewById(R.id.tvMessage);
+        Button btnYes = dialog.findViewById(R.id.btnYes);
+        Button btnNo = dialog.findViewById(R.id.btnNo);
+        TextView dialogHeader = dialog.findViewById(R.id.dialogHeader);
+
+        dialogHeader.setText("Confirmation");
+        tvMessage.setText("Are you sure want to Delete?");
+
+        btnYes.setOnClickListener(v -> {
+            dialog.dismiss();
+            deleteItem(position);
+        });
+
+        btnNo.setOnClickListener(v -> {
+            dialog.dismiss();
+            medicationAdapter.notifyDataSetChanged();
+        });
+
+        dialog.show();
     }
+
 
 
     //method to send the medication data to the ViewMedicationActivity by Intent
@@ -225,7 +251,7 @@ public class MedicationsFragment extends Fragment {
     @SuppressLint("NotifyDataSetChanged")
     private void updateItem(int position) {
 
-         viewMedicationData = medicationList.get(position);
+        viewMedicationData = medicationList.get(position);
 
         Intent intent = new Intent(requireContext(), AddMedicationActivity.class);
         intent.putExtra("EDIT_MED_NAME", viewMedicationData.getName());
@@ -267,8 +293,21 @@ public class MedicationsFragment extends Fragment {
                     //refresh
                     medicationList.remove(position);
                     medicationAdapter.notifyItemRemoved(position);
-//                    fetchDataFromAPI();
-                    swipeRefreshLayout.setRefreshing(false);
+
+                        //if recycler view is null, it shows TextView (noMedicationsTextView)
+                        int itemCount = medicationAdapter.getItemCount();
+                        Log.d(TAG, "Recyeler view count: "+itemCount);
+                        if (recyclerMedications.getAdapter() == null || recyclerMedications.getAdapter().getItemCount() == 0) {
+                            // The RecyclerView is empty
+                            recyclerMedications.setVisibility(View.GONE);
+                            noMedicationsTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            // The RecyclerView is not empty
+                            recyclerMedications.setVisibility(View.VISIBLE);
+                            noMedicationsTextView.setVisibility(View.GONE);
+                        }
+
+                        swipeRefreshLayout.setRefreshing(false);
                 }else{
                     Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_SHORT).show();
                 }

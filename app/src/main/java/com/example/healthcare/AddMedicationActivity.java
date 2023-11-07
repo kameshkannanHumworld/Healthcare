@@ -424,13 +424,21 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
                 ValidationApiRequest validationApiRequest = new ValidationApiRequest();
                 validationApiRequest.setPatientId(PATIENT_ID);
-                validationApiRequest.setMedicationId(MEDICTION_ID);
+
+                if(IS_EDIT){
+                    validationApiRequest.setMedicationId(MEDICTION_ID);
+                    Log.d(TAG, "MEDICTION_ID: " + MEDICTION_ID);
+                }else{
+                    validationApiRequest.setMedicationId(null);
+                    Log.d(TAG, "MEDICTION_ID: is null");
+                }
+
                 validationApiRequest.setCareplanId(CAREPLAN_ID);
                 validationApiRequest.setName(medicineNameInput.getText().toString());
                 validationApiRequest.setEffectiveDate(Objects.requireNonNull(recordDateTimeInput.getText()).toString());
                 validationApiRequest.setLastEffectiveDate(endDateTimeInput.getText().toString());
 
-                Log.d(TAG, "MEDICTION_ID: " + MEDICTION_ID);
+
                 Log.d(TAG, "PATIENT_ID: " + PATIENT_ID);
                 Log.d(TAG, "CAREPLAN_ID: " + CAREPLAN_ID);
                 Log.d(TAG, "Med Name: " + medicineNameInput.getText().toString());
@@ -495,7 +503,13 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         SaveApiRequest saveApiRequest = new SaveApiRequest();
         saveApiRequest.setPatientId(PATIENT_ID);
         saveApiRequest.setCareplanId(CAREPLAN_ID);
-        saveApiRequest.setMedicationId(MEDICTION_ID);
+
+        if(IS_EDIT){
+            saveApiRequest.setMedicationId(MEDICTION_ID);
+        }else{
+            saveApiRequest.setMedicationId(null);
+        }
+
         saveApiRequest.setCode(mediProdId);
         saveApiRequest.setName(medicineNameInput.getText().toString());
         saveApiRequest.setNotes(notes);
@@ -648,10 +662,13 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         TextView tvMessage = dialog.findViewById(R.id.tvMessage);
         Button btnYes = dialog.findViewById(R.id.btnYes);
         Button btnNo = dialog.findViewById(R.id.btnNo);
+        TextView dialogHeader = dialog.findViewById(R.id.dialogHeader);
 
+        dialogHeader.setText("Confirmation");
         tvMessage.setText(message);
 
         btnYes.setOnClickListener(v -> {
+            dialog.dismiss();
             AddMedicationActivity.super.onBackPressed();
         });
 
