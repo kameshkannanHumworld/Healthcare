@@ -66,7 +66,7 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
         holder.medicineFrequency.setText(medication.getFrequency());
 
         String quantity = String.valueOf(medication.getQuantity());
-        holder.medicineQuantity.setText("Quantity: "+quantity);
+        holder.medicineQuantity.setText("Quantity: " + quantity);
 
         //start Date
         if (medication.getEffectiveDate() == null || medication.getEffectiveDate().trim().isEmpty()) {
@@ -78,14 +78,34 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
 
 
         //end date
-        if(medication.getLastEffectiveDate() == null || medication.getLastEffectiveDate().trim().isEmpty() ){
+        if (medication.getLastEffectiveDate() == null || medication.getLastEffectiveDate().trim().isEmpty()) {
             holder.medicineEndDate.setText("----");
-        }else{
-            String endDate = getFormattedDate( medication.getLastEffectiveDate());
+        } else {
+            String endDate = getFormattedDate(medication.getLastEffectiveDate());
             holder.medicineEndDate.setText(endDate);
         }
 
-        holder.medicineImage.setImageResource(R.drawable.roundtablet);
+
+        // ---------------------Assign a specific SVG to each medicine----------------------------
+        for (int i = 0; i < medicationList.size(); i++) {
+            ViewMedicationData medicine = medicationList.get(i);
+            int svgResource;
+
+            if (i == position) {
+                // Assign medicine1.svg to the first medicine
+                svgResource = R.drawable.medicine1;
+            } else {
+                // Randomly select from medicine2.svg to medicine5.svg for the rest of the medicines
+                Random random = new Random();
+                int randomNumber = random.nextInt(4) + 2; // Generates a random number between 2 and 5
+                String drawableName = "medicine" + randomNumber;
+                svgResource = context.getResources().getIdentifier(drawableName, "drawable", context.getPackageName());
+            }
+
+//            medicine.setSvgResource(svgResource);
+            holder.medicineImage.setImageResource(svgResource);
+        }
+
 
 
 
@@ -114,7 +134,7 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
 
 //Inner Class
 class MedicationViewHolder extends RecyclerView.ViewHolder {
-    TextView medicineName, medicineQuantity, medicineFrequency,medicineStartDate,medicineEndDate;
+    TextView medicineName, medicineQuantity, medicineFrequency, medicineStartDate, medicineEndDate;
     ImageView medicineImage;
 
     //constructor

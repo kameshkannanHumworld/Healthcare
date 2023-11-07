@@ -10,14 +10,10 @@ import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnect
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -25,7 +21,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,7 +28,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.healthcare.BleDevices.ECGMeter;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 
 public class DeviceInfoActivity extends AppCompatActivity {
@@ -164,7 +158,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
 
-                    alertDialogMethod("The Blood Glucometer has been measured Failed.","---","mg/dl",true);
+                    alertDialogMethod("The Blood Glucometer has been measured Failed.","---","mg/dl",true, 50);
                     BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
                 }
             }
@@ -172,7 +166,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 bloodGlucometerReadingsValue.setText(BLOOD_GLUCOMETER_RESULT_VALUE);
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("The Blood Pressure has been measured Sucessfully.",BLOOD_GLUCOMETER_RESULT_VALUE,"mg/dl",false);
+                    alertDialogMethod("The Blood Glucometer has been measured Sucessfully.",BLOOD_GLUCOMETER_RESULT_VALUE,"mg/dl",false, 50);
                     BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -203,7 +197,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 //sucessfull alert here
                 if (WEIGHT_SCALE_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("The Weight has been measured Sucessfully.", String.valueOf(WEIGHT_SCALE_READING),"Kilogram",false);
+                    alertDialogMethod("The Weight has been measured Sucessfully.", String.valueOf(WEIGHT_SCALE_READING),"Kilogram",false, 50);
                     WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -241,7 +235,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 resultTextViewForMessage.setVisibility(View.GONE);
 
                 if (BLOOD_PRESSURE_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod( "The Blood pressure has been measured Sucessfully.",URION_BP_SYSTOLIC_READINGS+"\n"+URION_BP_DIASTOLIC_READINGS,"mmHg",false);
+                    alertDialogMethod( "The Blood pressure has been measured Sucessfully.",URION_BP_SYSTOLIC_READINGS+"/"+URION_BP_DIASTOLIC_READINGS,"mmHg",false,30);
                     BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -256,7 +250,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 resultTextViewForMessage.setText(URION_BP_DEVICE_ERROR_MESSAGES);
 
                 if (BLOOD_PRESSURE_READING_ALERT_ERROR) {
-                    alertDialogMethod("The Blood pressure has been measured Failed.","---","mmHg",true);
+                    alertDialogMethod("The Blood pressure has been measured Failed.","---","mmHg",true, 50);
                     BLOOD_PRESSURE_READING_ALERT_ERROR = false;
                 }
             }
@@ -372,7 +366,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
     // alert dialog here
-    private void alertDialogMethod(String message, String reading, String unit, boolean isError) {
+    private void alertDialogMethod(String message, String reading, String unit, boolean isError, int textSize) {
         if (!hasAlertDialogShown) {
             final Dialog dialog = new Dialog(this);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -401,6 +395,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             btnNo.setVisibility(View.GONE);
             btnYes.setText("OK");
 
+            readingValue.setTextSize(textSize);
             tvMessage.setText(message);
             readingValue.setText(reading);
             unitValue.setText(unit);

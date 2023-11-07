@@ -4,28 +4,18 @@ import static com.example.healthcare.AddMedicationActivity.CAREPLAN_ID;
 import static com.example.healthcare.AddMedicationActivity.ID_DROPDOWN;
 import static com.example.healthcare.AddMedicationActivity.IS_EDIT;
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
-import static com.example.healthcare.MainActivity.TOKEN;
 import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
+import static com.example.healthcare.MainActivity.TOKEN;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,34 +25,36 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.example.healthcare.Adapters.MedicationAdapter;
-
 import com.example.healthcare.AddMedicationActivity;
-
-import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 import com.example.healthcare.ApiClass.ApiClient;
-import com.example.healthcare.DeviceInfoActivity;
 import com.example.healthcare.MedicationsModule.DeleteMedications.DeleteApiRequest;
 import com.example.healthcare.MedicationsModule.DeleteMedications.DeleteApiResponse;
 import com.example.healthcare.MedicationsModule.DeleteMedications.DeleteApiService;
-import com.example.healthcare.MedicationsModule.FrequencyDropdown.MedicationFrequencyService;
 import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationData;
 import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationResponse;
 import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationService;
 import com.example.healthcare.MedicineClickInterface;
 import com.example.healthcare.R;
 import com.example.healthcare.ViewMedicationActivity;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MedicationsFragment extends Fragment {
 
@@ -72,7 +64,6 @@ public class MedicationsFragment extends Fragment {
 
     private String mParam1;
     private String mParam2;
-
 
     List<ViewMedicationData> medicationList;
     ViewMedicationData viewMedicationData;
@@ -103,7 +94,6 @@ public class MedicationsFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
 
 
     @SuppressLint("MissingInflatedId")
@@ -153,7 +143,7 @@ public class MedicationsFragment extends Fragment {
                 if (direction == ItemTouchHelper.LEFT) { // From left to right swipe
 
                     //ask confirmation before delete
-                    deleteConfirmationDialogMethod(requireContext(),position);
+                    deleteConfirmationDialogMethod(requireContext(), position);
                 }
 
                 if (direction == ItemTouchHelper.RIGHT) { // From right to left swipe
@@ -226,7 +216,6 @@ public class MedicationsFragment extends Fragment {
     }
 
 
-
     //method to send the medication data to the ViewMedicationActivity by Intent
     @SuppressLint("NotifyDataSetChanged")
     private void viewItem(int position) {
@@ -294,21 +283,21 @@ public class MedicationsFragment extends Fragment {
                     medicationList.remove(position);
                     medicationAdapter.notifyItemRemoved(position);
 
-                        //if recycler view is null, it shows TextView (noMedicationsTextView)
-                        int itemCount = medicationAdapter.getItemCount();
-                        Log.d(TAG, "Recyeler view count: "+itemCount);
-                        if (recyclerMedications.getAdapter() == null || recyclerMedications.getAdapter().getItemCount() == 0) {
-                            // The RecyclerView is empty
-                            recyclerMedications.setVisibility(View.GONE);
-                            noMedicationsTextView.setVisibility(View.VISIBLE);
-                        } else {
-                            // The RecyclerView is not empty
-                            recyclerMedications.setVisibility(View.VISIBLE);
-                            noMedicationsTextView.setVisibility(View.GONE);
-                        }
+                    //if recycler view is null, it shows TextView (noMedicationsTextView)
+                    int itemCount = medicationAdapter.getItemCount();
+                    Log.d(TAG, "Recyeler view count: " + itemCount);
+                    if (recyclerMedications.getAdapter() == null || recyclerMedications.getAdapter().getItemCount() == 0) {
+                        // The RecyclerView is empty
+                        recyclerMedications.setVisibility(View.GONE);
+                        noMedicationsTextView.setVisibility(View.VISIBLE);
+                    } else {
+                        // The RecyclerView is not empty
+                        recyclerMedications.setVisibility(View.VISIBLE);
+                        noMedicationsTextView.setVisibility(View.GONE);
+                    }
 
-                        swipeRefreshLayout.setRefreshing(false);
-                }else{
+                    swipeRefreshLayout.setRefreshing(false);
+                } else {
                     Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -318,7 +307,6 @@ public class MedicationsFragment extends Fragment {
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
             }
         });
-
 
 
     }
@@ -377,7 +365,7 @@ public class MedicationsFragment extends Fragment {
 
                         //if recycler view is null, it shows TextView (noMedicationsTextView)
                         int itemCount = medicationAdapter.getItemCount();
-                        Log.d(TAG, "Recyeler view count: "+itemCount);
+                        Log.d(TAG, "Recyeler view count: " + itemCount);
                         if (recyclerMedications.getAdapter() == null || recyclerMedications.getAdapter().getItemCount() == 0) {
                             // The RecyclerView is empty
                             recyclerMedications.setVisibility(View.GONE);
@@ -406,6 +394,7 @@ public class MedicationsFragment extends Fragment {
         recyclerMedications.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
         medicationAdapter = new MedicationAdapter(requireContext(), medicationList, medicineClickInterfaceMethod);
         recyclerMedications.setAdapter(medicationAdapter);
+
 
     }
 

@@ -145,9 +145,10 @@
                             android:id="@+id/diastolicReading"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="---"
-                            android:textSize="55sp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="-----"
+                            android:textSize="30sp"
                             android:textStyle="bold"
                             tools:ignore="HardcodedText" />
 
@@ -155,6 +156,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
+                            android:layout_weight="1"
                             android:text="mmHg"
                             android:textSize="15sp"
                             android:textStyle="bold"

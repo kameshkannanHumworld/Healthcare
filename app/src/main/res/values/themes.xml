@@ -41,29 +41,6 @@
 
     <style name="Theme.Healthcare" parent="Base.Theme.Healthcare" />
 
-    <!--    Light mode code-->
-    <!--    background-->
-<!--    <style name="SCREEN">-->
-<!--        <item name="android:background">#E5EAF7</item>-->
-<!--    </style>-->
-
-<!--    &lt;!&ndash;    Text color&ndash;&gt;-->
-<!--    <style name="TEXT">-->
-<!--        <item name="android:textColor">#858282</item>-->
-
-<!--    </style>-->
-
-<!--    &lt;!&ndash;    Text color pink&ndash;&gt;-->
-<!--    <style name="TEXT_PINK">-->
-<!--        <item name="android:textColor">@color/k_rose</item>-->
-<!--    </style>-->
-
-<!--    &lt;!&ndash;   Button background&ndash;&gt;-->
-<!--    <style name="BUTTON">-->
-<!--        <item name="android:backgroundTint">@color/k_blue</item>-->
-<!--        <item name="android:textColor">#FFFFFF</item>-->
-<!--    </style>-->
-
     <!--    slidein animation-->
     <style name="DIALOGANIMATION">
         <item name="android:windowEnterAnimation">@anim/slide_in</item>
@@ -96,14 +73,5 @@
         <item name="boxStrokeWidthFocused">0dp</item>
     </style>
 
-<!--    &lt;!&ndash;    floating button animation&ndash;&gt;-->
-<!--    <style name="FLOATING_BUTTON">-->
-<!--        <item name="backgroundTint">@color/k_blue</item>-->
-<!--    </style>-->
 
-
-<!--    &lt;!&ndash;    Fragment toolbar&ndash;&gt;-->
-<!--    <style name="TOOLBAR">-->
-<!--        <item name="background">@color/k_blue</item>-->
-<!--    </style>-->
 </resources>
