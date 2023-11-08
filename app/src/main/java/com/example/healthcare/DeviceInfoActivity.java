@@ -27,7 +27,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.airbnb.lottie.LottieDrawable;
 import com.example.healthcare.BleDevices.ECGMeter;
+import com.example.healthcare.BluetoothModule.BluetoothScanner;
+import com.google.android.material.snackbar.Snackbar;
 
 
 public class DeviceInfoActivity extends AppCompatActivity {
@@ -40,13 +44,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
     ImageView backButton;
     String deviceName;
     CardView systolicDiastolicLayout;
-    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter, messageResultLayout;
+    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter, messageResultLayout,scanlottieLayout;
     TextView isConnectedTextView;
     TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, errorMessageTextView;
     TextView weightScaleReadings;
     TextView bloodGlucometerReadingsValue;
     TextView ecgReadings;
     TextView resultTextViewForMessage;
+    private LottieAnimationView deviceInfoScanLottie;
+    private BluetoothScanner bluetoothScanner;
+    private Context context;
 
 
     public static Boolean WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
@@ -92,6 +99,32 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         //get device name from Intent
         deviceName = getIntent().getStringExtra("DEVICE_NAME");
+
+        //lottie auto replay
+        deviceInfoScanLottie.setRepeatCount(LottieDrawable.INFINITE);
+        deviceInfoScanLottie.playAnimation();
+
+        //device not found - snackbar
+        context = this;
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (!deviceConnected) {
+                    View view = findViewById(android.R.id.content);
+                    if (view != null) {
+                        scanlottieLayout.setVisibility(View.GONE);
+                        Snackbar.make(view, "Device Not Found, Please try again..", Snackbar.LENGTH_SHORT)
+                                .setAction("Retry", v -> {
+                                    bluetoothScanner = new BluetoothScanner(deviceName,context);
+                                    bluetoothScanner.startScan();
+                                    scanlottieLayout.setVisibility(View.VISIBLE);
+                                })
+                                .setDuration(5000)
+                                .show();
+                    }
+                }
+            }
+        }, 30000);
 
 
         //back Button Method
@@ -146,10 +179,14 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutUrionBp.setVisibility(View.GONE);
         linearLayoutWeightScale.setVisibility(View.GONE);
         linearLayoutEcgMeter.setVisibility(View.GONE);
-        linearLayoutBloodGlucometer.setVisibility(View.VISIBLE);
-        messageResultLayout.setVisibility(View.VISIBLE);
+
 
         if (deviceConnected) {
+            deviceInfoScanLottie.setVisibility(View.GONE);
+            linearLayoutBloodGlucometer.setVisibility(View.VISIBLE);
+            messageResultLayout.setVisibility(View.VISIBLE);
+
+
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
 
@@ -158,7 +195,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
 
-                    alertDialogMethod("The Blood Glucometer has been measured Failed.","---","mg/dl",true, 50);
+                    alertDialogMethod("The Blood Glucometer has been measured Failed.", "---", "mg/dl", true, 50);
                     BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
                 }
             }
@@ -166,7 +203,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 bloodGlucometerReadingsValue.setText(BLOOD_GLUCOMETER_RESULT_VALUE);
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("The Blood Glucometer has been measured Sucessfully.",BLOOD_GLUCOMETER_RESULT_VALUE,"mg/dl",false, 50);
+                    alertDialogMethod("The Blood Glucometer has been measured Sucessfully.", BLOOD_GLUCOMETER_RESULT_VALUE, "mg/dl", false, 50);
                     BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -174,6 +211,10 @@ public class DeviceInfoActivity extends AppCompatActivity {
         } else {
             isConnectedTextView.setText("Not Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
+
+            deviceInfoScanLottie.setVisibility(View.VISIBLE);
+            linearLayoutBloodGlucometer.setVisibility(View.GONE);
+            messageResultLayout.setVisibility(View.GONE);
         }
     }
 
@@ -182,11 +223,14 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutUrionBp.setVisibility(View.GONE);
         linearLayoutBloodGlucometer.setVisibility(View.GONE);
         linearLayoutEcgMeter.setVisibility(View.GONE);
-        linearLayoutWeightScale.setVisibility(View.VISIBLE);
         messageResultLayout.setVisibility(View.GONE);
 
 
         if (WEIGHT_SCALE_IS_CONNECTED) {
+            deviceConnected = true;
+            deviceInfoScanLottie.setVisibility(View.GONE);
+            linearLayoutWeightScale.setVisibility(View.VISIBLE);
+
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
 
@@ -197,7 +241,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
                 //sucessfull alert here
                 if (WEIGHT_SCALE_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod("The Weight has been measured Sucessfully.", String.valueOf(WEIGHT_SCALE_READING),"Kilogram",false, 50);
+                    alertDialogMethod("The Weight has been measured Sucessfully.", String.valueOf(WEIGHT_SCALE_READING), "Kilogram", false, 50);
                     WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -205,6 +249,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
         } else {
             isConnectedTextView.setText("Not Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
+
+            deviceInfoScanLottie.setVisibility(View.VISIBLE);
+            linearLayoutWeightScale.setVisibility(View.GONE);
         }
     }
 
@@ -213,12 +260,14 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutWeightScale.setVisibility(View.GONE);
         linearLayoutBloodGlucometer.setVisibility(View.GONE);
         linearLayoutEcgMeter.setVisibility(View.GONE);
-        linearLayoutUrionBp.setVisibility(View.VISIBLE);
-        messageResultLayout.setVisibility(View.VISIBLE);
-        systolicDiastolicLayout.setVisibility(View.VISIBLE);
 
 
         if (deviceConnected) {
+            deviceInfoScanLottie.setVisibility(View.GONE);
+            linearLayoutUrionBp.setVisibility(View.VISIBLE);
+            messageResultLayout.setVisibility(View.VISIBLE);
+            systolicDiastolicLayout.setVisibility(View.VISIBLE);
+
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
 
@@ -235,7 +284,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 resultTextViewForMessage.setVisibility(View.GONE);
 
                 if (BLOOD_PRESSURE_READING_ALERT_SUCESSFULL) {
-                    alertDialogMethod( "The Blood pressure has been measured Sucessfully.",URION_BP_SYSTOLIC_READINGS+"/"+URION_BP_DIASTOLIC_READINGS,"mmHg",false,30);
+                    alertDialogMethod("The Blood pressure has been measured Sucessfully.", URION_BP_SYSTOLIC_READINGS + "/" + URION_BP_DIASTOLIC_READINGS, "mmHg", false, 30);
                     BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
                 }
 
@@ -250,14 +299,18 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 resultTextViewForMessage.setText(URION_BP_DEVICE_ERROR_MESSAGES);
 
                 if (BLOOD_PRESSURE_READING_ALERT_ERROR) {
-                    alertDialogMethod("The Blood pressure has been measured Failed.","---","mmHg",true, 50);
+                    alertDialogMethod("The Blood pressure has been measured Failed.", "---", "mmHg", true, 50);
                     BLOOD_PRESSURE_READING_ALERT_ERROR = false;
                 }
             }
         } else {
             isConnectedTextView.setText("Not Connected");
             isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
+
+            deviceInfoScanLottie.setVisibility(View.VISIBLE);
             messageResultLayout.setVisibility(View.GONE);
+            linearLayoutUrionBp.setVisibility(View.GONE);
+            systolicDiastolicLayout.setVisibility(View.GONE);
         }
 
 
@@ -265,6 +318,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
     private void idAssignHere() {
+        deviceInfoScanLottie = findViewById(R.id.deviceInfoScanLottie);
         systolicReadingTextView = findViewById(R.id.systolicReading);
         diastolicReadingTextView = findViewById(R.id.diastolicReading);
         pulseReadingTextView = findViewById(R.id.pulseReading);
@@ -276,6 +330,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutWeightScale = findViewById(R.id.linearLayoutWeightScale);
         isConnectedTextView = findViewById(R.id.isConnectedTextView);
         linearLayoutBloodGlucometer = findViewById(R.id.linearLayoutBloodGlucometer);
+        scanlottieLayout = findViewById(R.id.scanlottieLayout);
         resultTextViewForMessage = findViewById(R.id.resultTextViewForMessage);
         bloodGlucometerReadingsValue = findViewById(R.id.bloodGlucometerReadingsValue);
         ecgReadings = findViewById(R.id.ecgReadings);
@@ -383,12 +438,11 @@ public class DeviceInfoActivity extends AppCompatActivity {
             TextView dialogHeader = dialog.findViewById(R.id.dialogHeader);
 
 
-
-            if(isError){
+            if (isError) {
                 dialogHeader.setText("Failed");
                 readingConstraintLayout.setVisibility(View.GONE);
                 tvMessage.setTextColor(getResources().getColor(R.color.red));
-            }else{
+            } else {
                 readingConstraintLayout.setVisibility(View.VISIBLE);
                 dialogHeader.setText("Sucess");
             }

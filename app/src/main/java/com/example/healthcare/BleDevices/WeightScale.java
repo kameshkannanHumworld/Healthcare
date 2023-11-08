@@ -54,6 +54,7 @@ public class WeightScale {
         if (uniqueId.equals(WEIGHT_SCALE_UNIQUE_ID) && macAddress.equals(WEIGHT_SCALE_MAC_ADDRESS)) {
             String ByteArray = ConverterClass.byteToHexadecimal(Objects.requireNonNull(result.getScanRecord()).getBytes(), false);
             String reading1 = weightScaleByteArray.substring(41, 48);
+
             //device discovered
             WEIGHT_SCALE_IS_CONNECTED = true;
             Log.d(TAG, "Weight Scale Device discovered ");

@@ -84,6 +84,11 @@
         <item name="android:background">@color/md_theme_dark_surfaceVariant</item>
     </style>
 
+    <!--Lottie change color-->
+    <style name="LOTTIE_ANIMATION" parent="">
+        <item name="lottie_rawRes">@raw/bluetooth_scan_lottie</item>
+    </style>
+
     <!--    TextInput Layout dropdown-->
     <style name="TEXTINPUTLAYOUT_DROPDOWN" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
         <item name="boxStrokeColor">@color/k_rose</item>

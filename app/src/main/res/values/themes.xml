@@ -66,6 +66,11 @@
         <item name="android:background">@color/white</item>
     </style>
 
+    <!--Lottie change color-->
+    <style name="LOTTIE_ANIMATION" parent="">
+        <item name="lottie_rawRes">@raw/bluetooth_scan_lottie</item>
+    </style>
+
 
     <!--    TextInput Layout-->
     <style name="TEXTINPUTLAYOUT" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">

@@ -91,11 +91,7 @@ public class HomeFragment extends Fragment {
         animationLoading = new AnimationLoading(getActivity());
 
         //location and Bluetooth check
-        LocationUtil.requestLocationEnable(requireActivity());
-        LocationUtil.requestFineLocationConnectPermission(requireActivity());
-        BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
-        BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
-        BluetoothUtil.requestBluetoothScanPermission(requireActivity());
+        permissionCheckWhenClickDeviceIcon();
 
         // Set click listener for the FAB
         floatingActionButtonMethod(view);
@@ -107,7 +103,7 @@ public class HomeFragment extends Fragment {
     }
 
 
-    private void permissionCheckWhenClickDeviceIcon(){
+    private void permissionCheckWhenClickDeviceIcon() {
         LocationUtil.requestLocationEnable(requireActivity());
         LocationUtil.requestFineLocationConnectPermission(requireActivity());
         BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
@@ -141,14 +137,24 @@ public class HomeFragment extends Fragment {
             bpMeterImage.setOnClickListener(view -> {
                 permissionCheckWhenClickDeviceIcon();
                 bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
-                animationLoading.startLoadingDialogBlutoothScan(URION_BP_DEVICE_NAME, context);
-                startBackgroundScan();
-                new Thread(() -> {
-                    if (deviceConnected) {
-                        animationLoading.dismissLoadingDialog();
-                        bluetoothScanner.stopScan();
+//                animationLoading.startLoadingDialogBlutoothScan(URION_BP_DEVICE_NAME, context);
+//                startBackgroundScan();
+//                new Thread(() -> {
+//                    if (deviceConnected) {
+//                        animationLoading.dismissLoadingDialog();
+//                        bluetoothScanner.stopScan();
+//                    }
+//                }).start();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        bluetoothScanner.startScan();
                     }
                 }).start();
+                //page intent
+                Intent intent = new Intent(context, DeviceInfoActivity.class);
+                intent.putExtra("DEVICE_NAME", URION_BP_DEVICE_NAME);
+                context.startActivity(intent);
             });
         }
 
@@ -181,22 +187,24 @@ public class HomeFragment extends Fragment {
             glucometerImage.setOnClickListener(view -> {
                 permissionCheckWhenClickDeviceIcon();
                 bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
-                animationLoading.startLoadingDialogBlutoothScan(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
                 startBackgroundScan();
+
                 new Thread(() -> {
-                    if (deviceConnected) {
-                        animationLoading.dismissLoadingDialog();
-                        bluetoothScanner.stopScan();
-                    } else {
-                        // If the first device is not connected, try connecting to the second device
-                        bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
-                        startBackgroundScan(); // Start scanning for the second device
-                        if (deviceConnected) {
-                            animationLoading.dismissLoadingDialog();
-                            bluetoothScanner.stopScan();
-                        }
-                    }
+                    // If the first device is not connected, try connecting to the second device
+                    bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
+                    startBackgroundScan(); // Start scanning for the second device
+
+                    //page intent
+                    Intent intent = new Intent(context, DeviceInfoActivity.class);
+                    intent.putExtra("DEVICE_NAME", BLOOD_GLUCOMETER_DEVICE_NAME2);
+                    context.startActivity(intent);
                 }).start();
+
+                //page intent
+                Intent intent = new Intent(context, DeviceInfoActivity.class);
+                intent.putExtra("DEVICE_NAME", BLOOD_GLUCOMETER_DEVICE_NAME1);
+                context.startActivity(intent);
+
             });
         }
 
@@ -251,8 +259,6 @@ public class HomeFragment extends Fragment {
         disconnectAllDevices();
 
     }
-
-
 
 
 }

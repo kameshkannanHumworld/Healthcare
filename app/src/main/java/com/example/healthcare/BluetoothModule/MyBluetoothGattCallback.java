@@ -98,7 +98,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
             Log.d(TAG, "onConnectionStateChange: GATT_SUCCESS " + status);
             Log.d("BluetoothGattCallback", "Discovered " + gatt.getServices().size() + " services for " + gatt.getDevice().getAddress());
 
-            //intent to Device information Activity
+            //Device information Activity from Intent
             Intent intent = new Intent(context, DeviceInfoActivity.class);
             intent.putExtra("DEVICE_NAME", gatt.getDevice().getName());
             context.startActivity(intent);
