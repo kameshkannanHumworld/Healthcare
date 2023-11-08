@@ -49,6 +49,10 @@
         <item name="android:windowExitAnimation">@anim/slide_out</item>
     </style>
 
+    <!--    tool bar color change-->
+    <style name="TOOLBAR" parent="Widget.Material3.AppBarLayout">
+    </style>
+
     <!--    TextInput Layout-->
     <style name="TEXTINPUTLAYOUT" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
         <item name="boxStrokeColor">@color/k_rose</item>
@@ -62,6 +66,23 @@
         <item name="boxStrokeWidthFocused">0dp</item>
     </style>
 
+    <!--    M3 Button change-->
+    <style name="BUTTON" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/white</item>
+        <item name="strokeColor">@color/md_theme_dark_onPrimaryContainer</item>
+    </style>
+
+    <!--    BOTTOMSHEET change-->
+    <style name="NAVIGATION_DRAWER" parent="Widget.Design.NavigationView">
+        <item name="android:background">@color/md_theme_dark_surfaceVariant</item>
+        <item name="itemTextColor">@color/white</item>
+        <item name="itemIconTint">@color/white</item>
+    </style>
+
+    <!--bottom sheet-->
+    <style name="BOTTOMSHEET" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@color/md_theme_dark_surfaceVariant</item>
+    </style>
 
     <!--    TextInput Layout dropdown-->
     <style name="TEXTINPUTLAYOUT_DROPDOWN" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">

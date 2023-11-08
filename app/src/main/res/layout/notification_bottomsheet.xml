@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/BOTTOMSHEET"
+    app:cardCornerRadius="30dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
+<ScrollView
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -95,7 +102,7 @@
                 android:layout_height="wrap_content"
                android:layout_marginBottom="10dp"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="2dp"
+                app:cardElevation="5dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
@@ -149,7 +156,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/alarmButton1"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            style="@style/BUTTON"
                             android:layout_width="wrap_content"
                             android:layout_height="40dp"
                             android:layout_marginStart="10dp"
@@ -159,7 +166,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/alarmButton2"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            style="@style/BUTTON"
                             android:layout_width="wrap_content"
                             android:layout_height="40dp"
                             android:layout_marginStart="10dp"
@@ -169,7 +176,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/alarmButton3"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            style="@style/BUTTON"
                             android:layout_width="wrap_content"
                             android:layout_height="40dp"
                             android:layout_marginStart="10dp"
@@ -179,7 +186,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/alarmButton4"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            style="@style/BUTTON"
                             android:layout_width="wrap_content"
                             android:layout_height="40dp"
                             android:layout_marginStart="10dp"
@@ -209,3 +216,4 @@
 
     </LinearLayout>
 </ScrollView>
+</androidx.cardview.widget.CardView>

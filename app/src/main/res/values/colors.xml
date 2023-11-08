@@ -11,6 +11,7 @@
     <color name="k_rose">#F68685</color>
     <color name="k_blue">#7093E5</color>
     <color name="k_black">#7093E5</color>
+    <color name="orange">#F87365</color>
     <color name="k_grey">#7093E5</color>
 
     <color name="your_enabled_thumb_color">#FF4081</color>
@@ -44,7 +45,7 @@
     <color name="md_theme_light_background">#EDF0F9</color>
     <color name="md_theme_light_onBackground">#001B3D</color>
 
-    <color name="md_theme_light_surface">#FDFBFF</color>
+    <color name="md_theme_light_surface">#7093E5</color>
     <color name="md_theme_light_onSurface">#001B3D</color>
     <color name="md_theme_light_surfaceVariant">#DBE4E6</color>
     <color name="md_theme_light_onSurfaceVariant">#3F484A</color>
@@ -62,7 +63,7 @@
 
 
     <!--Dark colors-->
-    <color name="md_theme_dark_primary">#7093E5</color>
+    <color name="md_theme_dark_primary">#004F58</color>
     <color name="md_theme_dark_onPrimary">#ffffff</color>
     <color name="md_theme_dark_primaryContainer">#004F58</color>
     <color name="md_theme_dark_onPrimaryContainer">#97F0FF</color>
@@ -85,10 +86,10 @@
     <color name="md_theme_dark_background">#080808</color>
     <color name="md_theme_dark_onBackground">#D6E3FF</color>
 
-    <color name="md_theme_dark_surface">#001B3D</color>
+    <color name="md_theme_dark_surface">#004F58</color>
     <color name="md_theme_dark_onSurface">#D6E3FF</color>
     <color name="md_theme_dark_surfaceVariant">#3F484A</color>
-    <color name="md_theme_dark_onSurfaceVariant">#BFC8CA</color>
+    <color name="md_theme_dark_onSurfaceVariant">#000000</color>
 
     <color name="md_theme_dark_outline">#899294</color>
 
@@ -100,6 +101,5 @@
     <color name="md_theme_dark_surfaceTint">#4FD8EB</color>
     <color name="md_theme_dark_outlineVariant">#3F484A</color>
     <color name="md_theme_dark_scrim">#000000</color>
-    <color name="orange">#F87365</color>
 
 </resources>

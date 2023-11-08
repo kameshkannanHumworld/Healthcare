@@ -12,6 +12,7 @@ import static com.example.healthcare.Permissions.LocationUtil.REQUEST_ENABLE_LOC
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -35,6 +36,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -54,6 +56,8 @@ import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 import com.example.healthcare.BluetoothModule.ScanResultAdapter;
 import com.example.healthcare.Permissions.BluetoothUtil;
 import com.example.healthcare.Permissions.LocationUtil;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.healthcare.R;
 import com.google.android.material.snackbar.Snackbar;
@@ -90,6 +94,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     public MyBottomSheetDialogFragment(Context context) {
         this.context = context;
     }
+
 
 
     @SuppressLint("MissingInflatedId")
