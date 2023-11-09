@@ -34,6 +34,8 @@ public class DatePickerDialog extends DialogFragment {
             dialog = new android.app.DatePickerDialog(requireActivity(),
                     (android.app.DatePickerDialog.OnDateSetListener) requireActivity(),
                     year, month, dayOfMonth);
+
+
             // Set the minimum date
             dialog.getDatePicker().setMinDate(minDate);
 

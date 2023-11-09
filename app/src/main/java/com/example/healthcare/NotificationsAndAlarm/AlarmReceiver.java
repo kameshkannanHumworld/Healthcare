@@ -25,7 +25,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
 
         //Intent here
-        Intent i = new Intent(context, AlarmSplashScreenActivity.class);
+        Intent activityIntent = new Intent(context, AlarmSplashScreenActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK );
 
 
@@ -37,7 +37,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
 
         //pendingIntent for Scheduling
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode, i, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode, activityIntent, PendingIntent.FLAG_IMMUTABLE);
 
 
         //SharedPreferences for save the pendingIntent

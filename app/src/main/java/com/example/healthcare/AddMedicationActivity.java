@@ -5,8 +5,6 @@ import static com.example.healthcare.MainActivity.TOKEN;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -16,23 +14,18 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
+import com.example.healthcare.Animation.AnimationLoading;
 import com.example.healthcare.ApiClass.ApiClient;
-import com.example.healthcare.DatePicker.DatePickerDialog;
 import com.example.healthcare.MedicationsModule.FrequencyDropdown.MedicationFrequency;
 import com.example.healthcare.MedicationsModule.FrequencyDropdown.MedicationFrequencyResponse;
 import com.example.healthcare.MedicationsModule.FrequencyDropdown.MedicationFrequencyService;
@@ -44,18 +37,23 @@ import com.example.healthcare.MedicationsModule.MedicationsValidations.Validatio
 import com.example.healthcare.MedicationsModule.Medicine;
 import com.example.healthcare.MedicationsModule.MedicineNameApiResponse;
 import com.example.healthcare.MedicationsModule.MedicineNameApiService;
-import com.example.healthcare.TextWatcher.AlphanumericTextWatcher;
 import com.example.healthcare.TextWatcher.ClearErrorTextWatcher;
 import com.example.healthcare.TextWatcher.MedicineNameTextWatcher;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -66,7 +64,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AddMedicationActivity extends AppCompatActivity implements android.app.DatePickerDialog.OnDateSetListener {
+public class AddMedicationActivity extends AppCompatActivity {
     Button submitButton;
     ImageView addMedicineBackButton;
     AutoCompleteTextView medicineNameInput, medicineFrequencyInput;
@@ -84,16 +82,19 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
     private static boolean isSavedForBackPress = false;
     private final String MEDICTION_NAME = "";
     String medName, frequency, recordDateTime, endDateTime, notes;
+    MaterialTimePicker picker;
     int quantity;
     static String proprietaryNameWithDosage, nonProprietaryNameWithDosage, mediProprietaryName, onlyTime, FREQUENCY_CODE;
     static Integer mediProdId;
     ArrayAdapter<String> arrayAdapterSpinner;
+    private AnimationLoading animationLoading;
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_medication);
+        animationLoading = new AnimationLoading(this);
 
         //id Assign here
         idAssignHere();
@@ -221,15 +222,10 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         recordDateTimeInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Date picker Dialog Fragment
-                DatePickerDialog mDatePickerDialogFragment = new DatePickerDialog();
-                mDatePickerDialogFragment.show(getSupportFragmentManager(), "DATE PICK");
 
-                /*
-                  Below method Trigger the Time picker Dialog
-                  Params1 - textInputEditText (for setText property)
-                */
-                popTimePicker(recordDateTimeInput);
+                //Date picker Dialog Fragment
+                popDateTimePicker(recordDateTimeInput);
+
             }
         });
         recordDateTimeInput.setLongClickable(false);
@@ -240,19 +236,41 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         endDateTimeInput.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DatePickerDialog mDatePickerDialogFragment = new DatePickerDialog();
-                mDatePickerDialogFragment.show(getSupportFragmentManager(), "DATE PICK");
 
-                /*
-                  Below method Trigger the Time picker Dialog
-                  Params1 - textInputEditText (for setText property)
-                */
-                popTimePicker(endDateTimeInput);
+                //Date picker dialog fragment
+                popDateTimePicker(endDateTimeInput);
+
             }
         });
         endDateTimeInput.setLongClickable(false);
         endDateTimeInput.setTextIsSelectable(false);
     }
+
+    private void popDateTimePicker(TextInputEditText textInputEditText) {
+        CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+        constraintsBuilder.setValidator(DateValidatorPointBackward.now());
+
+        MaterialDatePicker<Long> materialDatePicker =  MaterialDatePicker.Builder.datePicker()
+                .setTheme(R.style.DATE_PICKER)
+                .setTitleText("Select Date")
+                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .setCalendarConstraints(constraintsBuilder.build()) // Set calendar constraints
+                .build();
+
+        materialDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+            @Override
+            public void onPositiveButtonClick(Long selection) {
+
+                mDateInput = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
+//                textInputEditText.setText(mDateInput + " " + onlyTime);
+
+                //M3 time picker dialog
+                popTimePicker(textInputEditText);
+            }
+        });
+        materialDatePicker.show(getSupportFragmentManager(),"Healthcare");
+    }
+
 
 
     //Method for Medicine Search
@@ -365,9 +383,13 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
     //Submit Button Method
     private void submitButtonIntentMethod() {
+
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //animation loading start here
+                animationLoading.startLoadingDialogLoginActivity();
 
                 //get Values for save
                 String medName = Objects.requireNonNull(medicineNameInput.getText()).toString().trim();
@@ -425,10 +447,10 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                 ValidationApiRequest validationApiRequest = new ValidationApiRequest();
                 validationApiRequest.setPatientId(PATIENT_ID);
 
-                if(IS_EDIT){
+                if (IS_EDIT) {
                     validationApiRequest.setMedicationId(MEDICTION_ID);
                     Log.d(TAG, "MEDICTION_ID: " + MEDICTION_ID);
-                }else{
+                } else {
                     validationApiRequest.setMedicationId(null);
                     Log.d(TAG, "MEDICTION_ID: is null");
                 }
@@ -504,9 +526,9 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
         saveApiRequest.setPatientId(PATIENT_ID);
         saveApiRequest.setCareplanId(CAREPLAN_ID);
 
-        if(IS_EDIT){
+        if (IS_EDIT) {
             saveApiRequest.setMedicationId(MEDICTION_ID);
-        }else{
+        } else {
             saveApiRequest.setMedicationId(null);
         }
 
@@ -543,6 +565,7 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
                     Log.d(TAG, "onResponse: " + response.code());
                     SaveApiResponse saveApiResponse = response.body();
                     if (Objects.equals(saveApiResponse.getStatus(), "success")) {
+                        animationLoading.dismissLoadingDialog();
                         if (IS_EDIT) {
                             Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
                             IS_EDIT = false;
@@ -580,59 +603,48 @@ public class AddMedicationActivity extends AppCompatActivity implements android.
 
     }
 
-    /*
-        Override method for set the Date
-        this override method Called By implements android.app.DatePickerDialog.OnDateSetListener
-    */
-    @Override
-    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        Calendar mCalendar = Calendar.getInstance();
-        mCalendar.set(Calendar.YEAR, year);
-        mCalendar.set(Calendar.MONTH, month);
-        mCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault());
-        mDateInput = dateFormat.format(mCalendar.getTime());
-        //onlyDate = DateFormat.getDateInstance(DateFormat.DEFAULT).format(mCalendar.getTime());
-//        endDateTimeInput.setText(mDateInput+" "+onlyTime);
-
-        //time picker
-//        popTimePicker();
-    }
-
 
     //this method for TimePickerDialog
     private void popTimePicker(TextInputEditText textInputEditText) {
         final Calendar calendar = Calendar.getInstance();   //get calender
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);      //get Hour
-        int minute = calendar.get(Calendar.MINUTE);         //get minute
 
-        /*  Below code will trigger TimePickerDialog Fragment
-            TimePickerDialog Constructor:
-                Params1 - context
-                params2 - onclickListener
-        */
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
+
+        /*  Below code will trigger M3 TimePickerDialog  */
+        picker = new MaterialTimePicker.Builder()
+                .setTheme(R.style.TIME_PICKER)
+                .setTimeFormat(TimeFormat.CLOCK_12H)
+                .setHour(12)
+                .setMinute(0)
+                .setTitleText("Select Alarm Time")
+                .build();
+        picker.show(getSupportFragmentManager(), "Healthcare");
+
+        picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
             @Override
-            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                Calendar selectedTime = Calendar.getInstance();
-                selectedTime.set(Calendar.HOUR_OF_DAY, selectedHour);
-                selectedTime.set(Calendar.MINUTE, selectedMinute);
+            public void onClick(View v) {
+                calendar.set(Calendar.HOUR_OF_DAY, picker.getHour());
+                calendar.set(Calendar.MINUTE, picker.getMinute());
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
 
                 SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-                onlyTime = timeFormat.format(selectedTime.getTime());
+                onlyTime = timeFormat.format(calendar.getTime());
                 textInputEditText.setText(mDateInput + " " + onlyTime);
 
 //                if (selectedTime.after(Calendar.getInstance())) {
 //                    // The selected time is in the future
-//
 //                } else {
 //                    Toast.makeText(getApplicationContext(), "Please select valid time ", Toast.LENGTH_SHORT).show();
 //                }
             }
-        }, hour, minute, false);
-        timePickerDialog.setTitle("Select Time");
-        timePickerDialog.show();
+        });
+
+        picker.addOnNegativeButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                textInputEditText.setText("");
+            }
+        });
     }
 
 

@@ -174,33 +174,13 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
         }
 
         // set alarmButton listener
-        alarmButton1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showTimePicker(alarmButton1);
-            }
-        });
+        alarmButton1.setOnClickListener(view -> showTimePicker(alarmButton1));
 
-        alarmButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showTimePicker(alarmButton2);
-            }
-        });
+        alarmButton2.setOnClickListener(view -> showTimePicker(alarmButton2));
 
-        alarmButton3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showTimePicker(alarmButton3);
-            }
-        });
+        alarmButton3.setOnClickListener(view -> showTimePicker(alarmButton3));
 
-        alarmButton4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showTimePicker(alarmButton4);
-            }
-        });
+        alarmButton4.setOnClickListener(view -> showTimePicker(alarmButton4));
 
     }
 
@@ -223,6 +203,7 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
     // time picker dialog
     private void showTimePicker(Button alarmButton) {
         picker = new MaterialTimePicker.Builder()
+                .setTheme(R.style.TIME_PICKER)
                 .setTimeFormat(TimeFormat.CLOCK_12H)
                 .setHour(12)
                 .setMinute(0)
@@ -241,7 +222,9 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
 
-                if (picker.getHour() > 12) {
+                if (picker.getHour() == 12) {
+                    alarmButton.setText(String.format("%02d", picker.getHour()) + " : " + String.format("%02d", picker.getMinute()) + " PM");
+                } else if (picker.getHour() > 12) {
                     alarmButton.setText(String.format("%02d", (picker.getHour() - 12)) + " : " + String.format("%02d", picker.getMinute()) + " PM");
                 } else {
                     alarmButton.setText(picker.getHour() + " : " + picker.getMinute() + " AM");
@@ -266,7 +249,9 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
                 if (alarmManager != null) {
                     alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
 
-                    if (picker.getHour() > 12) {
+                    if (alarmHour == 12) {
+                        alarmButton.setText(String.format("%02d", picker.getHour()) + " : " + String.format("%02d", picker.getMinute()) + " PM");
+                    } else if (alarmHour > 12) {
                         alarmButton.setText(String.format("%02d", (picker.getHour() - 12)) + " : " + String.format("%02d", picker.getMinute()) + " PM");
                     } else {
                         alarmButton.setText(picker.getHour() + " : " + picker.getMinute() + " AM");
@@ -337,12 +322,14 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
 //                String formattedTime = String.format("%02d : %02d", alarmHour, alarmMinute);
                 String formattedTime;
 
-                if (alarmHour > 12) {
-                    formattedTime = (String.format("%02d", (alarmHour - 12)) + " : " + String.format("%02d", alarmMinute) + " PM");
-
+                if (alarmHour == 12) {
+                    formattedTime = String.format("%02d", alarmHour) + " : " + String.format("%02d", alarmMinute) + " PM";
+                } else if (alarmHour > 12) {
+                    formattedTime = String.format("%02d", (alarmHour - 12)) + " : " + String.format("%02d", alarmMinute) + " PM";
                 } else {
-                    formattedTime = (alarmHour + " : " + alarmMinute + " AM");
+                    formattedTime = String.format("%02d", alarmHour) + " : " + String.format("%02d", alarmMinute) + " AM";
                 }
+
 
                 switch (i) {
                     case 1:

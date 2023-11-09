@@ -89,6 +89,21 @@
         <item name="lottie_rawRes">@raw/bluetooth_scan_lottie</item>
     </style>
 
+    <!--M3 time and date picker color-->
+    <style name="TIME_PICKER" parent="ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSurface">@color/md_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
+    </style>
+
+    <style name="DATE_PICKER" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorSurface">@color/md_theme_dark_surfaceVariant</item>
+        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
+    </style>
+
     <!--    TextInput Layout dropdown-->
     <style name="TEXTINPUTLAYOUT_DROPDOWN" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
         <item name="boxStrokeColor">@color/k_rose</item>
