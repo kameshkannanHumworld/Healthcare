@@ -565,7 +565,7 @@ public class AddMedicationActivity extends AppCompatActivity {
                     Log.d(TAG, "onResponse: " + response.code());
                     SaveApiResponse saveApiResponse = response.body();
                     if (Objects.equals(saveApiResponse.getStatus(), "success")) {
-                        animationLoading.dismissLoadingDialog();
+                        animationLoading.dismissLoadingDialog(); //dismiss the loader
                         if (IS_EDIT) {
                             Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
                             IS_EDIT = false;

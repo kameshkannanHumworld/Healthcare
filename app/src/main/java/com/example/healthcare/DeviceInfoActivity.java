@@ -44,7 +44,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     ImageView backButton;
     String deviceName;
     CardView systolicDiastolicLayout;
-    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter, messageResultLayout,scanlottieLayout;
+    public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter, messageResultLayout, scanlottieLayout;
     TextView isConnectedTextView;
     TextView systolicReadingTextView, diastolicReadingTextView, pulseReadingTextView, deviceNameTextView, errorMessageTextView;
     TextView weightScaleReadings;
@@ -115,7 +115,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                         scanlottieLayout.setVisibility(View.GONE);
                         Snackbar.make(view, "Device Not Found, Please try again..", Snackbar.LENGTH_SHORT)
                                 .setAction("Retry", v -> {
-                                    bluetoothScanner = new BluetoothScanner(deviceName,context);
+                                    bluetoothScanner = new BluetoothScanner(deviceName, context);
                                     bluetoothScanner.startScan();
                                     scanlottieLayout.setVisibility(View.VISIBLE);
                                 })
@@ -348,12 +348,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
         //below logic to turn off the BLE device
         if (deviceName != null) {
             if (deviceName.equals(URION_BP_DEVICE_NAME)) {
-                urionBpDisconnectDeviceMethod();         //for Urion Bp
+                if (deviceConnected) {
+                    urionBpDisconnectDeviceMethod();         //for Urion Bp
+                }
                 URION_BP_SYSTOLIC_READINGS = null;
                 URION_BP_DIASTOLIC_READINGS = null;
                 URION_BP_PULSE_READINGS = null;
             } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
-                ecgDisconnectDeviceMethod();             //for ECG meter
+                if (deviceConnected) {
+                    ecgDisconnectDeviceMethod();             //for ECG meter
+                }
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
                 WEIGHT_SCALE_READING = null;
             } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
@@ -398,9 +402,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
         //below logic to turn off the BLE device
         if (deviceName != null) {
             if (deviceName.equals(URION_BP_DEVICE_NAME)) {
-                urionBpDisconnectDeviceMethod();         //for Urion Bp
+                if (deviceConnected) {
+                    urionBpDisconnectDeviceMethod();         //for Urion Bp
+                }
             } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
-                ecgDisconnectDeviceMethod();             //for ECG meter
+                if(deviceConnected){
+                    ecgDisconnectDeviceMethod();             //for ECG meter
+                }
             }
 
         } else {
