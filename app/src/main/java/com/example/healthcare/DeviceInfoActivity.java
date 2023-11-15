@@ -1,20 +1,29 @@
 package com.example.healthcare;
 
-import static com.example.healthcare.BleDevices.BloodGlucometer.*;
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME1;
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME2;
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_RESULT;
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_RESULT_VALUE;
 import static com.example.healthcare.BleDevices.ECGMeter.ecgDisconnectDeviceMethod;
-import static com.example.healthcare.BleDevices.UrionBp.*;
-import static com.example.healthcare.BleDevices.WeightScale.*;
+import static com.example.healthcare.BleDevices.UrionBp.DEVICE_INFO_CLASS_SET_TEXT;
+import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_ERROR_MESSAGES;
+import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
+import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DIASTOLIC_READINGS;
+import static com.example.healthcare.BleDevices.UrionBp.URION_BP_PULSE_READINGS;
+import static com.example.healthcare.BleDevices.UrionBp.URION_BP_SYSTOLIC_READINGS;
+import static com.example.healthcare.BleDevices.UrionBp.urionBpDisconnectDeviceMethod;
+import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
+import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_IS_CONNECTED;
+import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_READING;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnectAllDevices;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.LightingColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +35,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
@@ -96,6 +110,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         //Assign Id Here
         idAssignHere();
+
 
         //get device name from Intent
         deviceName = getIntent().getStringExtra("DEVICE_NAME");
@@ -341,6 +356,26 @@ public class DeviceInfoActivity extends AppCompatActivity {
         circularProgressBarBloodGlucometer = findViewById(R.id.circularProgressBarBloodGlucometer);
         circularProgressBarWeightScale = findViewById(R.id.circularProgressBarWeightScale);
         circularProgressBarBloodPressure = findViewById(R.id.circularProgressBarBloodPressure);
+        ImageView imageView = findViewById(R.id.imageView4);
+        VectorDrawableCompat drawable = VectorDrawableCompat.create(getResources(), R.drawable.medicine1, null);
+
+        if (drawable != null) {
+            // Define the color you want to replace (#FFFB8A7D) and the new color (e.g., Color.BLUE)
+            int originalColor0 = Color.parseColor("#FFFB8A7D");
+            int originalColor1 = Color.parseColor("#FFFB8A7D");
+            int CentreLine = Color.parseColor("#FFFFFF");
+            int newColor = Color.BLACK;
+
+            // Create a ColorFilter to replace the original color with the new color
+            ColorFilter colorFilter = new LightingColorFilter(originalColor0, newColor);
+
+            // Apply the ColorFilter to the drawable
+            drawable.setColorFilter(colorFilter);
+
+            // Set the modified drawable to your ImageView
+            imageView.setImageDrawable(drawable);
+        }
+
     }
 
     private void backButtonMethod() {
