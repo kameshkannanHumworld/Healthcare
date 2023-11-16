@@ -90,7 +90,14 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
         for (int i = 0; i < medicationList.size(); i++) {
             ViewMedicationData medicine = medicationList.get(i);
             int svgResource;
-            String drawableName = "medicine" + (position+1);
+            String drawableName;
+
+            if(i>5){
+                drawableName = "medicine" + (i % 5);
+            }else{
+                drawableName = "medicine" + (position+1);
+            }
+
             svgResource = context.getResources().getIdentifier(drawableName, "drawable", context.getPackageName());
             holder.medicineImage.setImageResource(svgResource);
         }
