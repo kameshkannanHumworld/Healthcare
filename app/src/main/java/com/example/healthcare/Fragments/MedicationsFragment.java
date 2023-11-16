@@ -72,6 +72,7 @@ public class MedicationsFragment extends Fragment {
     MedicationAdapter medicationAdapter;
     SwipeRefreshLayout swipeRefreshLayout;
     TextView noMedicationsTextView;
+    public static Integer RECYCLER_POSITION_MEDICATION;
 
     public MedicationsFragment() {
         // Required empty public constructor
@@ -230,6 +231,7 @@ public class MedicationsFragment extends Fragment {
         intent.putExtra("NOTES", viewMedicationData.getNotes());
         intent.putExtra("FREQ_CODE", viewMedicationData.getFrequencyCode());
         MEDICTION_ID = viewMedicationData.getMedicationId();
+        RECYCLER_POSITION_MEDICATION = position;
         intent.putExtra("MEDICTION_ID", MEDICTION_ID);
         startActivity(intent);
 

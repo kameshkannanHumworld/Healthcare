@@ -490,6 +490,7 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     //Medications Save Api Method
                                     medicationsSaveApiMethod();
                                 } else {
+                                    animationLoading.dismissLoadingDialog(); //dismiss the loader
                                     Snackbar.make(submitButton, responseBodyString, Snackbar.LENGTH_LONG).show();
                                 }
                             } catch (IOException e) {

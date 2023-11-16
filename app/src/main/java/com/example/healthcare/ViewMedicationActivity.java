@@ -1,6 +1,7 @@
 package com.example.healthcare;
 
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
+import static com.example.healthcare.Fragments.MedicationsFragment.RECYCLER_POSITION_MEDICATION;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,7 +20,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
     FloatingActionButton floatingActionButton;
     ImageView backButton, editButton;
     String medictionId;
-    String frequencyCode;
+    String frequencyCode,position;
     TextView medicineName, frequencyTV, quantityTV, recordDateTimeTV, endDateTimeTV, notesTV;
 
 
@@ -65,7 +66,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
         if (quantity == 0) {
             quantityTV.setText(null);
         } else {
-            quantityTV.setText(String.valueOf(quantity));
+            quantityTV.setText("hello " + RECYCLER_POSITION_MEDICATION);
         }
 
     }

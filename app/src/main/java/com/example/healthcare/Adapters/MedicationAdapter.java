@@ -87,13 +87,12 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
 
 
         // ---------------------Assign a specific SVG to each medicine----------------------------
-        for (int i = 0; i < medicationList.size(); i++) {
-            ViewMedicationData medicine = medicationList.get(i);
+        for (int i = 1; i < medicationList.size(); i++) {
             int svgResource;
             String drawableName;
 
             if(i>5){
-                drawableName = "medicine" + (i % 5);
+                drawableName = "medicine" + (position % 5 +1);
             }else{
                 drawableName = "medicine" + (position+1);
             }
