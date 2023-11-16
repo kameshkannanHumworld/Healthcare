@@ -356,25 +356,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
         circularProgressBarBloodGlucometer = findViewById(R.id.circularProgressBarBloodGlucometer);
         circularProgressBarWeightScale = findViewById(R.id.circularProgressBarWeightScale);
         circularProgressBarBloodPressure = findViewById(R.id.circularProgressBarBloodPressure);
-        ImageView imageView = findViewById(R.id.imageView4);
-        VectorDrawableCompat drawable = VectorDrawableCompat.create(getResources(), R.drawable.medicine1, null);
-
-        if (drawable != null) {
-            // Define the color you want to replace (#FFFB8A7D) and the new color (e.g., Color.BLUE)
-            int originalColor0 = Color.parseColor("#FFFB8A7D");
-            int originalColor1 = Color.parseColor("#FFFB8A7D");
-            int CentreLine = Color.parseColor("#FFFFFF");
-            int newColor = Color.BLACK;
-
-            // Create a ColorFilter to replace the original color with the new color
-            ColorFilter colorFilter = new LightingColorFilter(originalColor0, newColor);
-
-            // Apply the ColorFilter to the drawable
-            drawable.setColorFilter(colorFilter);
-
-            // Set the modified drawable to your ImageView
-            imageView.setImageDrawable(drawable);
-        }
 
     }
 

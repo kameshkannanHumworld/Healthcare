@@ -90,19 +90,8 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
         for (int i = 0; i < medicationList.size(); i++) {
             ViewMedicationData medicine = medicationList.get(i);
             int svgResource;
-
-            if (i == position) {
-                // Assign medicine1.svg to the first medicine
-                svgResource = R.drawable.medicine1;
-            } else {
-                // Randomly select from medicine2.svg to medicine5.svg for the rest of the medicines
-                Random random = new Random();
-                int randomNumber = random.nextInt(4) + 2; // Generates a random number between 2 and 5
-                String drawableName = "medicine" + randomNumber;
-                svgResource = context.getResources().getIdentifier(drawableName, "drawable", context.getPackageName());
-            }
-
-//            medicine.setSvgResource(svgResource);
+            String drawableName = "medicine" + (position+1);
+            svgResource = context.getResources().getIdentifier(drawableName, "drawable", context.getPackageName());
             holder.medicineImage.setImageResource(svgResource);
         }
 

@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -250,7 +251,7 @@ public class AddMedicationActivity extends AppCompatActivity {
         CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
         constraintsBuilder.setValidator(DateValidatorPointBackward.now());
 
-        MaterialDatePicker<Long> materialDatePicker =  MaterialDatePicker.Builder.datePicker()
+        MaterialDatePicker<Long> materialDatePicker = MaterialDatePicker.Builder.datePicker()
                 .setTheme(R.style.DATE_PICKER)
                 .setTitleText("Select Date")
                 .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
@@ -268,9 +269,8 @@ public class AddMedicationActivity extends AppCompatActivity {
                 popTimePicker(textInputEditText);
             }
         });
-        materialDatePicker.show(getSupportFragmentManager(),"Healthcare");
+        materialDatePicker.show(getSupportFragmentManager(), "Healthcare");
     }
-
 
 
     //Method for Medicine Search
@@ -688,5 +688,8 @@ public class AddMedicationActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
+
+
 
 }
