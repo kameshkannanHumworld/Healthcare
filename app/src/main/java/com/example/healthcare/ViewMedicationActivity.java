@@ -20,8 +20,10 @@ public class ViewMedicationActivity extends AppCompatActivity {
     FloatingActionButton floatingActionButton;
     ImageView backButton, editButton;
     String medictionId;
-    String frequencyCode,position;
-    TextView medicineName, frequencyTV, quantityTV, recordDateTimeTV, endDateTimeTV, notesTV;
+    String frequencyCode;
+    int position;
+    ImageView medicineImageViewMedicationActivity;
+    TextView medicineName, frequencyTV, quantityTV, DateTimeTV, notesTV;
 
 
     @Override
@@ -60,14 +62,19 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
         medicineName.setText(medName);
         frequencyTV.setText(frequency);
-        recordDateTimeTV.setText(recordDateTime);
-        endDateTimeTV.setText(endDateTime);
+        DateTimeTV.setText(recordDateTime+" - "+endDateTime);
+
         notesTV.setText(notes);
         if (quantity == 0) {
             quantityTV.setText(null);
         } else {
-            quantityTV.setText("hello " + RECYCLER_POSITION_MEDICATION);
+            quantityTV.setText(String.valueOf(quantity));
         }
+
+        //set image
+        String drawableName = "medicine" + (RECYCLER_POSITION_MEDICATION+1);
+        int svgResource = getResources().getIdentifier(drawableName, "drawable", getPackageName());
+        medicineImageViewMedicationActivity.setImageResource(svgResource);
 
     }
 
@@ -75,12 +82,12 @@ public class ViewMedicationActivity extends AppCompatActivity {
         floatingActionButton = findViewById(R.id.fabRemainder);
         backButton = findViewById(R.id.backButton);
         editButton = findViewById(R.id.editButton);
-        medicineName = findViewById(R.id.medicineName);
-        frequencyTV = findViewById(R.id.frequency);
-        quantityTV = findViewById(R.id.quantity);
-        recordDateTimeTV = findViewById(R.id.recordDateTime);
-        endDateTimeTV = findViewById(R.id.endDateTime);
-        notesTV = findViewById(R.id.notes);
+        medicineName = findViewById(R.id.medicineNameViewMedicationsActivity);
+        frequencyTV = findViewById(R.id.frequencyViewMedicationsActivity);
+        quantityTV = findViewById(R.id.quantityViewMedicationsActivity);
+        DateTimeTV = findViewById(R.id.DateTimeViewMedicationsActivity);
+        notesTV = findViewById(R.id.notesViewMedicationsActivity);
+        medicineImageViewMedicationActivity = findViewById(R.id.medicineImageViewMedicationActivity);
 
     }
 
