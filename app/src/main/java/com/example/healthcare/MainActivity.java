@@ -76,8 +76,8 @@ public class MainActivity extends AppCompatActivity {
     private void inputValidationMethod() {
         userNameInput.addTextChangedListener(new AlphanumericTextWatcher(userNameInput)); //validate username field
         passwordInput.addTextChangedListener(new AlphanumericTextWatcher(passwordInput)); //validate Password field
-        userNameInput.addTextChangedListener(new UsernameTextWatcher(userNameInput, usernameTextInputLayout)); //validate username field
-        passwordInput.addTextChangedListener(new PasswordTextWatcher(passwordInput, passwordTextInputLayout)); //validate Password field
+//        userNameInput.addTextChangedListener(new UsernameTextWatcher(userNameInput, usernameTextInputLayout)); //validate username field
+//        passwordInput.addTextChangedListener(new PasswordTextWatcher(passwordInput, passwordTextInputLayout)); //validate Password field
     }
 
     //login Button Intent Here
@@ -96,9 +96,11 @@ public class MainActivity extends AppCompatActivity {
 
                 //check is required or not
                 if (name.equals("")) {
-                    usernameTextInputLayout.setError("*Required");
+                    usernameTextInputLayout.setError("Username is Required");
+                    userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));
                 } else if (password.equals("")) {
-                    passwordTextInputLayout.setError("*Required");
+                    passwordTextInputLayout.setError("Password is Required");
+                    passwordInput.addTextChangedListener(new ClearErrorTextWatcher(passwordTextInputLayout));
                 } else {
                     assert userNameInput != null;
                     userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));  //Clear the error

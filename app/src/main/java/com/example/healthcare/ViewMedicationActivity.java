@@ -62,7 +62,18 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
         medicineName.setText(medName);
         frequencyTV.setText(frequency);
-        DateTimeTV.setText(recordDateTime+" - "+endDateTime);
+
+        //set date
+        if(recordDateTime != null && endDateTime != null){
+            DateTimeTV.setText(recordDateTime+" - "+endDateTime);
+        }else if (recordDateTime != null){
+            DateTimeTV.setText(recordDateTime+" - "+" Not provided");
+        } else if (endDateTime != null) {
+            DateTimeTV.setText("Not provided"+" - "+endDateTime);
+        }else{
+            DateTimeTV.setText("Not provided"+" - "+" Not provided");
+        }
+
 
         notesTV.setText(notes);
         if (quantity == 0) {

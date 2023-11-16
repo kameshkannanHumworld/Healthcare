@@ -152,13 +152,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
     private void refresh() {
         if (deviceName != null) {
             if (deviceName.equals(URION_BP_DEVICE_NAME)) {
-                deviceNameTextView.setText("BLOOD PRESSURE");
+                deviceNameTextView.setText("Blood Pressure");
                 urionBpRefresh();               //for Urion Bp
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
-                deviceNameTextView.setText("WEIGHT SCALE");
+                deviceNameTextView.setText("Weight Scale");
                 weightScaleRefresh();             //for Weight Scale
             } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
-                deviceNameTextView.setText("BLOOD GLUCOMETER");
+                deviceNameTextView.setText("Blood Glucometer");
                 bloodGlucometerRefresh();             //for Blood Glucometer
             } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
                 deviceNameTextView.setText("ECG");
@@ -364,16 +364,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
         //below logic to turn off the BLE device
         if (deviceName != null) {
             if (deviceName.equals(URION_BP_DEVICE_NAME)) {
-                if (deviceConnected) {
-                    urionBpDisconnectDeviceMethod();         //for Urion Bp
-                }
+//                if (deviceConnected) {
+//                    urionBpDisconnectDeviceMethod();         //for Urion Bp
+//                }
                 URION_BP_SYSTOLIC_READINGS = null;
                 URION_BP_DIASTOLIC_READINGS = null;
                 URION_BP_PULSE_READINGS = null;
             } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
-                if (deviceConnected) {
-                    ecgDisconnectDeviceMethod();             //for ECG meter
-                }
+//                if (deviceConnected) {
+//                    ecgDisconnectDeviceMethod();             //for ECG meter
+//                }
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
                 WEIGHT_SCALE_READING = null;
             } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
@@ -393,7 +393,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     //method ask confirmation for exit , when Click back button
     public void backButtonConfirmationDialogMethod(Context context) {
         backButton.setOnClickListener(v -> {
-            showCustomDialogBox("Are you sure want tot Exit?");
+            showCustomDialogBox("Are you sure want to Exit?");
         });
     }
 
@@ -416,20 +416,20 @@ public class DeviceInfoActivity extends AppCompatActivity {
         isDeviceInfoActivityRunning = false;
 
         //below logic to turn off the BLE device
-        if (deviceName != null) {
-            if (deviceName.equals(URION_BP_DEVICE_NAME)) {
-                if (deviceConnected) {
-                    urionBpDisconnectDeviceMethod();         //for Urion Bp
-                }
-            } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
-                if(deviceConnected){
-                    ecgDisconnectDeviceMethod();             //for ECG meter
-                }
-            }
-
-        } else {
-            Log.d(TAG, "refresh: Device name null");
-        }
+//        if (deviceName != null) {
+//            if (deviceName.equals(URION_BP_DEVICE_NAME)) {
+//                if (deviceConnected) {
+//                    urionBpDisconnectDeviceMethod();         //for Urion Bp
+//                }
+//            } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
+//                if(deviceConnected){
+//                    ecgDisconnectDeviceMethod();             //for ECG meter
+//                }
+//            }
+//
+//        } else {
+//            Log.d(TAG, "refresh: Device name null");
+//        }
     }
 
     @Override

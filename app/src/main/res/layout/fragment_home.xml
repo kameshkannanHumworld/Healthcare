@@ -190,6 +190,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
+        android:visibility="invisible"
         android:src="@drawable/ic_baseline_add"
         app:fabSize="normal"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"

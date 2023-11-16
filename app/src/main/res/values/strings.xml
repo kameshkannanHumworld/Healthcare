@@ -17,8 +17,8 @@
     <string name="img">img\n</string>
     <string name="device_name">Device Reading</string>
     <string name="connected">Connected</string>
-    <string name="frequency">Frequency</string>
-    <string name="quantity">Quantity</string>
+    <string name="frequency">Frequency : </string>
+    <string name="quantity">Quantity :</string>
     <string name="enter_medicine_name">Enter Medicine Name</string>
     <string name="enter_quantity">Enter Quantity</string>
     <string name="end_date_time"><![CDATA[End Date & Time]]></string>
@@ -39,7 +39,7 @@
     <string name="userimage">UserImage</string>
     <string name="recorded_date_and_time">Recorded Date and Time</string>
     <string name="medicine_details">Medicine Details</string>
-    <string name="notes">Notes</string>
+    <string name="notes">Notes :</string>
     <string name="remainder">Remainder</string>
     <string name="set_remainder">Set Remainder</string>
     <string name="stop_alarm">Stop Alarm</string>

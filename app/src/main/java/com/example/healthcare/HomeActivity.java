@@ -39,7 +39,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         //Set Tool Bar
         toolbar = findViewById(R.id.toolbar);
-        toolbar.setTitle("Devices");
+        toolbar.setTitle("Home");
         setSupportActionBar(toolbar);
 
         //Assign Id for the UI here
@@ -77,24 +77,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         if (itemId == R.id.nav_home) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
-            toolbar.setTitle("Devices");
+            toolbar.setTitle("Home");
         } else if (itemId == R.id.nav_medications) {
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new MedicationsFragment()).commit();
             toolbar.setTitle("Medications");
         } else if (itemId == R.id.nav_logout) {
-//            new MaterialAlertDialogBuilder(this)
-//                    .setTitle("Confirmation")  // Set the title
-//                    .setMessage("Are you sure want to Logout?")  // Set the message
-//                    .setPositiveButton("OK", (dialog, which) -> {
-//
-//                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                        startActivity(intent);
-//                        finish();
-//
-//                    })
-//                    .setNegativeButton("Cancel", null)
-//                    .show();  // Show the dialog
             showCustomDialogBox("Are you sure want to Logout?", false);
 
         }
@@ -110,7 +97,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {
-            showCustomDialogBox("Are you sure want to Logout?", true);
+            showCustomDialogBox("Are you sure want to Exit?", true);
         }
     }
 

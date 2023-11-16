@@ -66,7 +66,7 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
         holder.medicineFrequency.setText(medication.getFrequency());
 
         String quantity = String.valueOf(medication.getQuantity());
-        holder.medicineQuantity.setText("Quantity: " + quantity);
+        holder.medicineQuantity.setText( " "+quantity);
 
         //start Date
         if (medication.getEffectiveDate() == null || medication.getEffectiveDate().trim().isEmpty()) {
