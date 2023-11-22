@@ -22,7 +22,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-//        //Lottie Animation here
+        //Lottie Animation here
         lottieAnimationView = findViewById(R.id.splashScreenLottieAnimation);
         lottieAnimationView.animate().translationX(2000).setDuration(2000).setStartDelay(2900);
 

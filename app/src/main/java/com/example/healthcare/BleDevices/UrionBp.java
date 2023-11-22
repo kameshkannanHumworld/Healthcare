@@ -40,7 +40,7 @@ public class UrionBp {
 
         //checking the readings
         if (Objects.equals(ConverterClass.byteToHexadecimal(byteArray, false), "a5")) {
-            DEVICE_INFO_CLASS_SET_TEXT = "Please Start the Device to take reading";
+            DEVICE_INFO_CLASS_SET_TEXT = "Waiting for user to Start the device";
             URION_BP_DEVICE_ERROR_MESSAGES = null;
         } else {
             DEVICE_INFO_CLASS_SET_TEXT = "Please wait Device is Taking reading";

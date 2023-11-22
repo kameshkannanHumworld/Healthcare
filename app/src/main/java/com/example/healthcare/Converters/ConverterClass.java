@@ -1,7 +1,14 @@
 package com.example.healthcare.Converters;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.Set;
 
 public class ConverterClass {
 
@@ -202,6 +209,59 @@ public class ConverterClass {
         parts.add(hexString.substring(hexString.length() / 2));
 
         return parts;
+    }
+
+
+
+    /*     method to generate a random unique number and there is no duplication    */
+    private static final int MAX_RANDOM_NUMBER = 1000000; // Adjust the range as needed
+    private static Set<Integer> generatedNumbers = new HashSet<>();
+
+    public static int generateUniqueNumber() {
+        Random random = new Random();
+        int randomNumber;
+
+        do {
+            // Generate a random number within the specified range
+            randomNumber = random.nextInt(MAX_RANDOM_NUMBER + 1);
+        } while (generatedNumbers.contains(randomNumber));
+
+        // Add the generated number to the set to ensure uniqueness
+        generatedNumbers.add(randomNumber);
+
+        return randomNumber;
+    }
+
+
+    /*  Method to split the date into dd and MM-yyyy
+    *       input - (String) 21-11-2023
+    *       output - (List) 0th index - dd, 1st index - MM-yyyy(Nov-2023)
+    *       params1 - (String) input date*/
+    public static List<String> dateFormatSpilitterMethod(String inputDate){
+        List<String> outputList = new ArrayList<>();
+
+        try {
+            // Parse the input date
+            SimpleDateFormat inputFormat = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault());
+            Date date = inputFormat.parse(inputDate);
+
+            // Format for the first output (dd)
+            SimpleDateFormat dayFormat = new SimpleDateFormat("dd", Locale.getDefault());
+            String dayOutput = dayFormat.format(date);
+
+            // Format for the second output (MMM-yyyy)
+            SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMM-yyyy", Locale.getDefault());
+            String monthYearOutput = monthYearFormat.format(date);
+
+            // Store results in a list
+            outputList.add(dayOutput);
+            outputList.add(monthYearOutput);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return  outputList;
     }
 
 }

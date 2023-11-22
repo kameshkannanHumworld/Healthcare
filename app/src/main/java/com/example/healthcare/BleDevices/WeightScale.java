@@ -83,7 +83,7 @@ public class WeightScale {
                     //send alert after readings sucessfull
                     WEIGHT_SCALE_READING_ALERT_SUCESSFULL  = true;
 
-                    // disconnect device  after 15 seconds
+                    // disconnect device  after 20 seconds
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -91,7 +91,7 @@ public class WeightScale {
                             WEIGHT_SCALE_IS_CONNECTED = false;
 
                         }
-                    }, 20000); // 15 seconds in milliseconds
+                    }, 20000); // 20 seconds in milliseconds
 
                     //condition flag
                     conditionAlreadyMet = true;

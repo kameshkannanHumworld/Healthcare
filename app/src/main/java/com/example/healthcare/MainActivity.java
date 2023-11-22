@@ -35,11 +35,15 @@ import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    /*  View  */
     Button loginButton;
-    private final String TAG = "TAGi";
-    public static String TOKEN;
     TextInputEditText userNameInput, passwordInput;
     TextInputLayout usernameTextInputLayout, passwordTextInputLayout;
+
+    /*  class and objects   */
+    private final String TAG = "TAGi";
+    public static String TOKEN;
     private AnimationLoading animationLoading;
 
 
@@ -165,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                         animationLoading.dismissLoadingDialog();
 
                         usernameTextInputLayout.setError("Invalid Credentials");
-                        Toast.makeText(getApplicationContext(), "Invalid Credentials", Toast.LENGTH_SHORT).show();
+
                     }
 
 
@@ -186,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(Call<LoginWebResponse> call, Throwable t) {
                 //Handle API doesn't call
                 Log.e(TAG, "Throwable: " + t.getMessage());
-                Toast.makeText(MainActivity.this, "Login Failure", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Please Try Again", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                 animationLoading.dismissLoadingDialog();
             }

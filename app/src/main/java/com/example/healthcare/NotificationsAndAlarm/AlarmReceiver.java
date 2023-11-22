@@ -19,7 +19,7 @@ import androidx.core.app.NotificationManagerCompat;
 import com.example.healthcare.AlarmSplashScreenActivity;
 import com.example.healthcare.R;
 
-public class AlarmReceiver extends BroadcastReceiver {
+    public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -56,7 +56,8 @@ public class AlarmReceiver extends BroadcastReceiver {
         //Set Notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "Healthcare")
                 .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentTitle("Healthcare - Its time to take your medicine")
+                .setContentTitle("Healthcare")
+                .setContentText("It's time for your Medicine!")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(medicationName))
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)

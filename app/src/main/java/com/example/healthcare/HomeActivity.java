@@ -22,14 +22,15 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.healthcare.Fragments.HomeFragment;
 import com.example.healthcare.Fragments.MedicationsFragment;
+import com.example.healthcare.NotificationsAndAlarm.ReminderManager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
-    TextView navigationDrawerUserName, navigationDrawerUserUniqId;
-    Toolbar toolbar;
+    private TextView navigationDrawerUserName, navigationDrawerUserUniqId;
+    private Toolbar toolbar;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -84,6 +85,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         } else if (itemId == R.id.nav_logout) {
             showCustomDialogBox("Are you sure want to Logout?", false);
 
+        } else if (itemId == R.id.nav_ClearAllRemainder) {
+            ReminderManager.clearAllReminders(this);
         }
 
         //after click the menu navigation bar auto close

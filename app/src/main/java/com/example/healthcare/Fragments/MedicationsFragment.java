@@ -380,12 +380,18 @@ public class MedicationsFragment extends Fragment {
                     }
                 } else {
                     Log.d(TAG, "onResponse: else" + response.code());
+                    recyclerMedications.setVisibility(View.GONE);
+                    noMedicationsTextView.setVisibility(View.VISIBLE);
+                    noMedicationsTextView.setText("Network Response Error");
                 }
             }
 
             @Override
             public void onFailure(Call<ViewMedicationResponse> call, Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
+                recyclerMedications.setVisibility(View.GONE);
+                noMedicationsTextView.setVisibility(View.VISIBLE);
+                noMedicationsTextView.setText("Please Try Again After Some Time ");
             }
         });
     }

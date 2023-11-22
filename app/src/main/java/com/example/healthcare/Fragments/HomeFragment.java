@@ -7,19 +7,29 @@ import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.*;
 import static com.example.healthcare.DeviceInfoActivity.isDeviceInfoActivityRunning;
 
+import android.Manifest;
 import android.bluetooth.BluetoothGatt;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.healthcare.Animation.AnimationLoading;
@@ -35,50 +45,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
-    public static List<BluetoothGatt> connectedGatts = new ArrayList<>();
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private boolean isScanning = true;
-    private static final String TAG = "TAGi";
-
-
-    private String mParam1;
-    private String mParam2;
-    Runnable runnable;
     View viewFragment;
-    private BluetoothScanner bluetoothScanner;
-    private Handler handler;
-
     Context context;
     ImageView weighScaleImage, bpMeterImage, ecgMeterImage, glucometerImage;
+
+    private boolean isScanning = true;
+    private static final String TAG = "TAGi";
+    private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
+
+
+    private BluetoothScanner bluetoothScanner;
     private Handler scanHandler = new Handler();
     private AnimationLoading animationLoading;
-
-
-    public HomeFragment() {
-
-    }
-
-    public static HomeFragment newInstance(String param1, String param2) {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
-
-    }
+    public static List<BluetoothGatt> connectedGatts = new ArrayList<>();
 
 
     @Override
@@ -109,6 +89,20 @@ public class HomeFragment extends Fragment {
         BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
         BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
         BluetoothUtil.requestBluetoothScanPermission(requireActivity());
+
+        // Check if the OVERLAY_PERMISSION is granted
+        if (!Settings.canDrawOverlays(requireContext())) {
+            // If not, request it
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().getPackageName()));
+            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
+        }
+
+        //post notifications permission
+        if(ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ActivityCompat.requestPermissions(requireActivity(),new String[]{Manifest.permission.POST_NOTIFICATIONS},101);
+            }
+        }
     }
 
     private void ImageListenersMethod() {
@@ -258,6 +252,21 @@ public class HomeFragment extends Fragment {
         animationLoading.dismissLoadingDialog();
         disconnectAllDevices();
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+            if (Settings.canDrawOverlays(requireContext())) {
+                // Permission granted
+                Toast.makeText(requireContext(), "Permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                // Permission denied
+                Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
 

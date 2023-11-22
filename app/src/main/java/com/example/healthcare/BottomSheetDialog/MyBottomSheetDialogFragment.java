@@ -73,7 +73,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
     private Timer scanTimer;
     private static final long SCAN_INTERVAL = 5000;
-    private static final String TAG = "TAGi";
+    public static final String TAG = "TAGi";
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanResultAdapter scanResultAdapter;
     private BluetoothAdapter bluetoothAdapter;

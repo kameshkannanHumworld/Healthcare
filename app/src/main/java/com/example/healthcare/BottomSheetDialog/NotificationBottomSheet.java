@@ -39,7 +39,6 @@ import java.util.Objects;
 
 public class NotificationBottomSheet extends BottomSheetDialogFragment {
     ImageView cancelButton;
-    private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
     Button alarmButton1, alarmButton2, alarmButton3, alarmButton4;
     MaterialTimePicker picker;
     Calendar calendar;
@@ -135,12 +134,12 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
     //method for remainder
     private void alarmAndNotificationMethod() {
 
-        // Check if the permission is granted
-        if (!Settings.canDrawOverlays(requireContext())) {
-            // If not, request it
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().getPackageName()));
-            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
-        }
+//        // Check if the permission is granted
+//        if (!Settings.canDrawOverlays(requireContext())) {
+//            // If not, request it
+//            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().getPackageName()));
+//            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
+//        }
 
         //create Notification channel
         createNotificaationChannel();
@@ -184,20 +183,20 @@ public class NotificationBottomSheet extends BottomSheetDialogFragment {
 
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
-            if (Settings.canDrawOverlays(requireContext())) {
-                // Permission granted
-                Toast.makeText(requireContext(), "Permission granted", Toast.LENGTH_SHORT).show();
-            } else {
-                // Permission denied
-                Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+//            if (Settings.canDrawOverlays(requireContext())) {
+//                // Permission granted
+//                Toast.makeText(requireContext(), "Permission granted", Toast.LENGTH_SHORT).show();
+//            } else {
+//                // Permission denied
+//                Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
 
 
     // time picker dialog

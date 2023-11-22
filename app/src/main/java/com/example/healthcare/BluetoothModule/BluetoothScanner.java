@@ -35,7 +35,7 @@ public class BluetoothScanner {
     private BluetoothLeScanner bluetoothLeScanner;
     private BluetoothAdapter bluetoothAdapter;
     BluetoothGatt gatt;
-    public static BluetoothDevice urionBpDevice, bloodGlucometer,ecgMeter;
+    public static BluetoothDevice urionBpDevice, bloodGlucometer, ecgMeter;
     public static boolean deviceConnected = false;
 
     String DEVICE_NAME_SCAN;
@@ -109,10 +109,9 @@ public class BluetoothScanner {
 //            Log.i(TAG, "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
 
 
-            //Weight Scale
             if (DEVICE_NAME_SCAN.equals(WEIGHT_SCALE_DEVICE_NAME)) {
+                //Weight Scale
                 weightScaleReadingsMethod(result, context);
-
             }
 
 
@@ -154,57 +153,57 @@ public class BluetoothScanner {
         }
 
 
-        //connected to the Device
-        @SuppressLint("MissingPermission")
-        private void connectToDevice(Activity activity) {
-            //urion Bp
-            if (urionBpDevice != null) {
-                gatt = urionBpDevice.connectGatt(context, false, new MyBluetoothGattCallback(context));
-                if (gatt != null) {
-                    stopScan();
-                    deviceConnected = true;
-                    Log.i(TAG, "Connecting to device: " + urionBpDevice.getName());
-                    connectedGatts.add(gatt); // for disconnect the device, you need to add the device in tha list
-                } else {
-                    Log.e(TAG, "Failed to connect to device: " + urionBpDevice.getName());
-                }
-            }
-
-            //Blood Glucometer
-            else if (bloodGlucometer != null) {
-                gatt = bloodGlucometer.connectGatt(context, false, new MyBluetoothGattCallback(context));
-                if (gatt != null) {
-                    stopScan();
-                    deviceConnected = true;
-                    Log.i(TAG, "Connecting to device: " + bloodGlucometer.getName());
-                    connectedGatts.add(gatt);  // for disconnect the device, you need to add the device in tha list
-                } else {
-                    Log.e(TAG, "Failed to connect to device: " + bloodGlucometer.getName());
-                }
-            }
-
-
-            //ECG meter
-            else if (ecgMeter != null) {
-                gatt = ecgMeter.connectGatt(context, false, new MyBluetoothGattCallback(context));
-                if (gatt != null) {
-                    stopScan();
-                    deviceConnected = true;
-                    Log.i(TAG, "Connecting to device: " + ecgMeter.getName());
-                    connectedGatts.add(gatt);  // for disconnect the device, you need to add the device in tha list
-                } else {
-                    Log.e(TAG, "Failed to connect to device: " + ecgMeter.getName());
-                }
-            }
-
-
-        }
-
         @Override
         public void onScanFailed(int errorCode) {
             Log.e("ScanCallback", "onScanFailed: code " + errorCode);
         }
     };
+
+    //connected to the Device
+    @SuppressLint("MissingPermission")
+    private void connectToDevice(Activity activity) {
+        //urion Bp
+        if (urionBpDevice != null) {
+            gatt = urionBpDevice.connectGatt(context, false, new MyBluetoothGattCallback(context));
+            if (gatt != null) {
+                stopScan();
+                deviceConnected = true;
+                Log.i(TAG, "Connecting to device: " + urionBpDevice.getName());
+                connectedGatts.add(gatt); // for disconnect the device, you need to add the device in tha list
+            } else {
+                Log.e(TAG, "Failed to connect to device: " + urionBpDevice.getName());
+            }
+        }
+
+        //Blood Glucometer
+        else if (bloodGlucometer != null) {
+            gatt = bloodGlucometer.connectGatt(context, false, new MyBluetoothGattCallback(context));
+            if (gatt != null) {
+                stopScan();
+                deviceConnected = true;
+                Log.i(TAG, "Connecting to device: " + bloodGlucometer.getName());
+                connectedGatts.add(gatt);  // for disconnect the device, you need to add the device in tha list
+            } else {
+                Log.e(TAG, "Failed to connect to device: " + bloodGlucometer.getName());
+            }
+        }
+
+
+        //ECG meter
+        else if (ecgMeter != null) {
+            gatt = ecgMeter.connectGatt(context, false, new MyBluetoothGattCallback(context));
+            if (gatt != null) {
+                stopScan();
+                deviceConnected = true;
+                Log.i(TAG, "Connecting to device: " + ecgMeter.getName());
+                connectedGatts.add(gatt);  // for disconnect the device, you need to add the device in tha list
+            } else {
+                Log.e(TAG, "Failed to connect to device: " + ecgMeter.getName());
+            }
+        }
+
+
+    }
 
 
     //Disconnect the device

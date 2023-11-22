@@ -48,4 +48,5 @@
     <string name="daily_remainder">Daily remainder</string>
     <string name="you_must_select_all_of_the_below_alarm_slots">You Must Select all of the below alarm Slots</string>
     <string name="other_available_devices">Other Available Devices</string>
+    <string name="clear_all_remainders">Clear All Remainders</string>
 </resources>
