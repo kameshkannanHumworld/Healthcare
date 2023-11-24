@@ -57,7 +57,7 @@ public class ReminderManager {
      *       params2 - unique Remainder Request Code(String)*/
     public static void clearRemindersForMedicine(Context context, String uniqueRemainderRequestCode) {
         // Cancel all work with the specified tag (in this case, the medicine reminder tag)
-        WorkManager.getInstance(context).cancelAllWorkByTag(getReminderTag(uniqueRemainderRequestCode));
+        WorkManager.getInstance(context).cancelAllWorkByTag(uniqueRemainderRequestCode);
 
         // Remove the reminder for the medicine
         removeReminder(context, uniqueRemainderRequestCode);
@@ -113,12 +113,10 @@ public class ReminderManager {
         SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
         Set<String> reminders = preferences.getStringSet(PREFERENCE_KEY, new HashSet<>());
 
-//        // Logging for debugging
-//        Log.d("TAGi", "Before adding reminder: " + reminders.toString());
-
         // Serialize reminder data to JSON
         String reminderData = createReminderData(uniqueRemainderRequestCode, hour, minute);
 
+        //add data to the set
         reminders.add(reminderData);
 
         for(String s : reminders){
@@ -126,7 +124,7 @@ public class ReminderManager {
             Log.d("TAGi", "After adding reminder: " + s);
         }
 
-
+        clearAllRemindersFromPreferences(context);
         preferences.edit().putStringSet(PREFERENCE_KEY, reminders).apply();
 
     }

@@ -109,9 +109,9 @@ public class ViewMedicationActivity extends AppCompatActivity {
                     //delete the remainder for this medicine
                     if (requestCode != null && !requestCode.isEmpty()) {
                         for (String code : requestCode) {
-                            Log.d("TAGi", code);
+                            Log.d("TAGi","View medication Activity Toggle button : " +code);
+//                            ReminderManager.clearRemindersForMedicine(getApplicationContext(), code);
                         }
-//                        ReminderManager.clearRemindersForMedicine(getApplicationContext(), requestCode);
                         Snackbar.make(buttonView, "Remainder cleared sucessfully..", Snackbar.LENGTH_LONG).show();
                     }
 
@@ -312,7 +312,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
         //filter remainder for selected medicine
         Set<String> filteredReminders = new HashSet<>();
         for (String medicineReminder : reminders) {
-            Log.e(TAG, "displayRemindersForMedicine: " +medicineReminder);
+            Log.e(TAG, "displayRemindersForMedicine: " + medicineReminder);
             if (medicineReminder.contains(filterPart)) {
                 filteredReminders.add(medicineReminder);
             }
