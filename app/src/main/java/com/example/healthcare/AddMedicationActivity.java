@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -143,7 +144,7 @@ public class AddMedicationActivity extends AppCompatActivity {
         AutocompleteMedicineMethod();
 
         //textinput layout - Dropdown
-        textInputLayoutDropdownMethod();
+        textInputLayoutDropdownMethod(false,null);
 
         //date to save
         collectDateToSaveMethod();
@@ -353,10 +354,11 @@ public class AddMedicationActivity extends AppCompatActivity {
         String notes = intent.getStringExtra("EDIT_NOTES");
 
         medicineNameInput.setText(medName);
-        medicineFrequencyInput.setText(frequency);
         recordDateTimeInput.setText(recordDateTime);
         endDateTimeInput.setText(endDateTime);
         notesInput.setText(notes);
+
+        textInputLayoutDropdownMethod(true,frequency);
 
         if (quantity == 0) {
             medicineQuantityInput.setText(null);
@@ -366,7 +368,7 @@ public class AddMedicationActivity extends AppCompatActivity {
     }
 
     //Method for frequency dropdown
-    private void textInputLayoutDropdownMethod() {
+    private void textInputLayoutDropdownMethod(boolean isEdit, String setFrequencyWhenEdit) {
         // Retrofit instance set up
         MedicationFrequencyService service = ApiClient.getWebClient().create(MedicationFrequencyService.class);
 
@@ -382,23 +384,40 @@ public class AddMedicationActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
 
                     //Use Map (frequency value, freq code)
+                    assert response.body() != null;
                     Map<String, MedicationFrequency> data = response.body().getData();
                     Log.d(TAG, "textInputLayoutDropdownMethod: " + data);
 
                     //save the frequency descriptions here
                     List<String> frequencyDescriptions = new ArrayList<>();
+                    List<String> frequencyCodes = new ArrayList<>();
                     for (MedicationFrequency frequency : data.values()) {
                         //loop to print the descriptions and save in the above List
                         frequencyDescriptions.add(frequency.getDescription());
+                        frequencyCodes.add(frequency.getCode());
                     }
 
                     //Set DropDown Layout
                     arrayAdapterSpinner = new ArrayAdapter<>(getApplicationContext(), R.layout.dropdown, frequencyDescriptions);
                     medicineFrequencyInput.setAdapter(arrayAdapterSpinner);
 
-                    // Set default selection if needed
-//                    int defaultSelectionIndex = 0; // Change this to the index of the default item
-//                    medicineFrequencyInput.setText(arrayAdapterSpinner.getItem(defaultSelectionIndex), false);
+                    if (isEdit && setFrequencyWhenEdit != null) {
+                        Log.e(TAG, "onResponse: dropdown is edit " );
+                        int index = -1;
+                        for (int i = 0; i < frequencyDescriptions.size(); i++) {
+                            if (Objects.equals(setFrequencyWhenEdit, frequencyDescriptions.get(i))) {
+                                index = i;
+                                break; // Found the match, no need to continue searching
+                            }
+                        }
+
+                        if (index != -1) {
+                            // Set the text of the selected item
+                            medicineFrequencyInput.setText(frequencyDescriptions.get(index));
+                            FREQUENCY_CODE = frequencyCodes.get(index);
+                        }
+                    }
+
 
                     // Set dropdown item click listener
                     medicineFrequencyInput.setOnItemClickListener((adapterView, view, i, l) -> {
@@ -609,7 +628,6 @@ public class AddMedicationActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 
-
                 //get Values for save
                 String medName = Objects.requireNonNull(medicineNameInput.getText()).toString().trim();
                 Integer quantity = null;
@@ -620,24 +638,19 @@ public class AddMedicationActivity extends AppCompatActivity {
                 String endDate = mDateInput;
                 String notes = Objects.requireNonNull(notesInput.getText()).toString().trim();
 
+                medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
+                medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
+                medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
+
 
                 //submit validation
                 if (medName.trim().isEmpty()) {
                     textInputLayout3.setError("Medicine Name is Required");
-                    medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
-                    medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
-                } else if (mFrequencyInput == null) {
+                } else if (TextUtils.isEmpty(medicineFrequencyInput.getText().toString().trim())) {
                     textInputLayout4.setError("Frequency is Required");
-                    medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
-                    medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
                 } else if (quantity == null || quantity < 0) {
                     textInputLayout5.setError("Quantity is Required");
-                    medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
-                    medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
                 } else {
-                    medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
-                    medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
-                    medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
 
                     //animation loading start here
                     animationLoading.startLoadingDialogLoginActivity();
@@ -800,8 +813,8 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     String uniqueRemainderRequestCode = PATIENT_ID + "_" + saveApiResponse.getId() + "_" + data.getTag();
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
                                     ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
-                                    Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
                                 }
+                                    Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
 
                             } else {
                                 Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
@@ -820,8 +833,8 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     String uniqueRemainderRequestCode = PATIENT_ID + "_" + saveApiResponse.getId() + "_" + data.getTag();
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
                                     ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
-                                    Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();
                                 }
+                                    Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();
 
                             } else {
                                 Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();

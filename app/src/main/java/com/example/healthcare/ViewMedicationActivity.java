@@ -1,5 +1,6 @@
 package com.example.healthcare;
 
+import static com.example.healthcare.AddMedicationActivity.FREQUENCY_CODE;
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
 import static com.example.healthcare.AddMedicationActivity.remainderList;
 import static com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment.TAG;
@@ -35,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -88,7 +90,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
                 if (remainderToggleSwitchViewMedicationActivity.isChecked()) {
                     remainderTimeSlotLinearLayout.setVisibility(View.VISIBLE);
                     setTagForAlarmButtonMethod();
-                    Log.d(TAG, "onCheckedChanged: " + frequencyCode);
+                    Log.d(TAG, "onCheckedChanged: " + frequencyCode );
 
                     // Create the notification channel
                     ReminderWorker.createNotificationChannel(getApplicationContext());
@@ -96,6 +98,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
                     //alarm count based upon Frequency Code
                     if (requestCode != null && !requestCode.isEmpty()) {
                         remainderButtonCountVisiblityMethod(frequencyCode, true);
+                        Snackbar.make(buttonView, "Remainder Enabled", Snackbar.LENGTH_LONG).show();
                     } else {
                         remainderButtonCountVisiblityMethod(frequencyCode, false);
                     }
@@ -110,9 +113,9 @@ public class ViewMedicationActivity extends AppCompatActivity {
                     if (requestCode != null && !requestCode.isEmpty()) {
                         for (String code : requestCode) {
                             Log.d("TAGi","View medication Activity Toggle button : " +code);
-//                            ReminderManager.clearRemindersForMedicine(getApplicationContext(), code);
+                            ReminderManager.clearRemindersForMedicine(getApplicationContext(), code);
                         }
-                        Snackbar.make(buttonView, "Remainder cleared sucessfully..", Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(buttonView, "Remainder Disabled", Snackbar.LENGTH_LONG).show();
                     }
 
                 }
@@ -318,9 +321,16 @@ public class ViewMedicationActivity extends AppCompatActivity {
             }
         }
 
+        //display and sort filter medicines
+        // Sorting HashSet using List
+        List<String> list = new ArrayList<String>(filteredReminders);
+        Collections.sort(list);
+
+
         // Display reminders with hour and minute
         StringBuilder stringBuilder = new StringBuilder();
-        for (String reminderData : filteredReminders) {
+        for (String reminderData : list) {
+            Log.d(TAG, "display Reminders For this Medicine: "+reminderData);
             int hour = -1, minute = -1;
 
             // Deserialize JSON string to extract reminder data
