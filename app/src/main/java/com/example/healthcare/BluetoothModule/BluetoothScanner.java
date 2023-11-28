@@ -115,7 +115,7 @@ public class BluetoothScanner {
             if (DEVICE_NAME_SCAN.equals(WEIGHT_SCALE_DEVICE_NAME)) {
 
                 //Weight Scale
-                weightScaleReadingsMethod(result, context);
+                weightScaleReadingsMethod(result);
 
             } else if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
 

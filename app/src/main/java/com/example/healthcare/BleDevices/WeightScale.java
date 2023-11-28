@@ -1,6 +1,7 @@
 package com.example.healthcare.BleDevices;
 
 import static com.example.healthcare.DeviceInfoActivity.WEIGHT_SCALE_READING_ALERT_SUCESSFULL;
+import static com.example.healthcare.MainActivity.TAG;
 
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
@@ -19,29 +20,15 @@ public class WeightScale {
     public static final String WEIGHT_SCALE_CONSTANT_VALUE2 = "bb";
     public static Float WEIGHT_SCALE_READING = null;
     public static Boolean WEIGHT_SCALE_IS_CONNECTED = false;
-
     private static Boolean conditionAlreadyMet = false;
-    private static final String TAG = "TAGi";
-    Context context;
 
-    public WeightScale(Context context) {
-        this.context = context;
-    }
-
-    public static double convertkgToLbs(double kg) {
-        return kg * 2.20462;
-    }
-
-    public double kgToStone(double kg) {
-        return kg * 0.157473;
-    }
 
     /*
         get the weight scale readings here
             params1 - scanresult from BLE advertiser in scancallback class
             params2 - context
     */
-    public static void weightScaleReadingsMethod(ScanResult result, Context context) {
+    public static void weightScaleReadingsMethod(ScanResult result) {
         String weightScaleByteArray = ConverterClass.byteToHexadecimal(Objects.requireNonNull(result.getScanRecord()).getBytes(), false);
         String uniqueId = weightScaleByteArray.substring(8, 24);
         String macAddress = weightScaleByteArray.substring(24, 36);
@@ -79,21 +66,18 @@ public class WeightScale {
                     Log.d(TAG, "reading decimal : " + WEIGHT_SCALE_READING);
 
                     //send alert after readings sucessfull
-                    WEIGHT_SCALE_READING_ALERT_SUCESSFULL  = true;
+                    WEIGHT_SCALE_READING_ALERT_SUCESSFULL = true;
 
                     // disconnect device  after 20 seconds
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d(TAG, "run: weight scale post delay");
-                            WEIGHT_SCALE_IS_CONNECTED = false;
+                    new Handler().postDelayed(() -> {
+                        Log.d(TAG, "run: weight scale post delay");
+                        WEIGHT_SCALE_IS_CONNECTED = false;
 
-                        }
                     }, 20000); // 20 seconds in milliseconds
 
                     //condition flag
                     conditionAlreadyMet = true;
-                }else{
+                } else {
                     Log.d(TAG, "weightScaleReadingsMethod: conditionAlreadyMet else part");
                 }
             }

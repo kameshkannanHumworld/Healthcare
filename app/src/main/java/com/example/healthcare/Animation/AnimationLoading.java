@@ -49,18 +49,15 @@ public class AnimationLoading {
         alertDialog.show();
 
         // Schedule the dismissal after 15 seconds
-        dismissalHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dismissLoadingDialog();
+        dismissalHandler.postDelayed(() -> {
+            dismissLoadingDialog();
 
-                //snackbar
-                if ((activity.getCurrentFocus()) != null) {
-                    Snackbar.make((activity.getCurrentFocus()), "Device Not Found", Snackbar.LENGTH_SHORT)
-                            .setAction("Retry", view -> startLoadingDialogBlutoothScan(deviceNameHere, context))
-                            .show();
+            //snackbar
+            if ((activity.getCurrentFocus()) != null) {
+                Snackbar.make((activity.getCurrentFocus()), "Device Not Found", Snackbar.LENGTH_SHORT)
+                        .setAction("Retry", view -> startLoadingDialogBlutoothScan(deviceNameHere, context))
+                        .show();
 
-                }
             }
         }, 15000); // 15 seconds in milliseconds
     }

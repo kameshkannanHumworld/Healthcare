@@ -4,6 +4,7 @@ import static com.example.healthcare.BluetoothModule.MyBluetoothGattCallback.ecg
 import static com.example.healthcare.Converters.ConverterClass.convertDateToHex;
 import static com.example.healthcare.DatePicker.CurrentDateTime.getCurrentDateFullYear;
 import static com.example.healthcare.DatePicker.CurrentDateTime.getCurrentTime;
+import static com.example.healthcare.MainActivity.TAG;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -13,25 +14,21 @@ import android.util.Log;
 import com.example.healthcare.BleDevices.CRC.CrcCalcEcg;
 import com.example.healthcare.Converters.ConverterClass;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class ECGMeter {
-    private static final String TAG = "TAGi";
+
     public static byte ECG_INCREMENT_NUMBER = 0x02;
-//    public static final String ECG_DEVICE_NAME1 = "BP2 1875";
-//    public static final String ECG_DEVICE_NAME2 = "BP2 1840";
-    public static final List<String> ECG_DEVICE_NAME= Arrays.asList("BP2 1875", "BP2 1840");
+    public static final List<String> ECG_DEVICE_NAME = Arrays.asList("BP2 1875", "BP2 1840");
     public static final String ECG_UUID_SERVICE = ("14839ac4-7d7e-415c-9a42-167340cf2339");
     public static final String ECG_UUID_NOTIFY = ("0734594a-a8e7-4b1a-a6b1-cd5243059a57");
     public static final String ECG_UUID_NOTIFY_DESCRIPTOR = ("00002902-0000-1000-8000-00805f9b34fb");
     public static final String ECG_UUID_WRITE = ("8b00ace7-eb0b-49b0-bbe9-9aee0a26e1a3");
     public static byte[] ECG_SET_TIME_ARRAY;
     public static byte[] ECG_SET_SWITCH_DEVICE = {(byte) 0xA5, (byte) 0x09, (byte) ~0x09, 0x00, 0x01, 0x01, 0x00, 0x01, (byte) 0x08};
-    public static byte[] ECG_SET_READING_CMD;
-    private static  BluetoothGatt bluetoothGattECG;
+    private static BluetoothGatt bluetoothGattECG;
 
 
     //On characteristics Method - ECG meter
@@ -39,11 +36,6 @@ public class ECGMeter {
         bluetoothGattECG = gatt;
         Log.w(TAG, "onCharacteristicChangedMethod_EcgMeter: " + ConverterClass.byteToHexadecimal(byteArray, true));
 
-        //append arrays
-//        appendByteArray(byteArray);
-//
-//        byte[] combinedArray = getCombinedByteArray();
-//        Log.w(TAG, "onCharacteristicChangedMethod_EcgMeter_CombinedArray: " + ConverterClass.byteToHexadecimal(combinedArray, true));
     }
 
 
@@ -109,7 +101,7 @@ public class ECGMeter {
     }
 
     //Call this method to turn off the ECG device
-    public static  void ecgDisconnectDeviceMethod(){
+    public static void ecgDisconnectDeviceMethod() {
         BluetoothGattService service = bluetoothGattECG.getService(UUID.fromString(ECG_UUID_SERVICE));
         if (service != null) {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(ECG_UUID_WRITE));
@@ -118,7 +110,7 @@ public class ECGMeter {
 
                 byte[] thirdData = {(byte) 0xA5, (byte) 0x09, (byte) ~0x09, 0x00, 0x00, 0x01, 0x00, 0x04, (byte) 0x05};
                 int i = ecgMeterDelayWriteMethod(thirdData, characteristic, bluetoothGattECG);
-                Log.w(TAG, "writeCharacteristic_EcgMeter Disconnected Sucessfully - "+i );
+                Log.w(TAG, "writeCharacteristic_EcgMeter Disconnected Sucessfully - " + i);
 
             } else {
                 Log.e(TAG, "Write characteristic not found.");
@@ -128,17 +120,5 @@ public class ECGMeter {
             Log.e(TAG, "Service not found.");
         }
     }
-
-//    private static void appendByteArray(byte[] byteArray) {
-//        if (combinedArray == null) {
-//            combinedArray = byteArray.clone();
-//        } else {
-//            byte[] tempArray = new byte[combinedArray.length + byteArray.length];
-//            System.arraycopy(combinedArray, 0, tempArray, 0, combinedArray.length);
-//            System.arraycopy(byteArray, 0, tempArray, combinedArray.length, byteArray.length);
-//            combinedArray = tempArray;
-//        }
-//    }
-
 
 }

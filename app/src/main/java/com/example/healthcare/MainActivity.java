@@ -42,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
     TextInputLayout usernameTextInputLayout, passwordTextInputLayout;
 
     /*  class and objects   */
-    private final String TAG = "TAGi";
     public static String TOKEN;
     private AnimationLoading animationLoading;
+    public static final String TAG = "TAGi";
 
 
     @Override

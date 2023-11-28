@@ -1,46 +1,41 @@
 package com.example.healthcare.BleDevices;
 
 import static com.example.healthcare.Converters.ConverterClass.convertDateToHex;
-import static com.example.healthcare.DatePicker.CurrentDateTime.*;
+import static com.example.healthcare.DatePicker.CurrentDateTime.getCurrentDate;
+import static com.example.healthcare.DatePicker.CurrentDateTime.getCurrentTime;
 import static com.example.healthcare.DeviceInfoActivity.BLOOD_GLUCOMETER_READING_ALERT_ERROR;
 import static com.example.healthcare.DeviceInfoActivity.BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL;
+import static com.example.healthcare.MainActivity.TAG;
 
-import android.bluetooth.BluetoothGatt;
-import android.content.Context;
 import android.util.Log;
 
 import com.example.healthcare.BleDevices.CRC.CRCUtil;
 import com.example.healthcare.Converters.ConverterClass;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
 public class BloodGlucometer {
-//    public static String BLOOD_GLUCOMETER_DEVICE_NAME1 = "Vivaguard";
-//    public static String BLOOD_GLUCOMETER_DEVICE_NAME2 = "VivaGuard";
-    public static String BLOOD_GLUCOMETER_MAC_ADDRESS = "34:B9:1F:00:6F:59";
-    public static final List<String> BLOOD_GLUCOMETER_DEVICE_NAME= Arrays.asList("Vivaguard", "VivaGuard");
+
+    public static final List<String> BLOOD_GLUCOMETER_DEVICE_NAME= Arrays.asList("Vivaguard", "VivaGuard"); //device names
     public static String BLOOD_GLUCOMETER_UUID_NOTIFY = "0003cdd1-0000-1000-8000-00805f9b0131";
     public static String BLOOD_GLUCOMETER_UUID_NOTIFY_DESCRIPTOR = "00002902-0000-1000-8000-00805f9b34fb";
     public static String BLOOD_GLUCOMETER_UUID_SERVICE = "0003cdd0-0000-1000-8000-00805f9b0131";
     public static String BLOOD_GLUCOMETER_UUID_WRITE_SERIALNUMBER = "0003cdd2-0000-1000-8000-00805f9b0131";
     public static String BLOOD_GLUCOMETER_RESULT = null;
     public static String BLOOD_GLUCOMETER_RESULT_VALUE = null;
-    public static boolean BLOOD_GLUCOMETER_SEND_ALERT = false;
-    public static final byte[] BLOOD_GLUCOMETER_SERIAL_NUMBER_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x77, 0x55, 0x00, 0x00, 0x01, 0x0B, 0x0B, 0x04, 0x7D};
     public static final byte[] BLOOD_GLUCOMETER_STRIP_IN_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x12, (byte) 0x99, 0x00, 0x00, 0x0C, 0x05, 0x04, 0x07, 0x7D};
+    public static byte[] BLOOD_GLUCOMETER_TIME_SET_BYTE_ARRAY;
+    public static final byte[] BLOOD_GLUCOMETER_SERIAL_NUMBER_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x77, 0x55, 0x00, 0x00, 0x01, 0x0B, 0x0B, 0x04, 0x7D};
     public static final byte[] BLOOD_GLUCOMETER_READ_TIME_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x44, 0x55, 0x00, 0x00, 0x01, 0x04, 0x0F, 0x00, 0x7D};
     public static final byte[] TIME_SET_BYTE_ARRAY = {0x7B, 0x01, 0x10, 0x01, 0x20, 0x44, 0x66, 0x00, 0x06, 0x10, 0x07, 0x0B, 0x0F, 0x32, 0x2A, 0x07, 0x04, 0x03, 0x08, 0x7D};
-    public static byte[] BLOOD_GLUCOMETER_TIME_SET_BYTE_ARRAY;
 
 
-    private static final String TAG = "TAGi";
 
 
     //on characteristics change method
-    public static void onCharacteristicChangedMethodBloodGlucometer(byte[] byteArray, BluetoothGatt gatt, Context context) {
+    public static void onCharacteristicChangedMethodBloodGlucometer(byte[] byteArray) {
         Log.w(TAG, "onCharacteristicChangedMethodBloodGlucometer: " + ConverterClass.byteToHexadecimal(byteArray, true));
         List<String> pairs = ConverterClass.getPairsFromHexString(byteArray);
 
