@@ -1,18 +1,13 @@
 package com.example.healthcare.BottomSheetDialog;
 
-import static android.app.Activity.RESULT_OK;
-
 import static androidx.core.app.ActivityCompat.recreate;
-
-
-import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
+import static com.example.healthcare.MainActivity.TAG;
 import static com.example.healthcare.Permissions.BluetoothUtil.REQUEST_ENABLE_BLUETOOTH;
 import static com.example.healthcare.Permissions.LocationUtil.REQUEST_ENABLE_LOCATION;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -22,12 +17,10 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,18 +28,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.CompoundButton;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -56,41 +43,42 @@ import com.example.healthcare.BluetoothModule.MyBluetoothGattCallback;
 import com.example.healthcare.BluetoothModule.ScanResultAdapter;
 import com.example.healthcare.Permissions.BluetoothUtil;
 import com.example.healthcare.Permissions.LocationUtil;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.example.healthcare.R;
-import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
 
+    //classes
     private Timer scanTimer;
-    private static final long SCAN_INTERVAL = 5000;
-    public static final String TAG = "TAGi";
     private BluetoothLeScanner bluetoothLeScanner;
     private ScanResultAdapter scanResultAdapter;
     private BluetoothAdapter bluetoothAdapter;
     Animation rotation;
     private ScanSettings scanSettings;
-    private List<ScanResult> scanResults = new ArrayList<>();
-    private boolean isScanning = false;
+    BluetoothGatt gatt;
 
+    //UI views
     ImageView refreshButton;
-    int indexQuery;
     Context context;
     Activity activity;
-    BluetoothGatt gatt;
     RecyclerView bluetoothDeviceRecyclerView;
-
     LinearLayout linearLayoutAvailableDevices;
 
+
+    //datatypes
+    private static final long SCAN_INTERVAL = 5000;
+    private List<ScanResult> scanResults = new ArrayList<>();
+    private boolean isScanning = false;
+    int indexQuery;
+
+
+    /*  Constructor
+    *     params1 - context  */
     public MyBottomSheetDialogFragment(Context context) {
         this.context = context;
     }
@@ -153,14 +141,11 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
         scanTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isScanning) {
-                            stopBleScan();
-                        } else {
-                            startBleScan();
-                        }
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (isScanning) {
+                        stopBleScan();
+                    } else {
+                        startBleScan();
                     }
                 });
             }
@@ -173,12 +158,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
             scanTimer.cancel();
             scanTimer = null;
         }
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                stopBleScan();
-            }
-        });
+        new Handler(Looper.getMainLooper()).post(this::stopBleScan);
     }
 
     //check the required permission here
@@ -277,19 +257,16 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
     }
 
     //on click listener for the bluetooth device in the recycler view and connect the device which we click
+    @SuppressLint("MissingPermission")
     private ScanResultAdapter getScanResultAdapter() {
         if (scanResultAdapter == null) {
-            scanResultAdapter = new ScanResultAdapter(scanResults, new ScanResultAdapter.OnItemClickListener() {
-                @SuppressLint("MissingPermission")
-                @Override
-                public void onItemClick(ScanResult item) {
+            scanResultAdapter = new ScanResultAdapter(scanResults, item -> {
 
-                        BluetoothDevice device = item.getDevice();
-                        Log.w("ScanResultAdapter", "Connecting to " + device.getAddress());
-                        gatt = device.connectGatt(context, false, new MyBluetoothGattCallback(context));
-                        stopPeriodicScan();
+                    BluetoothDevice device = item.getDevice();
+                    Log.w("ScanResultAdapter", "Connecting to " + device.getAddress());
+                    gatt = device.connectGatt(context, false, new MyBluetoothGattCallback(context));
+                    stopPeriodicScan();
 
-                }
             });
         }
         return scanResultAdapter;
@@ -326,12 +303,7 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
             if (indexQuery != -1) {
                 // A scan result already exists with the same address
                 scanResults.set(indexQuery, result);
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        scanResultAdapter.notifyItemChanged(indexQuery);
-                    }
-                });
+                activity.runOnUiThread(() -> scanResultAdapter.notifyItemChanged(indexQuery));
             } else {
                 if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -344,12 +316,9 @@ public class MyBottomSheetDialogFragment extends BottomSheetDialogFragment {
                     Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                     scanResults.add(result);
                 }
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (scanResults.isEmpty()) {
-                            scanResultAdapter.notifyItemInserted(scanResults.size() - 1);
-                        }
+                activity.runOnUiThread(() -> {
+                    if (scanResults.isEmpty()) {
+                        scanResultAdapter.notifyItemInserted(scanResults.size() - 1);
                     }
                 });
             }

@@ -5,6 +5,7 @@ import static com.example.healthcare.BleDevices.ECGMeter.ECG_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.weightScaleReadingsMethod;
 import static com.example.healthcare.Fragments.HomeFragment.connectedGatts;
+import static com.example.healthcare.MainActivity.TAG;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -32,18 +33,15 @@ import java.util.Objects;
 
 public class BluetoothScanner {
 
-    private static final String TAG = "TAGi";
     private BluetoothLeScanner bluetoothLeScanner;
-    private BluetoothAdapter bluetoothAdapter;
     BluetoothGatt gatt;
     public static BluetoothDevice urionBpDevice, bloodGlucometer, ecgMeter;
-    public static boolean deviceConnected = false;
-
-    String DEVICE_NAME_SCAN;
-    private List<ScanResult> scanResults = new ArrayList<>();
-    Context context;
-    int indexQuery;
     private Handler handler = new Handler(Looper.getMainLooper());
+
+    public static boolean deviceConnected = false;
+    String DEVICE_NAME_SCAN;
+    Context context;
+    private List<ScanResult> scanResults = new ArrayList<>();
 
 
     /*    Constructor
@@ -54,7 +52,7 @@ public class BluetoothScanner {
         this.DEVICE_NAME_SCAN = deviceName;
         this.context = context;
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter != null) {
             bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         }
@@ -83,13 +81,6 @@ public class BluetoothScanner {
         Activity activity = (Activity) context;
         if (bluetoothLeScanner != null) {
             bluetoothLeScanner.stopScan(scanCallback);
-
-//            if ((activity.getCurrentFocus()) != null) {
-//                Snackbar.make((activity.getCurrentFocus()), "Device Not Found", Snackbar.LENGTH_SHORT)
-//                        .setAction("Retry", view -> startScan())
-//                        .show();
-//
-//            }
         }
     }
 
@@ -144,15 +135,6 @@ public class BluetoothScanner {
                     connectToDevice(activity);
                 }
             }
-//            else if (Objects.equals(result.getDevice().getName(), BLOOD_GLUCOMETER_DEVICE_NAME2)) {
-//                Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
-//                bloodGlucometer = result.getDevice(); // Store the device for future connection
-//                if (!deviceConnected) {
-//                    connectToDevice(activity);
-//                }
-//            }
-
-
         }
 
 

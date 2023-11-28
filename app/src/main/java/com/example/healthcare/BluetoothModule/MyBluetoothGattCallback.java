@@ -7,6 +7,7 @@ import static com.example.healthcare.BleDevices.ECGMeter.*;
 import static com.example.healthcare.BleDevices.UrionBp.*;
 import static com.example.healthcare.BleDevices.UrionBp.onCharacteristicChangedMethodUrionBp;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
+import static com.example.healthcare.MainActivity.TAG;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -32,16 +33,9 @@ import java.util.List;
 import java.util.UUID;
 
 public class MyBluetoothGattCallback extends BluetoothGattCallback {
+
     BluetoothGatt bluetoothGatt;
-
-
-    private static final String TAG = "TAGi";
-
-    private static final int REQUEST_CODE = 100;
-    public static final int RESULT_REFRESH = 101;
     private Handler handler = new Handler();
-
-    public static final int REQUEST_CODE_DEVICE_INFO = 101;
     Context context;
 
 
@@ -51,7 +45,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
     }
 
 
-        @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission")
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         super.onConnectionStateChange(gatt, status, newState);
@@ -63,15 +57,13 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         if (newState == BluetoothProfile.STATE_CONNECTED) {
             // Device connected, start discovering services
             Log.w(TAG, "Sucessfully connected to " + deviceAddress);
-            deviceConnected = true;  //set connected flag
 
-            bluetoothGatt = gatt;
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    //discoverServices will call the override method
-                    bluetoothGatt.discoverServices();
-                }
+            deviceConnected = true;  //set connected flag
+            bluetoothGatt = gatt; //Assign gatt
+
+            //discoverServices will call the override method
+            new Handler(Looper.getMainLooper()).post(() -> {
+                bluetoothGatt.discoverServices();
             });
         }
 
@@ -121,107 +113,101 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
 //        DeviceCharacteristicsMethod(gatt);
 
         // Urion Blood pressure
-        urionBloodPressureMethod(gatt);
+        if (gatt.getDevice().getName() != null && gatt.getDevice().getName().equals(URION_BP_DEVICE_NAME.get(0))) {
+            urionBloodPressureMethod(gatt);
+        }
 
         // Blood Glucometer
-        BloodGlucometerMethod(gatt);
+        if (gatt.getDevice().getName() != null && (BLOOD_GLUCOMETER_DEVICE_NAME.contains(gatt.getDevice().getName()))) {
+            BloodGlucometerMethod(gatt);
+        }
 
         // ECG meter
-        ecgMeterMethod(gatt);
+        if (gatt.getDevice().getName() != null && (ECG_DEVICE_NAME.contains(gatt.getDevice().getName()))) {
+            ecgMeterMethod(gatt);
+        }
 
     }
 
     @SuppressLint("MissingPermission")
     private void BloodGlucometerMethod(BluetoothGatt gatt) {
-        if (gatt.getDevice().getName() != null && (BLOOD_GLUCOMETER_DEVICE_NAME.contains(gatt.getDevice().getName()))) {
-            //Notify
-            BluetoothGattCharacteristic bloodGlucometerNotifyCharacteristic = gatt.getService(UUID.fromString(BLOOD_GLUCOMETER_UUID_SERVICE)).getCharacteristic(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY));
-            if (bloodGlucometerNotifyCharacteristic != null) {
-                gatt.setCharacteristicNotification(bloodGlucometerNotifyCharacteristic, true);
-                BluetoothGattDescriptor descriptor = bloodGlucometerNotifyCharacteristic.getDescriptor(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY_DESCRIPTOR));
-                if (descriptor != null) {
-                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                    gatt.writeDescriptor(descriptor);
-                } else {
-                    Log.d(TAG, "Descriptor is null");
-                }
-            } else {
-                Log.d(TAG, "Notify Characteristic is null");
-            }
-
-            //check notification enabled
-            assert bloodGlucometerNotifyCharacteristic != null;
+        //Notify
+        BluetoothGattCharacteristic bloodGlucometerNotifyCharacteristic = gatt.getService(UUID.fromString(BLOOD_GLUCOMETER_UUID_SERVICE)).getCharacteristic(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY));
+        if (bloodGlucometerNotifyCharacteristic != null) {
+            gatt.setCharacteristicNotification(bloodGlucometerNotifyCharacteristic, true);
             BluetoothGattDescriptor descriptor = bloodGlucometerNotifyCharacteristic.getDescriptor(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY_DESCRIPTOR));
             if (descriptor != null) {
-                boolean isNotificationEnabled = descriptor.getValue()[0] == BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE[0];
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                gatt.writeDescriptor(descriptor);
+            } else {
+                Log.d(TAG, "Descriptor is null");
+            }
+        } else {
+            Log.d(TAG, "Notify Characteristic is null");
+        }
 
-                if (isNotificationEnabled) {
-                    Log.d(TAG, "Notifications are enabled");
+        //check notification enabled
+        assert bloodGlucometerNotifyCharacteristic != null;
+        BluetoothGattDescriptor descriptor = bloodGlucometerNotifyCharacteristic.getDescriptor(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY_DESCRIPTOR));
+        if (descriptor != null) {
+            boolean isNotificationEnabled = descriptor.getValue()[0] == BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE[0];
 
-                    //write characteristics for time
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            writeCharacteristicBloodGlucometer(gatt);
-                        }
-                    }, 500); // Delay for 0.5 seconds before writing
+            if (isNotificationEnabled) {
+                Log.d(TAG, "Notifications are enabled");
 
-
-                } else {
-                    Log.d(TAG, "Notifications are disabled");
-                }
+                //write characteristics for time
+                handler.postDelayed(() -> writeCharacteristicBloodGlucometer(gatt), 500); // Delay for 0.5 seconds before writing
 
             } else {
-                Log.d(TAG, "CCC descriptor is null");
+                Log.d(TAG, "Notifications are disabled");
             }
+
+        } else {
+            Log.d(TAG, "CCC descriptor is null");
         }
+
 
     }
 
     @SuppressLint("MissingPermission")
     private void ecgMeterMethod(BluetoothGatt gatt) {
-        if (gatt.getDevice().getName() != null && (ECG_DEVICE_NAME.contains(gatt.getDevice().getName()))) {
-            //Notify
-            BluetoothGattCharacteristic ecgMeterNotifyCharacteristic = gatt.getService(UUID.fromString(ECG_UUID_SERVICE)).getCharacteristic(UUID.fromString(ECG_UUID_NOTIFY));
-            if (ecgMeterNotifyCharacteristic != null) {
-                gatt.setCharacteristicNotification(ecgMeterNotifyCharacteristic, true);
-                BluetoothGattDescriptor descriptor = ecgMeterNotifyCharacteristic.getDescriptor(UUID.fromString(ECG_UUID_NOTIFY_DESCRIPTOR));
-                if (descriptor != null) {
-                    descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                    gatt.writeDescriptor(descriptor);
-                } else {
-                    Log.d(TAG, "Descriptor is null");
-                }
-            } else {
-                Log.d(TAG, "Notify Characteristic is null");
-            }
-
-            //check notification enabled
-            assert ecgMeterNotifyCharacteristic != null;
+        //Notify
+        BluetoothGattCharacteristic ecgMeterNotifyCharacteristic = gatt.getService(UUID.fromString(ECG_UUID_SERVICE)).getCharacteristic(UUID.fromString(ECG_UUID_NOTIFY));
+        if (ecgMeterNotifyCharacteristic != null) {
+            gatt.setCharacteristicNotification(ecgMeterNotifyCharacteristic, true);
             BluetoothGattDescriptor descriptor = ecgMeterNotifyCharacteristic.getDescriptor(UUID.fromString(ECG_UUID_NOTIFY_DESCRIPTOR));
             if (descriptor != null) {
-                boolean isNotificationEnabled = descriptor.getValue()[0] == BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE[0];
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                gatt.writeDescriptor(descriptor);
+            } else {
+                Log.d(TAG, "Descriptor is null");
+            }
+        } else {
+            Log.d(TAG, "Notify Characteristic is null");
+        }
 
-                if (isNotificationEnabled) {
-                    Log.d(TAG, "Notifications are enabled");
+        //check notification enabled
+        assert ecgMeterNotifyCharacteristic != null;
+        BluetoothGattDescriptor descriptor = ecgMeterNotifyCharacteristic.getDescriptor(UUID.fromString(ECG_UUID_NOTIFY_DESCRIPTOR));
+        if (descriptor != null) {
+            boolean isNotificationEnabled = descriptor.getValue()[0] == BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE[0];
 
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            //write characteristics
-                            writeCharacteristicEcgMeter(gatt);
-                        }
-                    }, 500); // Delay for 5 seconds before writing
+            if (isNotificationEnabled) {
+                Log.d(TAG, "Notifications are enabled");
 
-
-                } else {
-                    Log.d(TAG, "Notifications are disabled");
-                }
+                handler.postDelayed(() -> {
+                    //write characteristics
+                    writeCharacteristicEcgMeter(gatt);
+                }, 500); // Delay for 5 seconds before writing
 
             } else {
-                Log.d(TAG, "CCC descriptor is null");
+                Log.d(TAG, "Notifications are disabled");
             }
+
+        } else {
+            Log.d(TAG, "CCC descriptor is null");
         }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -232,19 +218,19 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         //writing first command - Date time
         dynamicTimeDateEcgMeter();
         if (ecgMeterDelayWriteMethod(ECG_SET_TIME_ARRAY, writeCharacteristic, gatt) == 0) {
-            Log.w(TAG, "writeCharacteristic_EcgMeter Time set Sucessfully" );
+            Log.w(TAG, "writeCharacteristic_EcgMeter Time set Sucessfully");
 
             //writing second command - Switch device
             if (ecgMeterDelayWriteMethod(ECG_SET_SWITCH_DEVICE, writeCharacteristic, gatt) == 0) {
-                Log.w(TAG, "writeCharacteristic_EcgMeter switching device set Sucessfully" );
+                Log.w(TAG, "writeCharacteristic_EcgMeter switching device set Sucessfully");
 
                 //writing third command - Real time data
-                byte[] thirdData = {(byte) 0xA5, 0x08, (byte) ~0x08, 0x00, ECG_INCREMENT_NUMBER, 0x00, 0x00,0x38};
+                byte[] thirdData = {(byte) 0xA5, 0x08, (byte) ~0x08, 0x00, ECG_INCREMENT_NUMBER, 0x00, 0x00, 0x38};
                 int i = ecgMeterDelayWriteMethod(thirdData, writeCharacteristic, gatt);
-                Log.w(TAG, "writeCharacteristic_EcgMeter Time set Sucessfully - "+i );
+                Log.w(TAG, "writeCharacteristic_EcgMeter Time set Sucessfully - " + i);
 
 
-            }else{
+            } else {
                 Log.d(TAG, "writeCharacteristic_EcgMeter Switch device command failed");
             }
 
@@ -255,25 +241,22 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
     }
 
 
-
     @SuppressLint("MissingPermission")
     public static int ecgMeterDelayWriteMethod(byte[] byteArray, BluetoothGattCharacteristic characteristic, BluetoothGatt gatt) {
         final int[] result = new int[1]; // Initialize an array to hold the result
+
         Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                characteristic.setValue(byteArray);
-                boolean isWrite = gatt.writeCharacteristic(characteristic);
+        handler.postDelayed(() -> {
+            characteristic.setValue(byteArray);
+            boolean isWrite = gatt.writeCharacteristic(characteristic);
 //                gatt.setCharacteristicNotification(characteristic, true);
-                byte[] logOutput = new byte[]{byteArray[1]};
-                if (isWrite) {
-                    Log.w(TAG, "writeCharacteristic command ECG: success- " + ConverterClass.byteToHexadecimal(logOutput,true));
-                    result[0] = 0; // Success
-                } else {
-                    Log.w(TAG, "writeCharacteristic command ECG: fail- " + ConverterClass.byteToHexadecimal(logOutput,true));
-                    result[0] = 1; // Failure
-                }
+            byte[] logOutput = new byte[]{byteArray[1]};
+            if (isWrite) {
+                Log.w(TAG, "writeCharacteristic command ECG: success- " + ConverterClass.byteToHexadecimal(logOutput, true));
+                result[0] = 0; // Success
+            } else {
+                Log.w(TAG, "writeCharacteristic command ECG: fail- " + ConverterClass.byteToHexadecimal(logOutput, true));
+                result[0] = 1; // Failure
             }
         }, 500); // Delay for 0.5 seconds before writing
 
@@ -285,8 +268,6 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         BluetoothGattService service = gatt.getService(UUID.fromString(ECG_UUID_SERVICE));
         if (service != null) {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(ECG_UUID_WRITE));
-
-
             if (characteristic != null) {
                 return characteristic;
             } else {
@@ -300,17 +281,16 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
 
     @SuppressLint("MissingPermission")
     private static void urionBloodPressureMethod(BluetoothGatt gatt) {
-        if (gatt.getDevice().getName() != null && gatt.getDevice().getName().equals(URION_BP_DEVICE_NAME.get(0))) {
-            BluetoothGattCharacteristic urionBpcharacteristic = gatt.getService(UUID.fromString(URION_BP_UUID_SERVICE)).getCharacteristic(UUID.fromString(URION_BP_UUID_NOTIFY));
-            gatt.setCharacteristicNotification(urionBpcharacteristic, true);
-            BluetoothGattDescriptor descriptor = urionBpcharacteristic.getDescriptor(UUID.fromString(URION_BP_UUID_NOTIFY));
-            if (descriptor != null) {
-                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                gatt.writeDescriptor(descriptor);
-            }
+        BluetoothGattCharacteristic urionBpcharacteristic = gatt.getService(UUID.fromString(URION_BP_UUID_SERVICE)).getCharacteristic(UUID.fromString(URION_BP_UUID_NOTIFY));
+        gatt.setCharacteristicNotification(urionBpcharacteristic, true);
+        BluetoothGattDescriptor descriptor = urionBpcharacteristic.getDescriptor(UUID.fromString(URION_BP_UUID_NOTIFY));
+        if (descriptor != null) {
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            gatt.writeDescriptor(descriptor);
         }
     }
 
+    //discover all the services from the device
     private static void discoverServicesLoopMethod(BluetoothGatt gatt) {
         for (BluetoothGattService service : gatt.getServices()) {
             StringBuilder characteristicsTable = new StringBuilder();
@@ -350,18 +330,15 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         if (isWrite) {
             Log.w(TAG, "writeCharacteristic Time: success");
 
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    //Now Send result command to device
-                    writeCharacteristic.setValue(BLOOD_GLUCOMETER_STRIP_IN_BYTE_ARRAY);
-                    boolean isWriteStripIn = gatt.writeCharacteristic(writeCharacteristic);
-                    gatt.setCharacteristicNotification(writeCharacteristic, true);
-                    if (isWriteStripIn) {
-                        Log.w(TAG, "writeCharacteristic Result : success");
-                    } else {
-                        Log.w(TAG, "writeCharacteristic Result : Fail");
-                    }
+            handler.postDelayed(() -> {
+                //Now Send result command to device
+                writeCharacteristic.setValue(BLOOD_GLUCOMETER_STRIP_IN_BYTE_ARRAY);
+                boolean isWriteStripIn = gatt.writeCharacteristic(writeCharacteristic);
+                gatt.setCharacteristicNotification(writeCharacteristic, true);
+                if (isWriteStripIn) {
+                    Log.w(TAG, "writeCharacteristic Result : success");
+                } else {
+                    Log.w(TAG, "writeCharacteristic Result : Fail");
                 }
             }, 500); // Delay for 5 seconds
 
@@ -376,7 +353,6 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         BluetoothGattService service = gatt.getService(UUID.fromString(BLOOD_GLUCOMETER_UUID_SERVICE));
         if (service != null) {
             BluetoothGattCharacteristic characteristic = service.getCharacteristic(UUID.fromString(BLOOD_GLUCOMETER_UUID_WRITE_SERIALNUMBER));
-
 
             if (characteristic != null) {
                 return characteristic;
@@ -420,28 +396,27 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         super.onCharacteristicChanged(gatt, characteristic);
         byte[] byteArray = characteristic.getValue();
 
-        //Urion Bp
         if ((gatt.getDevice().getName()).equals(URION_BP_DEVICE_NAME.get(0))) {
-            onCharacteristicChangedMethodUrionBp(byteArray,gatt);
-        }
 
-        //BloodGlucoMeter
-        else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(gatt.getDevice().getName())) {
+            //Urion Bp
+            onCharacteristicChangedMethodUrionBp(byteArray, gatt);
+
+        } else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(gatt.getDevice().getName())) {
+
+            //BloodGlucoMeter
             if (characteristic.getUuid().equals(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY))) {
                 onCharacteristicChangedMethodBloodGlucometer(byteArray);
             }
-        }
 
-        //ECG meter
-        else if (ECG_DEVICE_NAME.contains(gatt.getDevice().getName())) {
+        } else if (ECG_DEVICE_NAME.contains(gatt.getDevice().getName())) {
+
+            //ECG meter
             if (characteristic.getUuid().equals(UUID.fromString(ECG_UUID_NOTIFY))) {
-                onCharacteristicChangedMethodEcgMeter(byteArray,gatt);
+                onCharacteristicChangedMethodEcgMeter(byteArray, gatt);
             }
-        }
 
-
-        //Handle others
-        else{
+        } else {
+            //Handle others
             Log.d(TAG, "onCharacteristicChanged: other devices");
         }
 

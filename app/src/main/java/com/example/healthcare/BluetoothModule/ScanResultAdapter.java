@@ -1,24 +1,21 @@
+/*
+ *   only for testing the device - not visible in UI
+ *   recycler view for ble devices list , connect, futher process */
 package com.example.healthcare.BluetoothModule;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.bluetooth.le.ScanResult;
-import android.content.pm.PackageManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.healthcare.Permissions.BluetoothUtil;
 import com.example.healthcare.R;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.ViewHolder> {
 
@@ -49,8 +46,8 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ScanResult result = scanResults.get(position);
-            //get the recycler position and binding the data
-            holder.bind(result);
+        //get the recycler position and binding the data
+        holder.bind(result);
 
     }
 
@@ -83,11 +80,8 @@ public class ScanResultAdapter extends RecyclerView.Adapter<ScanResultAdapter.Vi
         //bind the data to the UI
         @SuppressLint("MissingPermission")
         public void bind(ScanResult result) {
-//            if (ActivityCompat.checkSelfPermission(itemView.getContext(), android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-//                return;
-//            }
-                deviceName.setText(result.getDevice().getName());
-                deviceAddress.setText(result.getDevice().getAddress());
+            deviceName.setText(result.getDevice().getName());
+            deviceAddress.setText(result.getDevice().getAddress());
 
         }
 
