@@ -1,17 +1,13 @@
 package com.example.healthcare;
 
-import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME1;
-import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME2;
-import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_RESULT;
-import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_RESULT_VALUE;
-import static com.example.healthcare.BleDevices.ECGMeter.ecgDisconnectDeviceMethod;
+import static com.example.healthcare.BleDevices.BloodGlucometer.*;
+import static com.example.healthcare.BleDevices.ECGMeter.ECG_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.UrionBp.DEVICE_INFO_CLASS_SET_TEXT;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_ERROR_MESSAGES;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DIASTOLIC_READINGS;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_PULSE_READINGS;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_SYSTOLIC_READINGS;
-import static com.example.healthcare.BleDevices.UrionBp.urionBpDisconnectDeviceMethod;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_IS_CONNECTED;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_READING;
@@ -22,8 +18,6 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.LightingColorFilter;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,11 +33,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+import androidx.core.content.ContextCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
-import com.example.healthcare.BleDevices.ECGMeter;
 import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -151,16 +144,16 @@ public class DeviceInfoActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void refresh() {
         if (deviceName != null) {
-            if (deviceName.equals(URION_BP_DEVICE_NAME)) {
+            if (deviceName.equals(URION_BP_DEVICE_NAME.get(0))) {
                 deviceNameTextView.setText("Blood Pressure");
                 urionBpRefresh();               //for Urion Bp
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
                 deviceNameTextView.setText("Weight Scale");
                 weightScaleRefresh();             //for Weight Scale
-            } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
+            } else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(deviceName)) {
                 deviceNameTextView.setText("Blood Glucometer");
                 bloodGlucometerRefresh();             //for Blood Glucometer
-            } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
+            } else if (ECG_DEVICE_NAME.contains(deviceName)) {
                 deviceNameTextView.setText("ECG");
                 ecgMeterRefresh();             //for ECG meter
             } else {
@@ -203,7 +196,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
             isConnectedTextView.setText("Connected");
-            isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(this, R.color.green));
 
             if (BLOOD_GLUCOMETER_RESULT != null) {
                 resultTextViewForMessage.setText(BLOOD_GLUCOMETER_RESULT);
@@ -258,6 +251,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 if (WEIGHT_SCALE_READING_ALERT_SUCESSFULL) {
                     alertDialogMethod("The Weight has been measured Sucessfully.", String.valueOf(WEIGHT_SCALE_READING), "Kilogram", false, 50);
                     WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
+                    deviceConnected = false;
                 }
 
             }
@@ -363,20 +357,20 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         //below logic to turn off the BLE device
         if (deviceName != null) {
-            if (deviceName.equals(URION_BP_DEVICE_NAME)) {
+            if (deviceName.equals(URION_BP_DEVICE_NAME.get(0))) {
 //                if (deviceConnected) {
 //                    urionBpDisconnectDeviceMethod();         //for Urion Bp
 //                }
                 URION_BP_SYSTOLIC_READINGS = null;
                 URION_BP_DIASTOLIC_READINGS = null;
                 URION_BP_PULSE_READINGS = null;
-            } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
+            } else if (ECG_DEVICE_NAME.contains(deviceName)) {
 //                if (deviceConnected) {
 //                    ecgDisconnectDeviceMethod();             //for ECG meter
 //                }
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
                 WEIGHT_SCALE_READING = null;
-            } else if (deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || deviceName.equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
+            } else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(deviceName)) {
                 BLOOD_GLUCOMETER_RESULT = null;
                 BLOOD_GLUCOMETER_RESULT_VALUE = null;
                 WEIGHT_SCALE_IS_CONNECTED = false;
@@ -421,7 +415,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 //                if (deviceConnected) {
 //                    urionBpDisconnectDeviceMethod();         //for Urion Bp
 //                }
-//            } else if (deviceName.equals(ECGMeter.ECG_DEVICE_NAME1) || deviceName.equals(ECGMeter.ECG_DEVICE_NAME2)) {
+//            } else if (ECG_DEVICE_NAME.contains(deviceName) {
 //                if(deviceConnected){
 //                    ecgDisconnectDeviceMethod();             //for ECG meter
 //                }
@@ -436,6 +430,10 @@ public class DeviceInfoActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d("TAGi", "onDestroy");
+
+        //stop the scan
+        bluetoothScanner = new BluetoothScanner(deviceName, context);
+        bluetoothScanner.stopScan();
 
         // Disconnect the device in onDestroy
         disconnectAllDevices();

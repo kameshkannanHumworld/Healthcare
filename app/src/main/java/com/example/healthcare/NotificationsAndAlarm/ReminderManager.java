@@ -5,10 +5,10 @@ import static com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragme
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
 import org.json.JSONException;
@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class ReminderManager {
@@ -36,19 +37,28 @@ public class ReminderManager {
         // Calculate the delay until the specified time
         long delayInMillis = calculateDelay(hour, minute);
 
-        // Create a OneTimeWorkRequest to trigger the ReminderWorker with the calculated delay
-        OneTimeWorkRequest reminderWorkRequest =
-                new OneTimeWorkRequest.Builder(ReminderWorker.class)
-                        .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
-                        .addTag(getReminderTag(uniqueRemainderRequestCode))
-                        .build();
+        // Create a PeriodicWorkRequest to trigger the ReminderWorker with the calculated delay
+//        OneTimeWorkRequest reminderWorkRequest =
+//                new OneTimeWorkRequest.Builder(ReminderWorker.class)
+//                        .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
+//                        .addTag(getReminderTag(uniqueRemainderRequestCode))
+//                        .build();
+        PeriodicWorkRequest reminderWorkRequest = new PeriodicWorkRequest.Builder(
+                ReminderWorker.class,
+                1, // repeatInterval: 1 day
+                TimeUnit.DAYS
+        )
+                .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
+                .addTag(getReminderTag(uniqueRemainderRequestCode))
+                .build();
+
 
         // Enqueue the work request
-        Log.e(TAG, "setReminder: "+reminderWorkRequest );
+        Log.e(TAG, "setReminder: " + reminderWorkRequest.getId());
         WorkManager.getInstance(context).enqueue(reminderWorkRequest);
 
         // Save the reminder for the medicine
-        saveReminder(context, getReminderTag(uniqueRemainderRequestCode), hour, minute);
+        saveReminder(context, getReminderTag(uniqueRemainderRequestCode), hour, minute, reminderWorkRequest.getId());
     }
 
     /*
@@ -57,7 +67,8 @@ public class ReminderManager {
      *       params2 - unique Remainder Request Code(String)*/
     public static void clearRemindersForMedicine(Context context, String uniqueRemainderRequestCode) {
         // Cancel all work with the specified tag (in this case, the medicine reminder tag)
-        WorkManager.getInstance(context).cancelAllWorkByTag(uniqueRemainderRequestCode);
+//        WorkManager.getInstance(context).cancelAllWorkByTag(uniqueRemainderRequestCode);
+        WorkManager.getInstance(context).cancelWorkById(UUID.fromString(uniqueRemainderRequestCode));
 
         // Remove the reminder for the medicine
         removeReminder(context, uniqueRemainderRequestCode);
@@ -108,18 +119,18 @@ public class ReminderManager {
      *   Save the remainder in shared preference
      *       params1 - context
      *       params2 - (String) unique Remainder Request Code*/
-    private static void saveReminder(Context context, String uniqueRemainderRequestCode, int hour, int minute) {
+    private static void saveReminder(Context context, String uniqueRemainderRequestCode, int hour, int minute, UUID uuid) {
         // Save the reminder data (including hour and minute) to SharedPreferences
         SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
         Set<String> reminders = preferences.getStringSet(PREFERENCE_KEY, new HashSet<>());
 
         // Serialize reminder data to JSON
-        String reminderData = createReminderData(uniqueRemainderRequestCode, hour, minute);
+        String reminderData = createReminderData(uniqueRemainderRequestCode, hour, minute, String.valueOf(uuid));
 
         //add data to the set
         reminders.add(reminderData);
 
-        for(String s : reminders){
+        for (String s : reminders) {
             // Logging for debugging
             Log.d("TAGi", "After adding reminder: " + s);
         }
@@ -130,13 +141,14 @@ public class ReminderManager {
     }
 
 
-    private static String createReminderData(String uniqueRemainderRequestCode, int hour, int minute) {
+    private static String createReminderData(String uniqueRemainderRequestCode, int hour, int minute, String uuid) {
         // Create a JSON object to store reminder data
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("requestCode", uniqueRemainderRequestCode);
             jsonObject.put("hour", hour);
             jsonObject.put("minute", minute);
+            jsonObject.put("uuid", uuid);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -152,7 +164,23 @@ public class ReminderManager {
         // Remove the medicine ID from SharedPreferences
         SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
         Set<String> reminders = preferences.getStringSet(PREFERENCE_KEY, new HashSet<>());
-        reminders.remove(uniqueRemainderRequestCode);
+
+        // Find and remove the specified reminder
+        for (String reminder : reminders) {
+            try {
+                JSONObject reminderObject = new JSONObject(reminder);
+                String storedRequestCode = reminderObject.getString("uuid");
+                if (uniqueRemainderRequestCode.equals(storedRequestCode)) {
+                    Log.e(TAG, "removeReminder: for : " +reminder);
+                    reminders.remove(reminder);
+                    break; // No need to continue searching once found
+                }
+            } catch (JSONException e) {
+                Log.e("ReminderManager", "Error parsing JSON", e);
+            }
+        }
+
+        clearAllRemindersFromPreferences(context);
         preferences.edit().putStringSet(PREFERENCE_KEY, reminders).apply();
     }
 
@@ -179,8 +207,6 @@ public class ReminderManager {
         SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
         preferences.edit().clear().apply();
     }
-
-
 
 
 }

@@ -13,14 +13,17 @@ import android.util.Log;
 import com.example.healthcare.BleDevices.CRC.CrcCalcEcg;
 import com.example.healthcare.Converters.ConverterClass;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 public class ECGMeter {
     private static final String TAG = "TAGi";
     public static byte ECG_INCREMENT_NUMBER = 0x02;
-    public static final String ECG_DEVICE_NAME1 = "BP2 1875";
-    public static final String ECG_DEVICE_NAME2 = "BP2 1840";
+//    public static final String ECG_DEVICE_NAME1 = "BP2 1875";
+//    public static final String ECG_DEVICE_NAME2 = "BP2 1840";
+    public static final List<String> ECG_DEVICE_NAME= Arrays.asList("BP2 1875", "BP2 1840");
     public static final String ECG_UUID_SERVICE = ("14839ac4-7d7e-415c-9a42-167340cf2339");
     public static final String ECG_UUID_NOTIFY = ("0734594a-a8e7-4b1a-a6b1-cd5243059a57");
     public static final String ECG_UUID_NOTIFY_DESCRIPTOR = ("00002902-0000-1000-8000-00805f9b34fb");

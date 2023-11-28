@@ -144,7 +144,7 @@ public class AddMedicationActivity extends AppCompatActivity {
         AutocompleteMedicineMethod();
 
         //textinput layout - Dropdown
-        textInputLayoutDropdownMethod(false,null);
+        textInputLayoutDropdownMethod(false, null);
 
         //date to save
         collectDateToSaveMethod();
@@ -358,7 +358,7 @@ public class AddMedicationActivity extends AppCompatActivity {
         endDateTimeInput.setText(endDateTime);
         notesInput.setText(notes);
 
-        textInputLayoutDropdownMethod(true,frequency);
+        textInputLayoutDropdownMethod(true, frequency);
 
         if (quantity == 0) {
             medicineQuantityInput.setText(null);
@@ -402,7 +402,7 @@ public class AddMedicationActivity extends AppCompatActivity {
                     medicineFrequencyInput.setAdapter(arrayAdapterSpinner);
 
                     if (isEdit && setFrequencyWhenEdit != null) {
-                        Log.e(TAG, "onResponse: dropdown is edit " );
+                        Log.e(TAG, "onResponse: dropdown is edit ");
                         int index = -1;
                         for (int i = 0; i < frequencyDescriptions.size(); i++) {
                             if (Objects.equals(setFrequencyWhenEdit, frequencyDescriptions.get(i))) {
@@ -814,7 +814,8 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
                                     ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
                                 }
-                                    Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
+                                remainderList.clear();
 
                             } else {
                                 Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
@@ -834,7 +835,7 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
                                     ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
                                 }
-                                    Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();
 
                             } else {
                                 Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();

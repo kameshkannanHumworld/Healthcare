@@ -2,13 +2,11 @@ package com.example.healthcare.BleDevices;
 
 import static com.example.healthcare.DeviceInfoActivity.WEIGHT_SCALE_READING_ALERT_SUCESSFULL;
 
-import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.example.healthcare.Converters.ConverterClass;
 
 import java.util.Objects;

@@ -17,7 +17,6 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -26,7 +25,6 @@ import androidx.annotation.NonNull;
 
 import com.example.healthcare.BleDevices.ECGMeter;
 import com.example.healthcare.Converters.ConverterClass;
-import com.example.healthcare.DeviceInfoActivity;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Arrays;
@@ -135,7 +133,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
 
     @SuppressLint("MissingPermission")
     private void BloodGlucometerMethod(BluetoothGatt gatt) {
-        if (gatt.getDevice().getName() != null && (gatt.getDevice().getName().equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || gatt.getDevice().getName().equals(BLOOD_GLUCOMETER_DEVICE_NAME2))) {
+        if (gatt.getDevice().getName() != null && (BLOOD_GLUCOMETER_DEVICE_NAME.contains(gatt.getDevice().getName()))) {
             //Notify
             BluetoothGattCharacteristic bloodGlucometerNotifyCharacteristic = gatt.getService(UUID.fromString(BLOOD_GLUCOMETER_UUID_SERVICE)).getCharacteristic(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY));
             if (bloodGlucometerNotifyCharacteristic != null) {
@@ -166,7 +164,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
                         public void run() {
                             writeCharacteristicBloodGlucometer(gatt);
                         }
-                    }, 500); // Delay for 4 seconds before writing
+                    }, 500); // Delay for 0.5 seconds before writing
 
 
                 } else {
@@ -182,7 +180,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
 
     @SuppressLint("MissingPermission")
     private void ecgMeterMethod(BluetoothGatt gatt) {
-        if (gatt.getDevice().getName() != null && (gatt.getDevice().getName().equals(ECG_DEVICE_NAME1) || gatt.getDevice().getName().equals(ECG_DEVICE_NAME2))) {
+        if (gatt.getDevice().getName() != null && (ECG_DEVICE_NAME.contains(gatt.getDevice().getName()))) {
             //Notify
             BluetoothGattCharacteristic ecgMeterNotifyCharacteristic = gatt.getService(UUID.fromString(ECG_UUID_SERVICE)).getCharacteristic(UUID.fromString(ECG_UUID_NOTIFY));
             if (ecgMeterNotifyCharacteristic != null) {
@@ -302,7 +300,7 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
 
     @SuppressLint("MissingPermission")
     private static void urionBloodPressureMethod(BluetoothGatt gatt) {
-        if (gatt.getDevice().getName() != null && gatt.getDevice().getName().equals(URION_BP_DEVICE_NAME)) {
+        if (gatt.getDevice().getName() != null && gatt.getDevice().getName().equals(URION_BP_DEVICE_NAME.get(0))) {
             BluetoothGattCharacteristic urionBpcharacteristic = gatt.getService(UUID.fromString(URION_BP_UUID_SERVICE)).getCharacteristic(UUID.fromString(URION_BP_UUID_NOTIFY));
             gatt.setCharacteristicNotification(urionBpcharacteristic, true);
             BluetoothGattDescriptor descriptor = urionBpcharacteristic.getDescriptor(UUID.fromString(URION_BP_UUID_NOTIFY));
@@ -423,19 +421,19 @@ public class MyBluetoothGattCallback extends BluetoothGattCallback {
         byte[] byteArray = characteristic.getValue();
 
         //Urion Bp
-        if ((gatt.getDevice().getName()).equals(URION_BP_DEVICE_NAME)) {
+        if ((gatt.getDevice().getName()).equals(URION_BP_DEVICE_NAME.get(0))) {
             onCharacteristicChangedMethodUrionBp(byteArray,gatt);
         }
 
         //BloodGlucoMeter
-        else if ((gatt.getDevice().getName()).equals(BLOOD_GLUCOMETER_DEVICE_NAME1) || (gatt.getDevice().getName()).equals(BLOOD_GLUCOMETER_DEVICE_NAME2)) {
+        else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(gatt.getDevice().getName())) {
             if (characteristic.getUuid().equals(UUID.fromString(BLOOD_GLUCOMETER_UUID_NOTIFY))) {
                 onCharacteristicChangedMethodBloodGlucometer(byteArray,gatt,context);
             }
         }
 
         //ECG meter
-        else if ((gatt.getDevice().getName()).equals(ECG_DEVICE_NAME1) || (gatt.getDevice().getName()).equals(ECG_DEVICE_NAME2)) {
+        else if (ECG_DEVICE_NAME.contains(gatt.getDevice().getName())) {
             if (characteristic.getUuid().equals(UUID.fromString(ECG_UUID_NOTIFY))) {
                 onCharacteristicChangedMethodEcgMeter(byteArray,gatt);
             }

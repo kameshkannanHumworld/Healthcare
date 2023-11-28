@@ -14,12 +14,14 @@ import com.example.healthcare.Converters.ConverterClass;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
 public class BloodGlucometer {
-    public static String BLOOD_GLUCOMETER_DEVICE_NAME1 = "Vivaguard";
-    public static String BLOOD_GLUCOMETER_DEVICE_NAME2 = "VivaGuard";
+//    public static String BLOOD_GLUCOMETER_DEVICE_NAME1 = "Vivaguard";
+//    public static String BLOOD_GLUCOMETER_DEVICE_NAME2 = "VivaGuard";
     public static String BLOOD_GLUCOMETER_MAC_ADDRESS = "34:B9:1F:00:6F:59";
+    public static final List<String> BLOOD_GLUCOMETER_DEVICE_NAME= Arrays.asList("Vivaguard", "VivaGuard");
     public static String BLOOD_GLUCOMETER_UUID_NOTIFY = "0003cdd1-0000-1000-8000-00805f9b0131";
     public static String BLOOD_GLUCOMETER_UUID_NOTIFY_DESCRIPTOR = "00002902-0000-1000-8000-00805f9b34fb";
     public static String BLOOD_GLUCOMETER_UUID_SERVICE = "0003cdd0-0000-1000-8000-00805f9b0131";
@@ -44,12 +46,12 @@ public class BloodGlucometer {
 
             String firstValue = pairs.get(0);
             String lastValue = pairs.get(pairs.size() - 1);
-            String address = pairs.get(1) + " " + pairs.get(2) + " " + pairs.get(3) + " " + pairs.get(4);
+            String bgConstantValue = pairs.get(1) + " " + pairs.get(2) + " " + pairs.get(3) + " " + pairs.get(4);
             String protocoalCode = pairs.get(5) + " " + pairs.get(6);
             String frameLength = pairs.get(8);
 
             //check first value is 7b or 7B
-            if (firstValue.equalsIgnoreCase("7B") && lastValue.equalsIgnoreCase("7D") && address.equalsIgnoreCase("01 20 01 10")) {
+            if (firstValue.equalsIgnoreCase("7B") && lastValue.equalsIgnoreCase("7D") && bgConstantValue.equalsIgnoreCase("01 20 01 10")) {
                 BLOOD_GLUCOMETER_RESULT = "please Insert the Strip..";
 
                 //check device ready for test by protocoal code
@@ -190,8 +192,8 @@ public class BloodGlucometer {
         // Calculate CRC16 value
         int crcValue = CRCUtil.calcCrc16(combinedData.array());
 
-        int o3 = (crcValue >> 12) & 0xF;
-        int o4 = (crcValue >> 8) & 0xF;
+        int o3 = (crcValue >> 12) & 0xF; //07 03 04 01
+        int o4 = (crcValue >> 8) & 0xF;  //4 1 7 3
         int o1 = (crcValue >> 4) & 0xF;
         int o2 = crcValue & 0xF;
         Log.d(TAG, String.format("CRC Result: %X%X%X%X", o1, o2, o3, o4));

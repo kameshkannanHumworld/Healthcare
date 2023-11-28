@@ -1,6 +1,7 @@
 package com.example.healthcare.BluetoothModule;
 
 import static com.example.healthcare.BleDevices.BloodGlucometer.*;
+import static com.example.healthcare.BleDevices.ECGMeter.ECG_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.WeightScale.weightScaleReadingsMethod;
 import static com.example.healthcare.Fragments.HomeFragment.connectedGatts;
@@ -100,54 +101,56 @@ public class BluetoothScanner {
         public void onScanResult(int callbackType, ScanResult result) {
             Activity activity = (Activity) context;
 
+            //basic check for BLE connect permission
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     BluetoothUtil.isBluetoothConnectPermissionGranted(activity);
                 }
             }
+
             String deviceName = result.getDevice().getName() != null ? result.getDevice().getName() : "Unnamed";
 //            Log.i(TAG, "Found BLE device! Name: " + deviceName + ", address: " + result.getDevice().getAddress());
 
 
             if (DEVICE_NAME_SCAN.equals(WEIGHT_SCALE_DEVICE_NAME)) {
+
                 //Weight Scale
                 weightScaleReadingsMethod(result, context);
-            }
 
+            } else if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
 
-            //Urion Blood Pressure
-            else if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+                //Urion Blood Pressure
                 Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                 urionBpDevice = result.getDevice(); // Store the device for future connection
                 if (!deviceConnected) {
                     connectToDevice(activity);
                 }
-            }
 
+            } else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(result.getDevice().getName())) {
 
-            //Blood Glucometer
-            else if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+                //Blood Glucometer
                 Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                 bloodGlucometer = result.getDevice(); // Store the device for future connection
                 if (!deviceConnected) {
                     connectToDevice(activity);
                 }
-            } else if (Objects.equals(result.getDevice().getName(), BLOOD_GLUCOMETER_DEVICE_NAME2)) {
-                Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
-                bloodGlucometer = result.getDevice(); // Store the device for future connection
-                if (!deviceConnected) {
-                    connectToDevice(activity);
-                }
-            }
 
-            //ECG meter
-            else if (Objects.equals(result.getDevice().getName(), DEVICE_NAME_SCAN)) {
+            } else if (ECG_DEVICE_NAME.contains(result.getDevice().getName())) {
+
+                //ECG meter
                 Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
                 ecgMeter = result.getDevice(); // Store the device for future connection
                 if (!deviceConnected) {
                     connectToDevice(activity);
                 }
             }
+//            else if (Objects.equals(result.getDevice().getName(), BLOOD_GLUCOMETER_DEVICE_NAME2)) {
+//                Log.i(TAG, "Found BLE device! Name: " + result.getDevice().getName());
+//                bloodGlucometer = result.getDevice(); // Store the device for future connection
+//                if (!deviceConnected) {
+//                    connectToDevice(activity);
+//                }
+//            }
 
 
         }
@@ -162,8 +165,9 @@ public class BluetoothScanner {
     //connected to the Device
     @SuppressLint("MissingPermission")
     private void connectToDevice(Activity activity) {
-        //urion Bp
         if (urionBpDevice != null) {
+
+            //urion Bp
             gatt = urionBpDevice.connectGatt(context, false, new MyBluetoothGattCallback(context));
             if (gatt != null) {
                 stopScan();
@@ -173,10 +177,10 @@ public class BluetoothScanner {
             } else {
                 Log.e(TAG, "Failed to connect to device: " + urionBpDevice.getName());
             }
-        }
 
-        //Blood Glucometer
-        else if (bloodGlucometer != null) {
+        } else if (bloodGlucometer != null) {
+
+            //Blood Glucometer
             gatt = bloodGlucometer.connectGatt(context, false, new MyBluetoothGattCallback(context));
             if (gatt != null) {
                 stopScan();
@@ -186,11 +190,10 @@ public class BluetoothScanner {
             } else {
                 Log.e(TAG, "Failed to connect to device: " + bloodGlucometer.getName());
             }
-        }
 
+        } else if (ecgMeter != null) {
 
-        //ECG meter
-        else if (ecgMeter != null) {
+            //ECG meter
             gatt = ecgMeter.connectGatt(context, false, new MyBluetoothGattCallback(context));
             if (gatt != null) {
                 stopScan();
@@ -209,11 +212,13 @@ public class BluetoothScanner {
     //Disconnect the device
     @SuppressLint("MissingPermission")
     public static void disconnectAllDevices() {
+        Log.e(TAG, "disconnect All Devices Triggered.. dvb" );
         for (BluetoothGatt gatt : connectedGatts) {
             if (gatt != null) {
                 gatt.disconnect();
                 gatt.close();
                 deviceConnected = false;
+                Log.e(TAG, "disconnect All Devices Triggered.. " );
             }
         }
         connectedGatts.clear(); // Clear the list after disconnection

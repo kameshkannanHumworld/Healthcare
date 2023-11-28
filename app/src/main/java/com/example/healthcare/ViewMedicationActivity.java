@@ -1,7 +1,7 @@
 package com.example.healthcare;
 
-import static com.example.healthcare.AddMedicationActivity.FREQUENCY_CODE;
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
+import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
 import static com.example.healthcare.AddMedicationActivity.remainderList;
 import static com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment.TAG;
 import static com.example.healthcare.Converters.ConverterClass.dateFormatSpilitterMethod;
@@ -20,17 +20,18 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.work.WorkManager;
 
 import com.example.healthcare.BottomSheetDialog.NotificationBottomSheet;
+import com.example.healthcare.NotificationsAndAlarm.RemainderData;
 import com.example.healthcare.NotificationsAndAlarm.ReminderManager;
 import com.example.healthcare.NotificationsAndAlarm.ReminderWorker;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,9 +49,13 @@ public class ViewMedicationActivity extends AppCompatActivity {
     String frequencyCode;
     ImageView medicineImageViewMedicationActivity;
     LinearLayout remainderTimeSlotLinearLayout;
-    TextView medicineName, frequencyTV, quantityTV, effectiveDateOnlyTV, effectiveMonthYearTV, lastEffectiveDateOnlyTV, lastEffectiveMonthYearTV, notesTV, clearAlarmViewMedicationActivity;
+    TextView medicineName, frequencyTV, quantityTV, effectiveDateOnlyTV, effectiveMonthYearTV, lastEffectiveDateOnlyTV, lastEffectiveMonthYearTV, notesTV;
     private Switch remainderToggleSwitchViewMedicationActivity;
-    private List<String> requestCode;
+    private List<String> requestCodeForThisMedication;
+    private List<String> filteredRemindersList;
+    private Set<String> filteredReminders;
+    private MaterialTimePicker picker;
+    private Boolean enableAlarmButtonClick = false;
     MaterialButton alarmButton1, alarmButton2, alarmButton3, alarmButton4;
 
 
@@ -61,7 +66,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
         //Assign Id Here
         idAssignHere();
-        requestCode = new ArrayList<>();
+        requestCodeForThisMedication = new ArrayList<>();
 
         //data from Medication Fragment
         dataFromMedicationFragment();
@@ -70,6 +75,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
         displayRemindersForMedicine(this, medictionId);
 
         //Enable /disable Remainder - toggle switch
+        setTagForAlarmButtonMethod();
         enableDisableRemainders();
 
         //back Button Method
@@ -81,6 +87,8 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
     }
 
+
+
     private void enableDisableRemainders() {
 
         //textWatcher for switch for enable/disable remainder
@@ -89,49 +97,163 @@ public class ViewMedicationActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (remainderToggleSwitchViewMedicationActivity.isChecked()) {
                     remainderTimeSlotLinearLayout.setVisibility(View.VISIBLE);
-                    setTagForAlarmButtonMethod();
-                    Log.d(TAG, "onCheckedChanged: " + frequencyCode );
+                    Log.d(TAG, "onCheckedChanged: " + frequencyCode);
 
                     // Create the notification channel
                     ReminderWorker.createNotificationChannel(getApplicationContext());
 
                     //alarm count based upon Frequency Code
-                    if (requestCode != null && !requestCode.isEmpty()) {
+                    if (requestCodeForThisMedication != null && !requestCodeForThisMedication.isEmpty()) {
                         remainderButtonCountVisiblityMethod(frequencyCode, true);
+                        Log.d(TAG, "onCheckedChanged: if " + frequencyCode);
                         Snackbar.make(buttonView, "Remainder Enabled", Snackbar.LENGTH_LONG).show();
                     } else {
                         remainderButtonCountVisiblityMethod(frequencyCode, false);
+                        Log.d(TAG, "onCheckedChanged: else  " + frequencyCode);
                     }
 
 
                 } else {
-                    clearAlarmViewMedicationActivity.setVisibility(View.GONE);
                     remainderTimeSlotLinearLayout.setVisibility(View.GONE);
                     remainderList.clear();
 
                     //delete the remainder for this medicine
-                    if (requestCode != null && !requestCode.isEmpty()) {
-                        for (String code : requestCode) {
-                            Log.d("TAGi","View medication Activity Toggle button : " +code);
+                    if (requestCodeForThisMedication != null && !requestCodeForThisMedication.isEmpty()) {
+                        for (String code : requestCodeForThisMedication) {
+                            Log.d("TAGi", "View medication Activity Toggle button : " + code);
                             ReminderManager.clearRemindersForMedicine(getApplicationContext(), code);
                         }
                         Snackbar.make(buttonView, "Remainder Disabled", Snackbar.LENGTH_LONG).show();
+                        requestCodeForThisMedication.clear();
                     }
 
                 }
 
                 //date picker listener -  set alarmButton listener
-//                        alarmButton1.setOnClickListener(view -> showTimePicker(alarmButton1));
-//
-//                        alarmButton2.setOnClickListener(view -> showTimePicker(alarmButton2));
-//
-//                        alarmButton3.setOnClickListener(view -> showTimePicker(alarmButton3));
-//
-//                        alarmButton4.setOnClickListener(view -> showTimePicker(alarmButton4));
+                alarmButton1.setOnClickListener(view -> {
+                    showTimePicker(alarmButton1);
+                });
+
+                alarmButton2.setOnClickListener(view -> {
+                    showTimePicker(alarmButton2);
+                });
+
+                alarmButton3.setOnClickListener(view -> {
+                    showTimePicker(alarmButton3);
+                });
+
+                alarmButton4.setOnClickListener(view -> {
+                    showTimePicker(alarmButton4);
+                });
+
 
             }
         });
+    }
 
+    // Function to update the state of the button based on its text
+    private void updateButtonState(Button myButton) {
+        if (myButton.getText().toString().equals("Add")) {
+            myButton.setEnabled(true);
+        } else {
+            myButton.setEnabled(false);
+        }
+    }
+
+    //time picker to pick the time for remainder
+    private void showTimePicker(MaterialButton alarmButton) {
+        picker = new MaterialTimePicker.Builder()
+                .setTheme(R.style.TIME_PICKER)
+                .setTimeFormat(TimeFormat.CLOCK_12H)
+                .setHour(12)
+                .setMinute(0)
+                .setTitleText("Select Alarm Time")
+                .build();
+        picker.show(getSupportFragmentManager(), "Healthcare");
+
+        //positive button listener
+        picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Check for duplication
+                RemainderData newRemainderData = new RemainderData(picker.getHour(), picker.getMinute(), alarmButton.getTag().toString());
+                if (!isDuplicateRemainder(newRemainderData)) {
+
+                    // Set time in button
+                    if (picker.getHour() == 12) {
+                        alarmButton.setText(String.format("%02d", picker.getHour()) + " : " + String.format("%02d", picker.getMinute()) + " PM");
+                    } else if (picker.getHour() > 12) {
+                        alarmButton.setText(String.format("%02d", (picker.getHour() - 12)) + " : " + String.format("%02d", picker.getMinute()) + " PM");
+                    } else {
+                        alarmButton.setText(picker.getHour() + " : " + picker.getMinute() + " AM");
+                    }
+
+                    //disable the button onclickListener
+                    updateButtonState(alarmButton);
+
+                    // Identify the index based on the alarmButton's unique identifier
+                    int index = getAlarmButtonIndex(alarmButton.getTag());
+                    Log.d(TAG, "index for alarm : " + index);
+
+                    // Save remainder data for set remainder
+                    if (index >= 0 && index < remainderList.size()) {
+                        // If the index is within the current size of the list
+                        remainderList.set(index, newRemainderData);
+                    } else if (index == remainderList.size()) {
+                        // If the index is exactly one position after the last index, add a new element
+                        remainderList.add(newRemainderData);
+                    } else {
+                        // Handle invalid index (e.g., index < 0)
+                        // You may want to log a warning or throw an exception based on your use case
+                        Log.w("TAG", "Invalid index: " + index);
+                    }
+
+                    for (RemainderData data : remainderList) {
+                        Log.d("Remainder", "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
+                        String uniqueRemainderRequestCode = PATIENT_ID + "_" + MEDICTION_ID + "_" + data.getTag();
+                        Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
+                        ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
+                    }
+
+                    Snackbar.make(v, "Remainder Set Sucessfully..", Snackbar.LENGTH_LONG).show();
+                    remainderList.clear();
+
+
+                }
+
+            }
+        });
+    }
+
+    //get each button unique identification
+    private int getAlarmButtonIndex(Object tag) {
+        String tagString = String.valueOf(tag);
+
+        switch (tagString) {
+            case "alarmButton1":
+                return 0;
+            case "alarmButton2":
+                return 1;
+            case "alarmButton3":
+                return 2;
+            case "alarmButton4":
+                return 3;
+            default:
+                return -1; // Handle unknown tag
+        }
+    }
+
+    //check if any duplicates found in remainder list
+    private boolean isDuplicateRemainder(RemainderData newRemainderData) {
+        for (RemainderData existingRemainder : remainderList) {
+            if (existingRemainder.equals(newRemainderData)) {
+                // Duplicate found, do not add
+                // You might want to show a message or handle the duplication case in your UI
+                return true;
+            }
+        }
+        return false;
     }
 
     private void remainderButtonCountVisiblityMethod(String frequencyCode, boolean isExcisting) {
@@ -141,6 +263,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
             Button currentButton = getButtonAtIndex(i);
             if (i < visibleButtons) {
                 currentButton.setVisibility(View.VISIBLE);
+                currentButton.setText("Add");
             } else {
                 currentButton.setVisibility(View.INVISIBLE);
             }
@@ -148,11 +271,12 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
         if (isExcisting) {
             List<String> buttonTexts = displayRemindersForMedicine(this, medictionId);
-            updateUI(buttonTexts, frequencyCode, true);
+            updateUI(buttonTexts, frequencyCode);
         }
+
     }
 
-    private void updateUI(List<String> buttonTexts, String frequencyCode, boolean buttonDisable) {
+    private void updateUI(List<String> buttonTexts, String frequencyCode) {
         int visibleButtons = getVisibleButtonsCount(frequencyCode);
 
         for (int i = 0; i < visibleButtons; i++) {
@@ -160,8 +284,6 @@ public class ViewMedicationActivity extends AppCompatActivity {
             if (buttonTexts.size() > i) {
                 currentButton.setVisibility(View.VISIBLE);
                 currentButton.setText(buttonTexts.get(i));
-                clearAlarmViewMedicationActivity.setVisibility(View.VISIBLE);
-                currentButton.setEnabled(false);
 
             } else {
                 currentButton.setVisibility(View.GONE);
@@ -254,6 +376,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
     }
 
+    //Assign UI id here
     private void idAssignHere() {
         floatingActionButton = findViewById(R.id.fabRemainder);
         backButton = findViewById(R.id.backButton);
@@ -273,11 +396,11 @@ public class ViewMedicationActivity extends AppCompatActivity {
         alarmButton2 = findViewById(R.id.alarmButton2ViewMedicationActivity);
         alarmButton3 = findViewById(R.id.alarmButton3ViewMedicationActivity);
         alarmButton4 = findViewById(R.id.alarmButton4ViewMedicationActivity);
-        clearAlarmViewMedicationActivity = findViewById(R.id.clearAlarmViewMedicationActivity);
 
 
     }
 
+    //floating action button
     private void floatingActionButtonMethod() {
         floatingActionButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, NotificationBottomSheet.class);
@@ -293,6 +416,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
     }
 
+    //back button listener
     private void backButtonMethod() {
         backButton.setOnClickListener(v -> {
             onBackPressed(); //back button
@@ -313,7 +437,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
         Set<String> reminders = preferences.getStringSet(PREFERENCE_KEY, new HashSet<>());
 
         //filter remainder for selected medicine
-        Set<String> filteredReminders = new HashSet<>();
+        filteredReminders = new HashSet<>();
         for (String medicineReminder : reminders) {
             Log.e(TAG, "displayRemindersForMedicine: " + medicineReminder);
             if (medicineReminder.contains(filterPart)) {
@@ -328,27 +452,20 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
 
         // Display reminders with hour and minute
-        StringBuilder stringBuilder = new StringBuilder();
         for (String reminderData : list) {
-            Log.d(TAG, "display Reminders For this Medicine: "+reminderData);
+            Log.d(TAG, "display Reminders For this Medicine: " + reminderData);
             int hour = -1, minute = -1;
+            String uuid;
 
             // Deserialize JSON string to extract reminder data
             try {
                 JSONObject jsonObject = new JSONObject(reminderData);
                 String uniqID = jsonObject.getString("requestCode");
-                requestCode.add(uniqID);
                 hour = jsonObject.getInt("hour");
                 minute = jsonObject.getInt("minute");
-
-                // Display reminder with hour and minute
-                stringBuilder.append(hour).append(":").append(minute)
-                        .append("\n")
-                        .append(",rc : ").append(uniqID)
-                        .append("\n");
-
-                // Add the text for the button to the list
-//                buttonTexts.add(String.format("%02d", hour) + ":" + String.format("%02d", minute));
+                uuid = jsonObject.getString("uuid");
+                Log.d(TAG, "displayRemindersForMedicine UUID: " + uuid);
+                requestCodeForThisMedication.add(uuid);
 
                 // Add the text for the button to the list
                 if (hour == 12) {
@@ -365,7 +482,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
         }
 
         //below code to On/off the switch, when any alarm is active/inactive
-        if (requestCode != null && !requestCode.isEmpty()) {
+        if (requestCodeForThisMedication != null && !requestCodeForThisMedication.isEmpty()) {
             remainderToggleSwitchViewMedicationActivity.setChecked(true);
             remainderTimeSlotLinearLayout.setVisibility(View.VISIBLE);
         } else {
@@ -374,10 +491,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
         }
 
         // Update the UI elements
-        updateUI(buttonTexts, frequencyCode, false);
-
-        // Display the reminders with hour and minute in the TextView
-//        textView.setText("Reminders with Hour and Minute:\n" + stringBuilder.toString());
+        updateUI(buttonTexts, frequencyCode);
 
 
         // Return the list of button texts

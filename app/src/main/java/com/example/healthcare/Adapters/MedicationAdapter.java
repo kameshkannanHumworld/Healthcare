@@ -1,9 +1,10 @@
+/*
+*   MedicationAdapter - this is a recycler view adapter for medication shown in HomeFragment.
+* */
+
 package com.example.healthcare.Adapters;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,19 +14,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationData;
 import com.example.healthcare.MedicineClickInterface;
-import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationResponse;
 import com.example.healthcare.R;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder> {
 
@@ -43,6 +40,7 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
     public MedicationAdapter(Context context, List<ViewMedicationData> medicationList, MedicineClickInterface medicineClickInterfaceOnClickListener) {
         this.medicineClickInterfaceOnClickListener = medicineClickInterfaceOnClickListener;
         this.medicationList = medicationList;
+        this.context = context;
 
     }
 
@@ -66,14 +64,14 @@ public class MedicationAdapter extends RecyclerView.Adapter<MedicationViewHolder
         holder.medicineFrequency.setText(medication.getFrequency());
 
         String quantity = String.valueOf(medication.getQuantity());
-        holder.medicineQuantity.setText( " "+quantity);
+        holder.medicineQuantity.setText(String.format(" %s", quantity));
 
         //start Date
         if (medication.getEffectiveDate() == null || medication.getEffectiveDate().trim().isEmpty()) {
             holder.medicineStartDate.setText("----");
         } else {
             String startDate = getFormattedDate(medication.getEffectiveDate());
-            holder.medicineStartDate.setText((startDate) + "   to ");
+            holder.medicineStartDate.setText(String.format("%s   to ", startDate));
         }
 
 
@@ -135,6 +133,8 @@ class MedicationViewHolder extends RecyclerView.ViewHolder {
     //constructor
     public MedicationViewHolder(@NonNull View itemView, MedicineClickInterface medicineClickInterfaceOnClickListener) {
         super(itemView);
+
+        //assign ID for UI views
         medicineName = itemView.findViewById(R.id.medicineName);
         medicineQuantity = itemView.findViewById(R.id.medicineQuantity);
         medicineFrequency = itemView.findViewById(R.id.medicineFrequency);
@@ -145,7 +145,7 @@ class MedicationViewHolder extends RecyclerView.ViewHolder {
         //onclick listener
         itemView.setOnClickListener(view -> {
             if (medicineClickInterfaceOnClickListener != null) {
-                int position = getAdapterPosition();
+                int position = getBindingAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     medicineClickInterfaceOnClickListener.onItemClick(position);
                 }

@@ -1,7 +1,5 @@
 package com.example.healthcare.Animation;
 
-import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -10,7 +8,6 @@ import android.view.Window;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
-import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.example.healthcare.R;
 import com.google.android.material.snackbar.Snackbar;
 

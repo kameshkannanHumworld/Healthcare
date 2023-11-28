@@ -33,13 +33,14 @@ public class LocationUtil {
         Method to request enable location
             params1 - Activity
     */
-    public static void requestLocationEnable(Activity activity) {
+    public static boolean requestLocationEnable(Activity activity) {
         if (!isLocationEnabled(activity)) {
 //            Intent locationSettingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 //            activity.startActivityForResult(locationSettingsIntent, REQUEST_ENABLE_LOCATION);
             GpsUtil.requestLocationPermission(activity);
-
+            return false;
         }
+        return true;
     }
 
 
@@ -57,12 +58,14 @@ public class LocationUtil {
         Method to request ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION
             params1 - Activity
     */
-    public static void requestFineLocationConnectPermission(Activity activity) {
+    public static boolean requestFineLocationConnectPermission(Activity activity) {
         if (!isFineLocationPermissionGranted(activity)) {
             ActivityCompat.requestPermissions(activity,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                     FINE_LOCATION_PERMISSION_REQUEST_CODE);
+            return false;
         }
+        return true;
     }
 
     public static void requestLocationEnableAlert(Context context) {

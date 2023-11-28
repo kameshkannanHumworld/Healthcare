@@ -2,7 +2,7 @@ package com.example.healthcare.Fragments;
 
 import static com.example.healthcare.BleDevices.BloodGlucometer.*;
 import static com.example.healthcare.BleDevices.ECGMeter.*;
-import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_NAME;
+import static com.example.healthcare.BleDevices.UrionBp.*;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.*;
 import static com.example.healthcare.DeviceInfoActivity.isDeviceInfoActivityRunning;
@@ -13,21 +13,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PowerManager;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -46,15 +41,17 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
+    //UI views
     View viewFragment;
     Context context;
     ImageView weighScaleImage, bpMeterImage, ecgMeterImage, glucometerImage;
 
+    //datatypes
     private boolean isScanning = true;
     private static final String TAG = "TAGi";
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
 
-
+    //classes and collections
     private BluetoothScanner bluetoothScanner;
     private Handler scanHandler = new Handler();
     private AnimationLoading animationLoading;
@@ -82,20 +79,20 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-
-    private void permissionCheckWhenClickDeviceIcon() {
-        LocationUtil.requestLocationEnable(requireActivity());
-        LocationUtil.requestFineLocationConnectPermission(requireActivity());
-        BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
-        BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
-        BluetoothUtil.requestBluetoothScanPermission(requireActivity());
+    //initial check for required bluetooth and location permission
+    private boolean permissionCheckWhenClickDeviceIcon() {
+        boolean isLocationEnable = LocationUtil.requestLocationEnable(requireActivity());
+        boolean isFineLocationEnable =LocationUtil.requestFineLocationConnectPermission(requireActivity());
+        boolean isBleConnectEnable =BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
+        boolean isBluetoothEnable =BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
+        boolean isBleScanEnable =BluetoothUtil.requestBluetoothScanPermission(requireActivity());
 
         // Check if the OVERLAY_PERMISSION is granted
-        if (!Settings.canDrawOverlays(requireContext())) {
-            // If not, request it
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().getPackageName()));
-            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
-        }
+//        if (!Settings.canDrawOverlays(requireContext())) {
+//            // If not, request it
+//            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + requireContext().getPackageName()));
+//            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
+//        }
 
         //post notifications permission
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
@@ -103,106 +100,65 @@ public class HomeFragment extends Fragment {
                 ActivityCompat.requestPermissions(requireActivity(),new String[]{Manifest.permission.POST_NOTIFICATIONS},101);
             }
         }
+
+        //check boolean for above method
+        if(!isLocationEnable && !isFineLocationEnable){
+            LocationUtil.requestLocationEnableAlert(context);
+        } else if (!isBleScanEnable && !isBluetoothEnable && !isBleConnectEnable) {
+            BluetoothUtil.requestBluetoothEnableAlert(context);
+        }else{
+            return true;
+        }
+        return false;
     }
 
     private void ImageListenersMethod() {
 
-        //Weight Scale Listener
+        //this isDeviceInfoActivityRunning restricts the double intent
         if (!isDeviceInfoActivityRunning) {
+
+            //Weight Scale Listener
             weighScaleImage.setOnClickListener(view -> {
-                permissionCheckWhenClickDeviceIcon();
-                bluetoothScanner = new BluetoothScanner(WEIGHT_SCALE_DEVICE_NAME, context);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        bluetoothScanner.startScan();
-                    }
-                }).start();
-                //page intent
-                Intent intent = new Intent(context, DeviceInfoActivity.class);
-                intent.putExtra("DEVICE_NAME", WEIGHT_SCALE_DEVICE_NAME);
-                context.startActivity(intent);
-
+                boolean isAllPermissionGranted = permissionCheckWhenClickDeviceIcon();
+                if(isAllPermissionGranted){
+                    bluetoothScanner = new BluetoothScanner(WEIGHT_SCALE_DEVICE_NAME, context);
+                    new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
+                    Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
+                    intent.putExtra("DEVICE_NAME", WEIGHT_SCALE_DEVICE_NAME);
+                    context.startActivity(intent);
+                }
             });
-        }
 
-        //BP Meter Listener
-        if (!isDeviceInfoActivityRunning) {
+            //BP Meter Listener
             bpMeterImage.setOnClickListener(view -> {
                 permissionCheckWhenClickDeviceIcon();
-                bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME, context);
-//                animationLoading.startLoadingDialogBlutoothScan(URION_BP_DEVICE_NAME, context);
-//                startBackgroundScan();
-//                new Thread(() -> {
-//                    if (deviceConnected) {
-//                        animationLoading.dismissLoadingDialog();
-//                        bluetoothScanner.stopScan();
-//                    }
-//                }).start();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        bluetoothScanner.startScan();
-                    }
-                }).start();
-                //page intent
-                Intent intent = new Intent(context, DeviceInfoActivity.class);
-                intent.putExtra("DEVICE_NAME", URION_BP_DEVICE_NAME);
+                bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME.get(0), context);
+                new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
+                Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
+                intent.putExtra("DEVICE_NAME", URION_BP_DEVICE_NAME.get(0));
                 context.startActivity(intent);
             });
-        }
 
-        //ECG meter Listener
-        if (!isDeviceInfoActivityRunning) {
+            //BP Meter Listener
             ecgMeterImage.setOnClickListener(view -> {
                 permissionCheckWhenClickDeviceIcon();
-                bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME1, context);
-                animationLoading.startLoadingDialogBlutoothScan(ECG_DEVICE_NAME1, context);
-                startBackgroundScan();
-                new Thread(() -> {
-                    if (deviceConnected) {
-                        animationLoading.dismissLoadingDialog();
-                        bluetoothScanner.stopScan();
-                    } else {
-                        // If the first device is not connected, try connecting to the second device
-                        bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME2, context);
-                        startBackgroundScan(); // Start scanning for the second device
-                        if (deviceConnected) {
-                            animationLoading.dismissLoadingDialog();
-                            bluetoothScanner.stopScan();
-                        }
-                    }
-                }).start();
+                bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME.get(0), context);
+                new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
+                Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
+                intent.putExtra("DEVICE_NAME", ECG_DEVICE_NAME.get(0));
+                context.startActivity(intent);
             });
-        }
 
-        //Glucometer Listener
-        if (!isDeviceInfoActivityRunning) {
+            //BP Meter Listener
             glucometerImage.setOnClickListener(view -> {
                 permissionCheckWhenClickDeviceIcon();
-                bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
-                startBackgroundScan();
-
-                new Thread(() -> {
-                    // If the first device is not connected, try connecting to the second device
-                    bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME1, context);
-                    startBackgroundScan(); // Start scanning for the second device
-
-                    //page intent
-                    Intent intent = new Intent(context, DeviceInfoActivity.class);
-                    intent.putExtra("DEVICE_NAME", BLOOD_GLUCOMETER_DEVICE_NAME2);
-                    context.startActivity(intent);
-                }).start();
-
-                //page intent
-                Intent intent = new Intent(context, DeviceInfoActivity.class);
-                intent.putExtra("DEVICE_NAME", BLOOD_GLUCOMETER_DEVICE_NAME1);
+                bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME.get(0), context);
+                new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
+                Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
+                intent.putExtra("DEVICE_NAME", BLOOD_GLUCOMETER_DEVICE_NAME.get(0));
                 context.startActivity(intent);
-
             });
         }
-
-
     }
 
     //Background Bluetooth scan start
@@ -254,20 +210,20 @@ public class HomeFragment extends Fragment {
 
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
-            if (Settings.canDrawOverlays(requireContext())) {
-                // Permission granted
-                Toast.makeText(requireContext(), "Permission granted", Toast.LENGTH_SHORT).show();
-            } else {
-                // Permission denied
-                Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+//            if (Settings.canDrawOverlays(requireContext())) {
+//                // Permission granted
+//                Toast.makeText(requireContext(), "Permission granted", Toast.LENGTH_SHORT).show();
+//            } else {
+//                // Permission denied
+//                Toast.makeText(requireContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//    }
 
 
 }
