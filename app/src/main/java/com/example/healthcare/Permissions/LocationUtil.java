@@ -4,14 +4,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.os.Build;
-import android.provider.Settings;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
 public class LocationUtil {
@@ -35,8 +30,6 @@ public class LocationUtil {
     */
     public static boolean requestLocationEnable(Activity activity) {
         if (!isLocationEnabled(activity)) {
-//            Intent locationSettingsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//            activity.startActivityForResult(locationSettingsIntent, REQUEST_ENABLE_LOCATION);
             GpsUtil.requestLocationPermission(activity);
             return false;
         }

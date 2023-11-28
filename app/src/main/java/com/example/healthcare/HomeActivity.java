@@ -2,13 +2,11 @@ package com.example.healthcare;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
@@ -17,19 +15,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.healthcare.Fragments.HomeFragment;
 import com.example.healthcare.Fragments.MedicationsFragment;
 import com.example.healthcare.NotificationsAndAlarm.ReminderManager;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 
 public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    //UI views
     private DrawerLayout drawerLayout;
-    private TextView navigationDrawerUserName, navigationDrawerUserUniqId;
     private Toolbar toolbar;
 
     @SuppressLint("MissingInflatedId")
@@ -45,8 +43,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
 
         //Assign Id for the UI here
         drawerLayout = findViewById(R.id.drawer_layout);
-        navigationDrawerUserName = findViewById(R.id.navigationDrawerUserName);
-        navigationDrawerUserUniqId = findViewById(R.id.navigationDrawerUserUniqId);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -61,7 +57,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_nav,
                 R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
-        toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white));
+        toggle.getDrawerArrowDrawable().setColor(ContextCompat.getColor(this,R.color.white));
         toggle.syncState();
 
 
@@ -105,6 +101,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+    @SuppressLint("SetTextI18n")
     private void showCustomDialogBox(String message, boolean isOnBackPressed) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -120,31 +117,22 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         dialogHeader.setText("Confirmation");
         tvMessage.setText(message);
 
-        btnYes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                if (isOnBackPressed) {
-                    Intent intent = new Intent(Intent.ACTION_MAIN);
-                    intent.addCategory(Intent.CATEGORY_HOME);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                }
+        btnYes.setOnClickListener(v -> {
+            dialog.dismiss();
+            Intent intent;
+            if (isOnBackPressed) {
+                intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            } else {
+                intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             }
+            startActivity(intent);
+            finish();
         });
 
-        btnNo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        btnNo.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
     }

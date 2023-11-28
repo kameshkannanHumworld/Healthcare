@@ -1,7 +1,7 @@
 package com.example.healthcare;
 
 
-import static com.example.healthcare.Converters.ConverterClass.generateUniqueNumber;
+import static com.example.healthcare.MainActivity.TAG;
 import static com.example.healthcare.MainActivity.TOKEN;
 
 import android.annotation.SuppressLint;
@@ -18,22 +18,17 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 
 import com.example.healthcare.Animation.AnimationLoading;
 import com.example.healthcare.ApiClass.ApiClient;
@@ -57,7 +52,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -67,13 +61,13 @@ import com.google.android.material.timepicker.TimeFormat;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -81,14 +75,23 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class AddMedicationActivity extends AppCompatActivity {
+
+    //UI views
     Button submitButton;
     ImageView addMedicineBackButton;
     AutoCompleteTextView medicineNameInput, medicineFrequencyInput;
     TextView toolbarTitle;
-    String mDateInput, mFrequencyInput;
     TextInputLayout textInputLayout4, textInputLayout3, textInputLayout5;
     TextInputEditText medicineQuantityInput, endDateTimeInput, notesInput, recordDateTimeInput;
-    private final String TAG = "TAGi";
+    MaterialTimePicker picker;
+    SharedPreferences sharedPreferences;
+    CardView remainderCardView;
+    private MaterialButton alarmButton1, alarmButton2, alarmButton3, alarmButton4;
+    private Switch remainderToggleSwitch;
+    private HorizontalScrollView remainderTimeSlotLayout;
+
+    //Data types
+    String mDateInput, mFrequencyInput;
     public static boolean IS_EDIT = false;
     public static final int ID_DROPDOWN = 33689;
     public static final int PATIENT_ID = 53278;
@@ -96,23 +99,16 @@ public class AddMedicationActivity extends AppCompatActivity {
     public final Integer VISIT_ID = null;
     public static Integer MEDICTION_ID;
     private static boolean isSavedForBackPress = false;
-    private final String MEDICTION_NAME = "";
-    String medName, frequency, recordDateTime, endDateTime, notes;
-    MaterialTimePicker picker;
-    SharedPreferences sharedPreferences;
-    CardView remainderCardView;
     static String proprietaryNameWithDosage, nonProprietaryNameWithDosage, mediProprietaryName, onlyTime, FREQUENCY_CODE;
     static Integer mediProdId;
     ArrayAdapter<String> arrayAdapterSpinner;
-    private AnimationLoading animationLoading;
-    private Switch remainderToggleSwitch;
-    private HorizontalScrollView remainderTimeSlotLayout;
-    private MaterialButton alarmButton1, alarmButton2, alarmButton3, alarmButton4;
-    private static final String REMINDER_WORK_TAG = "reminder_work_tag";
     public static List<RemainderData> remainderList = new ArrayList<>();
 
+    //classes
+    private AnimationLoading animationLoading;
 
-    @SuppressLint("MissingInflatedId")
+
+    @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,6 +157,7 @@ public class AddMedicationActivity extends AppCompatActivity {
     }
 
 
+    //remainder function here
     private void remainderFunctionalityMethod() {
 
         //when you select any frequency, then the remainder cardview will visible
@@ -180,66 +177,64 @@ public class AddMedicationActivity extends AppCompatActivity {
                 remainderCardView.setVisibility(View.VISIBLE);
 
                 //is toggled switch on or off
-                remainderToggleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (remainderToggleSwitch.isChecked()) {
-                            remainderTimeSlotLayout.setVisibility(View.VISIBLE);
-                            setTagForAlarmButtonMethod();
-                            Log.d(TAG, "onCheckedChanged: " + FREQUENCY_CODE);
+                remainderToggleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (remainderToggleSwitch.isChecked()) {
+                        remainderTimeSlotLayout.setVisibility(View.VISIBLE);
+                        setTagForAlarmButtonMethod();
+                        Log.d(TAG, "onCheckedChanged: " + FREQUENCY_CODE);
 
-                            // Create the notification channel
-                            ReminderWorker.createNotificationChannel(getApplicationContext());
+                        // Create the notification channel
+                        ReminderWorker.createNotificationChannel(getApplicationContext());
 
-                            //alarm count based upon Frequency Code
-                            if (Objects.equals(FREQUENCY_CODE, "ODAY")) {
-                                alarmButton1.setVisibility(View.VISIBLE);
-                                alarmButton2.setVisibility(View.INVISIBLE);
-                                alarmButton3.setVisibility(View.INVISIBLE);
-                                alarmButton4.setVisibility(View.INVISIBLE);
-                            } else if (Objects.equals(FREQUENCY_CODE, "TDAY")) {
-                                alarmButton1.setVisibility(View.VISIBLE);
-                                alarmButton2.setVisibility(View.VISIBLE);
-                                alarmButton3.setVisibility(View.INVISIBLE);
-                                alarmButton4.setVisibility(View.INVISIBLE);
-                            } else if (Objects.equals(FREQUENCY_CODE, "THDA")) {
-                                alarmButton1.setVisibility(View.VISIBLE);
-                                alarmButton2.setVisibility(View.VISIBLE);
-                                alarmButton3.setVisibility(View.VISIBLE);
-                                alarmButton4.setVisibility(View.INVISIBLE);
-                            } else if (Objects.equals(FREQUENCY_CODE, "FDAY")) {
-                                alarmButton1.setVisibility(View.VISIBLE);
-                                alarmButton2.setVisibility(View.VISIBLE);
-                                alarmButton3.setVisibility(View.VISIBLE);
-                                alarmButton4.setVisibility(View.VISIBLE);
+                        //alarm count based upon Frequency Code
+                        List<Button> alarmButtons = Arrays.asList(alarmButton1, alarmButton2, alarmButton3, alarmButton4);
+                        int visibleButtons = getVisibleButtonsCount(FREQUENCY_CODE);
+
+                        for (int i = 0; i < alarmButtons.size(); i++) {
+                            Button currentButton = alarmButtons.get(i);
+                            if (i < visibleButtons) {
+                                currentButton.setVisibility(View.VISIBLE);
                             } else {
-                                alarmButton1.setVisibility(View.VISIBLE);
-                                alarmButton2.setVisibility(View.VISIBLE);
-                                alarmButton3.setVisibility(View.INVISIBLE);
-                                alarmButton4.setVisibility(View.INVISIBLE);
+                                currentButton.setVisibility(View.INVISIBLE);
                             }
-
-
-                        } else {
-                            remainderTimeSlotLayout.setVisibility(View.GONE);
-                            remainderList.clear();
                         }
 
-
-                        //date picker listener -  set alarmButton listener
-                        alarmButton1.setOnClickListener(view -> showTimePicker(alarmButton1));
-
-                        alarmButton2.setOnClickListener(view -> showTimePicker(alarmButton2));
-
-                        alarmButton3.setOnClickListener(view -> showTimePicker(alarmButton3));
-
-                        alarmButton4.setOnClickListener(view -> showTimePicker(alarmButton4));
+                    } else {
+                        remainderTimeSlotLayout.setVisibility(View.GONE);
+                        remainderList.clear();
                     }
+
+
+                    //date picker listener -  set alarmButton listener
+                    alarmButton1.setOnClickListener(view -> showTimePicker(alarmButton1));
+
+                    alarmButton2.setOnClickListener(view -> showTimePicker(alarmButton2));
+
+                    alarmButton3.setOnClickListener(view -> showTimePicker(alarmButton3));
+
+                    alarmButton4.setOnClickListener(view -> showTimePicker(alarmButton4));
                 });
 
             }
         });
     }
+
+    //Method to get the remainder slot count and its visiblity
+    private int getVisibleButtonsCount(String frequencyCode) {
+        switch (frequencyCode) {
+            case "ODAY":
+                return 1;
+            case "TDAY":
+                return 2;
+            case "THDA":
+                return 3;
+            case "FDAY":
+                return 4;
+            default:
+                return 2;
+        }
+    }
+
 
     //unique Tag for each button
     private void setTagForAlarmButtonMethod() {
@@ -251,6 +246,7 @@ public class AddMedicationActivity extends AppCompatActivity {
 
 
     //time picker to pick the time for remainder
+    @SuppressLint({"SetTextI18n", "DefaultLocale"})
     private void showTimePicker(MaterialButton alarmButton) {
         picker = new MaterialTimePicker.Builder()
                 .setTheme(R.style.TIME_PICKER)
@@ -262,52 +258,44 @@ public class AddMedicationActivity extends AppCompatActivity {
         picker.show(getSupportFragmentManager(), "Healthcare");
 
         //positive button listener
-        picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        picker.addOnPositiveButtonClickListener(v -> {
 
-                // Check for duplication
-                RemainderData newRemainderData = new RemainderData(picker.getHour(), picker.getMinute(), alarmButton.getTag().toString());
-                if (!isDuplicateRemainder(newRemainderData)) {
+            // Check for duplication
+            RemainderData newRemainderData = new RemainderData(picker.getHour(), picker.getMinute(), alarmButton.getTag().toString());
+            if (!isDuplicateRemainder(newRemainderData)) {
 
-                    // Set time in button
-                    if (picker.getHour() == 12) {
-                        alarmButton.setText(String.format("%02d", picker.getHour()) + " : " + String.format("%02d", picker.getMinute()) + " PM");
-                    } else if (picker.getHour() > 12) {
-                        alarmButton.setText(String.format("%02d", (picker.getHour() - 12)) + " : " + String.format("%02d", picker.getMinute()) + " PM");
-                    } else {
-                        alarmButton.setText(picker.getHour() + " : " + picker.getMinute() + " AM");
-                    }
-
-                    // Identify the index based on the alarmButton's unique identifier
-                    int index = getAlarmButtonIndex(alarmButton.getTag());
-                    Log.d(TAG, "index for alarm : " + index);
-
-                    // Save remainder data for set remainder
-                    if (index >= 0 && index < remainderList.size()) {
-                        // If the index is within the current size of the list
-                        remainderList.set(index, newRemainderData);
-                    } else if (index == remainderList.size()) {
-                        // If the index is exactly one position after the last index, add a new element
-                        remainderList.add(newRemainderData);
-                    } else {
-                        // Handle invalid index (e.g., index < 0)
-                        // You may want to log a warning or throw an exception based on your use case
-                        Log.w("TAG", "Invalid index: " + index);
-                    }
-
-                    for (RemainderData data : remainderList) {
-                        Log.d("Remainder", "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
-
-                    }
-
-
+                // Set time in button
+                if (picker.getHour() == 12) {
+                    alarmButton.setText(String.format("%02d", picker.getHour()) + " : " + String.format("%02d", picker.getMinute()) + " PM");
+                } else if (picker.getHour() > 12) {
+                    alarmButton.setText(String.format("%02d", (picker.getHour() - 12)) + " : " + String.format("%02d", picker.getMinute()) + " PM");
+                } else {
+                    alarmButton.setText(picker.getHour() + " : " + picker.getMinute() + " AM");
                 }
 
+                // Identify the index based on the alarmButton's unique identifier
+                int index = getAlarmButtonIndex(alarmButton.getTag());
+                Log.d(TAG, "index for alarm : " + index);
+
+                // Save remainder data for set remainder
+                if (index >= 0 && index < remainderList.size()) {
+                    // If the index is within the current size of the list
+                    remainderList.set(index, newRemainderData);
+                } else if (index == remainderList.size()) {
+                    // If the index is exactly one position after the last index, add a new element
+                    remainderList.add(newRemainderData);
+                } else {
+                    // Handle invalid index (e.g., index < 0)
+                    // You may want to log a warning or throw an exception based on your use case
+                    Log.w("TAG", "Invalid index: " + index);
+                }
+
+                for (RemainderData data : remainderList) {
+                    Log.d("Remainder", "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
+
+                }
             }
         });
-
-
     }
 
 
@@ -342,7 +330,7 @@ public class AddMedicationActivity extends AppCompatActivity {
         return false;
     }
 
-
+    //when swipe the recycler view to the right , method to get data from the particular medicine via Intent
     private void swipeRightEditIntentMehthod() {
         Intent intent = getIntent();
 
@@ -380,7 +368,7 @@ public class AddMedicationActivity extends AppCompatActivity {
         Call<MedicationFrequencyResponse> call = service.getMedicationFrequencies(TOKEN, ID_DROPDOWN);
         call.enqueue(new Callback<MedicationFrequencyResponse>() {
             @Override
-            public void onResponse(Call<MedicationFrequencyResponse> call, Response<MedicationFrequencyResponse> response) {
+            public void onResponse(@NonNull Call<MedicationFrequencyResponse> call, @NonNull Response<MedicationFrequencyResponse> response) {
                 if (response.isSuccessful()) {
 
                     //Use Map (frequency value, freq code)
@@ -434,9 +422,9 @@ public class AddMedicationActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<MedicationFrequencyResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<MedicationFrequencyResponse> call, @NonNull Throwable t) {
                 // Handle API call failure
-                Toast.makeText(getApplicationContext(), "Please try again", Toast.LENGTH_SHORT).show();
+                snackBarMethod("Please try Again.."); //snak bar method
                 Log.d(TAG, "textInputLayoutDropdownMethod: " + t.getLocalizedMessage());
             }
         });
@@ -448,33 +436,28 @@ public class AddMedicationActivity extends AppCompatActivity {
     private void collectDateToSaveMethod() {
 
         //recorded date and time
-        recordDateTimeInput.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        recordDateTimeInput.setOnClickListener(view -> {
 
-                //Date picker Dialog Fragment
-                popDateTimePicker(recordDateTimeInput);
+            //Date picker Dialog Fragment
+            popDateTimePicker(recordDateTimeInput);
 
-            }
         });
         recordDateTimeInput.setLongClickable(false);
         recordDateTimeInput.setTextIsSelectable(false);
 
 
         //end date and time
-        endDateTimeInput.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        endDateTimeInput.setOnClickListener(view -> {
 
-                //Date picker dialog fragment
-                popDateTimePicker(endDateTimeInput);
+            //Date picker dialog fragment
+            popDateTimePicker(endDateTimeInput);
 
-            }
         });
         endDateTimeInput.setLongClickable(false);
         endDateTimeInput.setTextIsSelectable(false);
     }
 
+    //M3 Date picker Dialog Fragment
     private void popDateTimePicker(TextInputEditText textInputEditText) {
         CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
         constraintsBuilder.setValidator(DateValidatorPointBackward.now());
@@ -486,16 +469,13 @@ public class AddMedicationActivity extends AppCompatActivity {
                 .setCalendarConstraints(constraintsBuilder.build()) // Set calendar constraints
                 .build();
 
-        materialDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
-            @Override
-            public void onPositiveButtonClick(Long selection) {
+        materialDatePicker.addOnPositiveButtonClickListener(selection -> {
 
-                mDateInput = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
+            mDateInput = new SimpleDateFormat("MM-dd-yyyy", Locale.getDefault()).format(new Date(selection));
 //                textInputEditText.setText(mDateInput + " " + onlyTime);
 
-                //M3 time picker dialog
-                popTimePicker(textInputEditText);
-            }
+            //M3 time picker dialog
+            popTimePicker(textInputEditText);
         });
         materialDatePicker.show(getSupportFragmentManager(), "Healthcare");
     }
@@ -520,7 +500,7 @@ public class AddMedicationActivity extends AppCompatActivity {
         //Retrofit call
         call.enqueue(new Callback<MedicineNameApiResponse>() {
             @Override
-            public void onResponse(Call<MedicineNameApiResponse> call, Response<MedicineNameApiResponse> response) {
+            public void onResponse(@NonNull Call<MedicineNameApiResponse> call, @NonNull Response<MedicineNameApiResponse> response) {
                 if (response.isSuccessful()) {
 
                     //list to save medicines
@@ -533,9 +513,7 @@ public class AddMedicationActivity extends AppCompatActivity {
                         String medicineNameFirst = medicine.getProprietaryNameWithDosage();
                         String medicineNameSecond = medicine.getNonProprietaryNameWithDosage();
                         String medicineName = medicineNameFirst + " " + medicineNameSecond;
-//                        Log.d(TAG, "medicineNameFirst: " + medicineNameFirst);
-//                        Log.d(TAG, "medicineNameSecond: " + medicineNameSecond);
-                        if (medicineName != null && !medicineName.isEmpty()) {
+                        if (!(medicineName == null || medicineName.isEmpty())) {
                             medicineNames.add(medicineName);
                         }
                     }
@@ -545,26 +523,21 @@ public class AddMedicationActivity extends AppCompatActivity {
                     medicineNameInput.setAdapter(adapter);
 
                     //Set dropdown item click Listener
-                    medicineNameInput.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Medicine selectedMedicine = medicines.get(position);
+                    medicineNameInput.setOnItemClickListener(
+                            (parent, view, position, id) -> {
+                                Medicine selectedMedicine = medicines.get(position);
 
-                            //  get these values from PojoClass and set to String
-                            proprietaryNameWithDosage = selectedMedicine.getProprietaryNameWithDosage();
-                            nonProprietaryNameWithDosage = selectedMedicine.getNonProprietaryNameWithDosage();
-                            mediProprietaryName = selectedMedicine.getMediProprietaryName();
-                            mediProdId = selectedMedicine.getMediProdId();
-//                            Log.d(TAG, "medicineNameFirst: " + proprietaryNameWithDosage);
-//                            Log.d(TAG, "medicineNameSecond: " + nonProprietaryNameWithDosage);
-
-                        }
-                    });
+                                //  get these values from PojoClass and set to String
+                                proprietaryNameWithDosage = selectedMedicine.getProprietaryNameWithDosage();
+                                nonProprietaryNameWithDosage = selectedMedicine.getNonProprietaryNameWithDosage();
+                                mediProprietaryName = selectedMedicine.getMediProprietaryName();
+                                mediProdId = selectedMedicine.getMediProdId();
+                            });
                 }
             }
 
             @Override
-            public void onFailure(Call<MedicineNameApiResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<MedicineNameApiResponse> call, @NonNull Throwable t) {
                 // Handle Retrofit call failure
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
             }
@@ -573,7 +546,7 @@ public class AddMedicationActivity extends AppCompatActivity {
 
     }
 
-
+    //autocomplete list view in medications search field
     private void AutocompleteMedicineMethod() {
         // Set up a TextWatcher
         medicineNameInput.addTextChangedListener(new TextWatcher() {
@@ -623,130 +596,127 @@ public class AddMedicationActivity extends AppCompatActivity {
     //Submit Button Method
     private void submitButtonIntentMethod() {
 
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        submitButton.setOnClickListener(view -> {
 
 
-                //get Values for save
-                String medName = Objects.requireNonNull(medicineNameInput.getText()).toString().trim();
-                Integer quantity = null;
-                String quantityString = Objects.requireNonNull(medicineQuantityInput.getText()).toString();
-                if (!quantityString.isEmpty()) {
-                    quantity = Integer.parseInt(quantityString);
-                }
-                String endDate = mDateInput;
-                String notes = Objects.requireNonNull(notesInput.getText()).toString().trim();
+            //get Values for save
+            String medName = Objects.requireNonNull(medicineNameInput.getText()).toString().trim();
+            Integer quantity = null;
+            String quantityString = Objects.requireNonNull(medicineQuantityInput.getText()).toString();
+            if (!quantityString.isEmpty()) {
+                quantity = Integer.parseInt(quantityString);
+            }
+            String endDate = mDateInput;
+            String notes = Objects.requireNonNull(notesInput.getText()).toString().trim();
 
-                medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
-                medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
-                medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
-
-
-                //submit validation
-                if (medName.trim().isEmpty()) {
-                    textInputLayout3.setError("Medicine Name is Required");
-                } else if (TextUtils.isEmpty(medicineFrequencyInput.getText().toString().trim())) {
-                    textInputLayout4.setError("Frequency is Required");
-                } else if (quantity == null || quantity < 0) {
-                    textInputLayout5.setError("Quantity is Required");
-                } else {
-
-                    //animation loading start here
-                    animationLoading.startLoadingDialogLoginActivity();
-
-                    Log.d(TAG, "onClick: " + medName);
-                    Log.d(TAG, "onClick: " + quantity);
-                    Log.d(TAG, "onClick: " + mFrequencyInput);
-                    Log.d(TAG, "onClick: " + endDate);
-                    Log.d(TAG, "onClick: " + notes);
-                    Log.d(TAG, "-----------------------------: ");
-                    Log.d(TAG, "mediProdId: " + mediProdId);
-                    Log.d(TAG, "FREQUENCY_CODE: " + FREQUENCY_CODE);
+            medicineFrequencyInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout4));
+            medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
+            medicineQuantityInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout5));
 
 
-                    //medication validation method here
-                    isSavedForBackPress = true;
-                    medicationValidationMethod();
-                }
+            //submit validation
+            if (medName.trim().isEmpty()) {
+                textInputLayout3.setError("Medicine Name is Required");
+            } else if (TextUtils.isEmpty(medicineFrequencyInput.getText().toString().trim())) {
+                textInputLayout4.setError("Frequency is Required");
+            } else if (quantity == null || quantity < 0) {
+                textInputLayout5.setError("Quantity is Required");
+            } else {
 
+                //animation loading start here
+                animationLoading.startLoadingDialogLoginActivity();
+
+                Log.d(TAG, "onClick: " + medName);
+                Log.d(TAG, "onClick: " + quantity);
+                Log.d(TAG, "onClick: " + mFrequencyInput);
+                Log.d(TAG, "onClick: " + endDate);
+                Log.d(TAG, "onClick: " + notes);
+                Log.d(TAG, "-----------------------------: ");
+                Log.d(TAG, "mediProdId: " + mediProdId);
+                Log.d(TAG, "FREQUENCY_CODE: " + FREQUENCY_CODE);
+
+
+                //medication validation method here
+                isSavedForBackPress = true;
+                medicationValidationMethod();
             }
 
+        });
+    }
 
-            //Method to Validate the medication here
-            private void medicationValidationMethod() {
+    //Method to Validate the medication here
+    private void medicationValidationMethod() {
 
-                //RetroFit Setup
-                ValidationApiService validationApiService = ApiClient.getWebClient().create(ValidationApiService.class);
+        //RetroFit Setup
+        ValidationApiService validationApiService = ApiClient.getWebClient().create(ValidationApiService.class);
 
-                ValidationApiRequest validationApiRequest = new ValidationApiRequest();
-                validationApiRequest.setPatientId(PATIENT_ID);
+        ValidationApiRequest validationApiRequest = new ValidationApiRequest();
+        validationApiRequest.setPatientId(PATIENT_ID);
 
-                if (IS_EDIT) {
-                    validationApiRequest.setMedicationId(MEDICTION_ID);
-                    Log.d(TAG, "MEDICTION_ID: " + MEDICTION_ID);
-                } else {
-                    validationApiRequest.setMedicationId(null);
-                    Log.d(TAG, "MEDICTION_ID: is null");
-                }
+        if (IS_EDIT) {
+            validationApiRequest.setMedicationId(MEDICTION_ID);
+            Log.d(TAG, "MEDICTION_ID: " + MEDICTION_ID);
+        } else {
+            validationApiRequest.setMedicationId(null);
+            Log.d(TAG, "MEDICTION_ID: is null");
+        }
 
-                validationApiRequest.setCareplanId(CAREPLAN_ID);
-                validationApiRequest.setName(medicineNameInput.getText().toString());
-                validationApiRequest.setEffectiveDate(Objects.requireNonNull(recordDateTimeInput.getText()).toString());
-                validationApiRequest.setLastEffectiveDate(endDateTimeInput.getText().toString());
+        validationApiRequest.setCareplanId(CAREPLAN_ID);
+        validationApiRequest.setName(medicineNameInput.getText().toString());
+        validationApiRequest.setEffectiveDate(Objects.requireNonNull(recordDateTimeInput.getText()).toString());
+        validationApiRequest.setLastEffectiveDate(endDateTimeInput.getText().toString());
 
 
-                Log.d(TAG, "PATIENT_ID: " + PATIENT_ID);
-                Log.d(TAG, "CAREPLAN_ID: " + CAREPLAN_ID);
-                Log.d(TAG, "Med Name: " + medicineNameInput.getText().toString());
-                Log.d(TAG, "Med Freqency: " + medicineFrequencyInput.getText().toString());
-                Log.d(TAG, "Med Quantity: " + Objects.requireNonNull(medicineQuantityInput.getText()).toString());
-                Log.d(TAG, "Record date and time: " + Objects.requireNonNull(recordDateTimeInput.getText()).toString());
-                Log.d(TAG, "end date and time: " + Objects.requireNonNull(endDateTimeInput.getText()).toString());
-                Log.d(TAG, "Notes: " + Objects.requireNonNull(notesInput.getText()).toString());
+        Log.d(TAG, "PATIENT_ID: " + PATIENT_ID);
+        Log.d(TAG, "CAREPLAN_ID: " + CAREPLAN_ID);
+        Log.d(TAG, "Med Name: " + medicineNameInput.getText().toString());
+        Log.d(TAG, "Med Freqency: " + medicineFrequencyInput.getText().toString());
+        Log.d(TAG, "Med Quantity: " + Objects.requireNonNull(medicineQuantityInput.getText()));
+        Log.d(TAG, "Record date and time: " + Objects.requireNonNull(recordDateTimeInput.getText()));
+        Log.d(TAG, "end date and time: " + Objects.requireNonNull(endDateTimeInput.getText()));
+        Log.d(TAG, "Notes: " + Objects.requireNonNull(notesInput.getText()));
 
                 /* Below code for Retrofit call
                        params1 - X-Auth-Token
                        params2 - ValidationApiRequest
                 */
-                Call<ResponseBody> call = validationApiService.sendDatatoValidation(TOKEN, validationApiRequest);
-                call.enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                        ResponseBody responseBody = response.body();
-                        if (responseBody != null) {
-                            try {
-                                String responseBodyString = responseBody.string();
-                                Log.d(TAG, "Response Body: " + responseBodyString);
-                                Log.d(TAG, "Response Code: " + response.code());
+        Call<ResponseBody> call = validationApiService.sendDatatoValidation(TOKEN, validationApiRequest);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                ResponseBody responseBody = response.body();
+                if (responseBody != null) {
+                    try {
+                        String responseBodyString = responseBody.string();
+                        Log.d(TAG, "Response Body: " + responseBodyString);
+                        Log.d(TAG, "Response Code: " + response.code());
 
-                                // Display responseBodyString in a Snackbar
-                                if (responseBodyString.equals("true")) {
-                                    //Medications Save Api Method
-                                    medicationsSaveApiMethod();
-                                } else {
-                                    animationLoading.dismissLoadingDialog(); //dismiss the loader
-                                    Snackbar.make(submitButton, responseBodyString, Snackbar.LENGTH_LONG).show();
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                        // Display responseBodyString in a Snackbar
+                        if (responseBodyString.equals("true")) {
+                            //Medications Save Api Method
+                            medicationsSaveApiMethod();
                         } else {
-                            // Request failed
-                            Log.d(TAG, "onResponse: else working " + response.code());
+                            animationLoading.dismissLoadingDialog(); //dismiss the loader
+                            snackBarMethod(responseBodyString); //snak bar method
+
                         }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+                } else {
+                    // Request failed
+                    Log.d(TAG, "onResponse: else working " + response.code());
+                }
+            }
 
-                    @Override
-                    public void onFailure(Call<ResponseBody> call, Throwable t) {
-                        //Handle Retrofit Call Failure
-                        Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
-                    }
-                });
-
-
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                //Handle Retrofit Call Failure
+                Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
             }
         });
+
+
     }
 
 
@@ -796,7 +766,7 @@ public class AddMedicationActivity extends AppCompatActivity {
         Call<SaveApiResponse> call = saveApiService.sendDatatoDatabase(TOKEN, saveApiRequest);
         call.enqueue(new Callback<SaveApiResponse>() {
             @Override
-            public void onResponse(Call<SaveApiResponse> call, Response<SaveApiResponse> response) {
+            public void onResponse(@NonNull Call<SaveApiResponse> call, @NonNull Response<SaveApiResponse> response) {
                 if (response.isSuccessful()) {
                     Log.d(TAG, "onResponse: " + response.code());
                     SaveApiResponse saveApiResponse = response.body();
@@ -814,11 +784,12 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
                                     ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
                                 }
-                                Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
+                                snackBarMethod("Updated Sucessfully.."); //snak bar method
+
                                 remainderList.clear();
 
                             } else {
-                                Toast.makeText(getApplicationContext(), "Updated Sucessfully", Toast.LENGTH_SHORT).show();
+                                snackBarMethod("Updated Sucessfully.."); //snak bar method
                             }
                             IS_EDIT = false;
 
@@ -835,17 +806,18 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
                                     ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
                                 }
-                                Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();
+                                snackBarMethod("Saved Sucessfully.."); //snak bar method
+
 
                             } else {
-                                Toast.makeText(getApplicationContext(), "Saved Sucessfully", Toast.LENGTH_SHORT).show();
+                                snackBarMethod("Saved Sucessfully.."); //snak bar method
                             }
                         }
 
                         isSavedForBackPress = true;
                         onBackPressed(); // navigation to previous page
                     } else {
-                        Toast.makeText(getApplicationContext(), "Saved Unsucessfully", Toast.LENGTH_SHORT).show();
+                        snackBarMethod("Saved Unsucessfully.."); //snak bar method
                     }
                 } else {
                     Log.d(TAG, "onResponse: else" + response.code());
@@ -853,7 +825,7 @@ public class AddMedicationActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<SaveApiResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<SaveApiResponse> call, @NonNull Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
             }
         });
@@ -873,7 +845,8 @@ public class AddMedicationActivity extends AppCompatActivity {
     }
 
 
-    //this method for TimePickerDialog
+    //this method for M3 TimePickerDialog
+    @SuppressLint("SetTextI18n")
     private void popTimePicker(TextInputEditText textInputEditText) {
         final Calendar calendar = Calendar.getInstance();   //get calender
 
@@ -888,32 +861,24 @@ public class AddMedicationActivity extends AppCompatActivity {
                 .build();
         picker.show(getSupportFragmentManager(), "Healthcare");
 
-        picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calendar.set(Calendar.HOUR_OF_DAY, picker.getHour());
-                calendar.set(Calendar.MINUTE, picker.getMinute());
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
+        picker.addOnPositiveButtonClickListener(v -> {
+            calendar.set(Calendar.HOUR_OF_DAY, picker.getHour());
+            calendar.set(Calendar.MINUTE, picker.getMinute());
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
 
-                SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
-                onlyTime = timeFormat.format(calendar.getTime());
-                textInputEditText.setText(mDateInput + " " + onlyTime);
+            SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+            onlyTime = timeFormat.format(calendar.getTime());
+            textInputEditText.setText(mDateInput + " " + onlyTime);
 
 //                if (selectedTime.after(Calendar.getInstance())) {
 //                    // The selected time is in the future
 //                } else {
 //                    Toast.makeText(getApplicationContext(), "Please select valid time ", Toast.LENGTH_SHORT).show();
 //                }
-            }
         });
 
-        picker.addOnNegativeButtonClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                textInputEditText.setText("");
-            }
-        });
+        picker.addOnNegativeButtonClickListener(v -> textInputEditText.setText(""));
     }
 
 
@@ -932,6 +897,7 @@ public class AddMedicationActivity extends AppCompatActivity {
     }
 
     //Custom Dialog
+    @SuppressLint("SetTextI18n")
     private void showCustomDialogBox(String message) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -958,5 +924,9 @@ public class AddMedicationActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    //common snack bar for this fragment
+    private void snackBarMethod(String message) {
+        Snackbar.make(getCurrentFocus(),message,Snackbar.LENGTH_SHORT).show();
+    }
 
 }

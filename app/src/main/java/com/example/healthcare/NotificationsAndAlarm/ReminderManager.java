@@ -1,13 +1,13 @@
 package com.example.healthcare.NotificationsAndAlarm;
 
-import static com.example.healthcare.BottomSheetDialog.MyBottomSheetDialogFragment.TAG;
+
+import static com.example.healthcare.MainActivity.TAG;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 

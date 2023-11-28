@@ -40,9 +40,9 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:fillViewport="true"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar">
+        android:layout_below="@id/toolbar"
+        android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
 
@@ -53,15 +53,14 @@
                 android:id="@+id/remainderCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="20dp"
+                android:visibility="gone"
                 app:cardCornerRadius="10dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout7">
+                app:layout_constraintEnd_toEndOf="@+id/textInputLayout4"
+                app:layout_constraintStart_toStartOf="@+id/textInputLayout4"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout4">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -85,8 +84,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="5dp"
                         android:layout_marginTop="10dp"
-                        android:textSize="16sp"
                         android:hint="@string/daily_remainder"
+                        android:textSize="16sp"
                         app:layout_constraintStart_toEndOf="@+id/imageView2"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -95,8 +94,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="10dp"
-                        android:visibility="invisible"
                         android:text="Clear"
+                        android:visibility="invisible"
                         app:layout_constraintBottom_toBottomOf="@+id/textView9"
                         app:layout_constraintStart_toEndOf="@+id/textView9"
                         app:layout_constraintTop_toTopOf="@+id/textView9" />
@@ -264,9 +263,9 @@
                 android:layout_marginEnd="20dp"
                 android:focusable="false"
                 app:hintEnabled="false"
-                app:layout_constraintEnd_toEndOf="@+id/textInputLayout4"
-                app:layout_constraintStart_toStartOf="@+id/textInputLayout4"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout4"
+                app:layout_constraintEnd_toEndOf="@+id/remainderCardView"
+                app:layout_constraintStart_toStartOf="@+id/remainderCardView"
+                app:layout_constraintTop_toBottomOf="@+id/remainderCardView"
                 app:startIconDrawable="@drawable/baseline_scale_24">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -307,25 +306,25 @@
                 style="@style/TEXTINPUTLAYOUT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:startIconDrawable="@drawable/baseline_medical_services_24"
                 android:layout_marginStart="20dp"
-                app:hintEnabled="false"
-                app:endIconMode="clear_text"
                 android:layout_marginTop="15dp"
-                android:focusable="false"
                 android:layout_marginEnd="20dp"
+                android:focusable="false"
+                app:endIconMode="clear_text"
                 app:helperTextTextColor="@color/red"
+                app:hintEnabled="false"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:startIconDrawable="@drawable/baseline_medical_services_24">
 
                 <AutoCompleteTextView
                     android:id="@+id/medicineNameInput"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:paddingStart="10dp"
                     android:hint="@string/enter_medicine_name"
                     android:inputType="textAutoComplete"
+                    android:paddingStart="10dp"
                     tools:ignore="RtlSymmetry,VisualLintTextFieldSize" />
 
 
@@ -340,9 +339,9 @@
                 android:layout_marginEnd="60dp"
                 android:text="@string/submit"
                 app:cornerRadius="10dp"
-                app:layout_constraintEnd_toEndOf="@+id/remainderCardView"
-                app:layout_constraintStart_toStartOf="@+id/remainderCardView"
-                app:layout_constraintTop_toBottomOf="@+id/remainderCardView"
+                app:layout_constraintEnd_toEndOf="@+id/textInputLayout7"
+                app:layout_constraintStart_toStartOf="@+id/textInputLayout7"
+                app:layout_constraintTop_toBottomOf="@+id/textInputLayout7"
                 tools:ignore="TextContrastCheck,VisualLintButtonSize" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

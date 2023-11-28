@@ -37,13 +37,11 @@ import com.example.healthcare.R;
 
 public class ReminderWorker extends Worker {
 
-    private static final int POST_NOTIFICATIONS_PERMISSION_REQUEST_CODE = 0604;
+    Context context;
     public static final String CHANNEL_ID = "Healthcare";
-    public static final String ACTION_START_FOREGROUND_SERVICE = "ACTION_START_FOREGROUND_SERVICE";
     public static final String NOTIFICATION = "com.example.healthcare.NOTIFICATION";
     public static final String NOTIFICATION_ID = "com.example.healthcare.NOTIFICATION_ID";
 
-    Context context;
 
 
     public ReminderWorker(@NonNull Context context, @NonNull WorkerParameters params) {

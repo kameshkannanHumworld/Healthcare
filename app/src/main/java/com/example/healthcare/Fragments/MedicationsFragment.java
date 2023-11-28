@@ -5,11 +5,11 @@ import static com.example.healthcare.AddMedicationActivity.ID_DROPDOWN;
 import static com.example.healthcare.AddMedicationActivity.IS_EDIT;
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
 import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
+import static com.example.healthcare.MainActivity.TAG;
 import static com.example.healthcare.MainActivity.TOKEN;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -50,6 +49,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import retrofit2.Call;
@@ -58,48 +58,24 @@ import retrofit2.Response;
 
 public class MedicationsFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private final String TAG = "TAGi";
-
-    private String mParam1;
-    private String mParam2;
-
-    List<ViewMedicationData> medicationList;
+    //classes
     ViewMedicationData viewMedicationData;
-
-    RecyclerView recyclerMedications;
     MedicationAdapter medicationAdapter;
-    SwipeRefreshLayout swipeRefreshLayout;
-    TextView noMedicationsTextView;
+
+    //datatypes
+    List<ViewMedicationData> medicationList;
     public static Integer RECYCLER_POSITION_MEDICATION;
 
-    public MedicationsFragment() {
-        // Required empty public constructor
-    }
 
-    public static MedicationsFragment newInstance(String param1, String param2) {
-        MedicationsFragment fragment = new MedicationsFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
+    //UI views
+    RecyclerView recyclerMedications;
+    SwipeRefreshLayout swipeRefreshLayout;
+    TextView noMedicationsTextView;
 
     @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_medications, container, false);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
@@ -115,20 +91,16 @@ public class MedicationsFragment extends Fragment {
         updateRecyclerViewMethod(view);
 
         //Item Touch Helper
-        itemTouchHelperMethod(view);
-
-        // Fetch data from API
-//        fetchDataFromAPI();
+        itemTouchHelperMethod();
 
         //swipe refresh layout
-        swipeRefreshLayoutMethod(view);
-
+        swipeRefreshLayoutMethod();
 
         return view;
     }
 
     //method for swipe left,right
-    private void itemTouchHelperMethod(View view) {
+    private void itemTouchHelperMethod() {
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
@@ -140,11 +112,11 @@ public class MedicationsFragment extends Fragment {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                final int position = viewHolder.getAdapterPosition();
+                final int position = viewHolder.getBindingAdapterPosition();
                 if (direction == ItemTouchHelper.LEFT) { // From left to right swipe
 
                     //ask confirmation before delete
-                    deleteConfirmationDialogMethod(requireContext(), position);
+                    deleteConfirmationDialogMethod(position);
                 }
 
                 if (direction == ItemTouchHelper.RIGHT) { // From right to left swipe
@@ -187,13 +159,14 @@ public class MedicationsFragment extends Fragment {
     }
 
     //method ask confirmation before delete , when swipe right to left
-    public void deleteConfirmationDialogMethod(Context context, int position) {
+    @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
+    public void deleteConfirmationDialogMethod(int position) {
 
         final Dialog dialog = new Dialog(requireContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.custom_dialog_layout);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         TextView tvMessage = dialog.findViewById(R.id.tvMessage);
         Button btnYes = dialog.findViewById(R.id.btnYes);
@@ -277,10 +250,9 @@ public class MedicationsFragment extends Fragment {
         Call<DeleteApiResponse> call = service.deleteMedications(TOKEN, deleteApiRequest);
         call.enqueue(new Callback<DeleteApiResponse>() {
             @Override
-            public void onResponse(Call<DeleteApiResponse> call, Response<DeleteApiResponse> response) {
+            public void onResponse(@NonNull Call<DeleteApiResponse> call, @NonNull Response<DeleteApiResponse> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(requireContext(), "Deleted Sucessfully", Toast.LENGTH_SHORT).show();
-
+                    snackBarMethod("Deleted Sucessfully");
                     //refresh
                     medicationList.remove(position);
                     medicationAdapter.notifyItemRemoved(position);
@@ -300,12 +272,12 @@ public class MedicationsFragment extends Fragment {
 
                     swipeRefreshLayout.setRefreshing(false);
                 } else {
-                    Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_SHORT).show();
+                    snackBarMethod("Please Try Again..");
                 }
             }
 
             @Override
-            public void onFailure(Call<DeleteApiResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<DeleteApiResponse> call, @NonNull Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
             }
         });
@@ -313,12 +285,9 @@ public class MedicationsFragment extends Fragment {
 
     }
 
-    //method to undo the delete the medicine
-    private void undoMethodHere() {
-        Snackbar.make(recyclerMedications, "Item deleted", Snackbar.LENGTH_LONG)
-                .setAction("Undo", view -> {
-                    Toast.makeText(requireContext(), "Undo worked", Toast.LENGTH_SHORT).show();
-                }).show();
+    //common snack bar for this fragment
+    private void snackBarMethod(String message) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show();
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -334,7 +303,7 @@ public class MedicationsFragment extends Fragment {
 
     //swipe to refresh the Medicine changes in layout
     @SuppressLint("NotifyDataSetChanged")
-    private void swipeRefreshLayoutMethod(View view) {
+    private void swipeRefreshLayoutMethod() {
         Log.d(TAG, "swipeRefreshLayoutMethod: ");
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
@@ -354,12 +323,15 @@ public class MedicationsFragment extends Fragment {
 
         //retrofit call
         call.enqueue(new Callback<ViewMedicationResponse>() {
-            @SuppressLint("NotifyDataSetChanged")
+            @SuppressLint({"NotifyDataSetChanged", "SetTextI18n"})
             @Override
-            public void onResponse(Call<ViewMedicationResponse> call, Response<ViewMedicationResponse> response) {
+            public void onResponse(@NonNull Call<ViewMedicationResponse> call, @NonNull Response<ViewMedicationResponse> response) {
                 ViewMedicationResponse responseBody = response.body();
                 if (responseBody != null) {
-                    List<ViewMedicationData> dataList = response.body().getData();
+                    List<ViewMedicationData> dataList = null;
+                    if (response.body() != null) {
+                        dataList = response.body().getData();
+                    }
                     if (dataList != null) {
                         Log.d(TAG, "onResponse: " + response.code());
                         medicationList.addAll(dataList);
@@ -386,8 +358,9 @@ public class MedicationsFragment extends Fragment {
                 }
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
-            public void onFailure(Call<ViewMedicationResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<ViewMedicationResponse> call, @NonNull Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
                 recyclerMedications.setVisibility(View.GONE);
                 noMedicationsTextView.setVisibility(View.VISIBLE);
@@ -402,17 +375,13 @@ public class MedicationsFragment extends Fragment {
         recyclerMedications.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
         medicationAdapter = new MedicationAdapter(requireContext(), medicationList, medicineClickInterfaceMethod);
         recyclerMedications.setAdapter(medicationAdapter);
-
-
     }
 
     //floating Action Button Method
     private void floatingActionButtonMethod(View view) {
         FloatingActionButton fab = view.findViewById(R.id.fabMedicalFragment);
-        fab.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), AddMedicationActivity.class));
-        });
-        fab.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        fab.setOnClickListener(v -> startActivity(new Intent(requireContext(), AddMedicationActivity.class)));
+        fab.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.white)));
     }
 
     //Interface for medicine click listener in recycler view

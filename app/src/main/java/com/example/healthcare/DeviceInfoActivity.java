@@ -1,6 +1,8 @@
 package com.example.healthcare;
 
-import static com.example.healthcare.BleDevices.BloodGlucometer.*;
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_DEVICE_NAME;
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_RESULT;
+import static com.example.healthcare.BleDevices.BloodGlucometer.BLOOD_GLUCOMETER_RESULT_VALUE;
 import static com.example.healthcare.BleDevices.ECGMeter.ECG_DEVICE_NAME;
 import static com.example.healthcare.BleDevices.UrionBp.DEVICE_INFO_CLASS_SET_TEXT;
 import static com.example.healthcare.BleDevices.UrionBp.URION_BP_DEVICE_ERROR_MESSAGES;
@@ -13,6 +15,7 @@ import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_IS_CONN
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_READING;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.deviceConnected;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.disconnectAllDevices;
+import static com.example.healthcare.MainActivity.TAG;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -27,7 +30,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,14 +44,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 
 public class DeviceInfoActivity extends AppCompatActivity {
-    public static boolean isDeviceInfoActivityRunning = false;
-    private static final String TAG = "TAGi";
-    private boolean hasAlertDialogShown = false;
-    private boolean isExitForBackPress = false;
-
-    private ProgressBar circularProgressBarBloodGlucometer, circularProgressBarWeightScale, circularProgressBarBloodPressure;
+    
+    //UI views
     ImageView backButton;
-    String deviceName;
     CardView systolicDiastolicLayout;
     public LinearLayout linearLayoutUrionBp, linearLayoutWeightScale, linearLayoutBloodGlucometer, linearLayoutEcgMeter, messageResultLayout, scanlottieLayout;
     TextView isConnectedTextView;
@@ -59,20 +56,23 @@ public class DeviceInfoActivity extends AppCompatActivity {
     TextView ecgReadings;
     TextView resultTextViewForMessage;
     private LottieAnimationView deviceInfoScanLottie;
-    private BluetoothScanner bluetoothScanner;
     private Context context;
-
-
+    
+    //Datatypes
+    String deviceName;
+    public static boolean isDeviceInfoActivityRunning = false;
+    private boolean hasAlertDialogShown = false;
     public static Boolean WEIGHT_SCALE_READING_ALERT_SUCESSFULL = false;
     public static Boolean BLOOD_GLUCOMETER_READING_ALERT_SUCESSFULL = false;
     public static Boolean BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
     public static Boolean BLOOD_PRESSURE_READING_ALERT_ERROR = false;
     public static Boolean BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
-    public static Boolean ECG_READING_ALERT_SUCESSFULL = false;
 
-
+    //Classes
+    private BluetoothScanner bluetoothScanner;
     private final Handler mHandler = new Handler();
 
+    //background refresh 
     private final Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
@@ -114,33 +114,31 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         //device not found - snackbar
         context = this;
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (!deviceConnected) {
-                    View view = findViewById(android.R.id.content);
-                    if (view != null) {
-                        scanlottieLayout.setVisibility(View.GONE);
-                        Snackbar.make(view, "Device Not Found, Please try again..", Snackbar.LENGTH_SHORT)
-                                .setAction("Retry", v -> {
-                                    bluetoothScanner = new BluetoothScanner(deviceName, context);
-                                    bluetoothScanner.startScan();
-                                    scanlottieLayout.setVisibility(View.VISIBLE);
-                                })
-                                .setDuration(5000)
-                                .show();
-                    }
+        new Handler().postDelayed(() -> {
+            if (!deviceConnected) {
+                View view = findViewById(android.R.id.content);
+                if (view != null) {
+                    scanlottieLayout.setVisibility(View.GONE);
+                    Snackbar.make(view, "Device Not Found, Please try again..", Snackbar.LENGTH_SHORT)
+                            .setAction("Retry", v -> {
+                                bluetoothScanner = new BluetoothScanner(deviceName, context);
+                                bluetoothScanner.startScan();
+                                scanlottieLayout.setVisibility(View.VISIBLE);
+                            })
+                            .setDuration(5000)
+                            .show();
                 }
             }
         }, 30000);
 
 
         //back Button Method
-        backButtonConfirmationDialogMethod(this);
+        backButtonConfirmationDialogMethod();
 
     }
 
 
+    //this method will refresh every 500 milliseconds
     @SuppressLint("SetTextI18n")
     private void refresh() {
         if (deviceName != null) {
@@ -171,14 +169,15 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         if (deviceConnected) {
             isConnectedTextView.setText("Connected");
-            isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.green));
 
             //logic here
 
 
         } else {
             isConnectedTextView.setText("Not Connected");
-            isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.red));
         }
     }
 
@@ -218,7 +217,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             }
         } else {
             isConnectedTextView.setText("Not Connected");
-            isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.red));
 
             deviceInfoScanLottie.setVisibility(View.VISIBLE);
             linearLayoutBloodGlucometer.setVisibility(View.GONE);
@@ -240,7 +239,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             linearLayoutWeightScale.setVisibility(View.VISIBLE);
 
             isConnectedTextView.setText("Connected");
-            isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.green));
 
             if (WEIGHT_SCALE_READING != null) {
                 String floatConversionReading = String.valueOf(WEIGHT_SCALE_READING);
@@ -257,7 +256,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             }
         } else {
             isConnectedTextView.setText("Not Connected");
-            isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.red));
 
             deviceInfoScanLottie.setVisibility(View.VISIBLE);
             linearLayoutWeightScale.setVisibility(View.GONE);
@@ -278,7 +277,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             systolicDiastolicLayout.setVisibility(View.VISIBLE);
 
             isConnectedTextView.setText("Connected");
-            isConnectedTextView.setTextColor(getResources().getColor(R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.green));
 
             //logic
             resultTextViewForMessage.setText(DEVICE_INFO_CLASS_SET_TEXT);
@@ -314,7 +313,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             }
         } else {
             isConnectedTextView.setText("Not Connected");
-            isConnectedTextView.setTextColor(getResources().getColor(R.color.red));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.red));
 
             deviceInfoScanLottie.setVisibility(View.VISIBLE);
             messageResultLayout.setVisibility(View.GONE);
@@ -325,7 +324,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
     }
 
-
+    //Assign ID for the UI views
     private void idAssignHere() {
         deviceInfoScanLottie = findViewById(R.id.deviceInfoScanLottie);
         systolicReadingTextView = findViewById(R.id.systolicReading);
@@ -347,12 +346,9 @@ public class DeviceInfoActivity extends AppCompatActivity {
         messageResultLayout = findViewById(R.id.messageResultLayout);
         systolicDiastolicLayout = findViewById(R.id.systolicDiastolicLayout);
 
-        circularProgressBarBloodGlucometer = findViewById(R.id.circularProgressBarBloodGlucometer);
-        circularProgressBarWeightScale = findViewById(R.id.circularProgressBarWeightScale);
-        circularProgressBarBloodPressure = findViewById(R.id.circularProgressBarBloodPressure);
-
     }
 
+    //back button logic here
     private void backButtonMethod() {
 
         //below logic to turn off the BLE device
@@ -368,6 +364,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 //                if (deviceConnected) {
 //                    ecgDisconnectDeviceMethod();             //for ECG meter
 //                }
+                Log.e(TAG, "backButtonMethod ECG working" );
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
                 WEIGHT_SCALE_READING = null;
             } else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(deviceName)) {
@@ -385,10 +382,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
     }
 
     //method ask confirmation for exit , when Click back button
-    public void backButtonConfirmationDialogMethod(Context context) {
-        backButton.setOnClickListener(v -> {
-            showCustomDialogBox("Are you sure want to Exit?");
-        });
+    public void backButtonConfirmationDialogMethod() {
+        backButton.setOnClickListener(v -> showCustomDialogBox("Are you sure want to Exit?"));
     }
 
     @Override
@@ -443,6 +438,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
 
     // alert dialog here
+    @SuppressLint("SetTextI18n")
     private void alertDialogMethod(String message, String reading, String unit, boolean isError, int textSize) {
         if (!hasAlertDialogShown) {
             final Dialog dialog = new Dialog(this);
@@ -463,7 +459,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             if (isError) {
                 dialogHeader.setText("Failed");
                 readingConstraintLayout.setVisibility(View.GONE);
-                tvMessage.setTextColor(getResources().getColor(R.color.red));
+                tvMessage.setTextColor(ContextCompat.getColor(context,R.color.red));
             } else {
                 readingConstraintLayout.setVisibility(View.VISIBLE);
                 dialogHeader.setText("Sucess");
@@ -498,6 +494,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     }
 
     //Custom Dialog
+    @SuppressLint("SetTextI18n")
     private void showCustomDialogBox(String message) {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -524,6 +521,8 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
+
 }
 
 

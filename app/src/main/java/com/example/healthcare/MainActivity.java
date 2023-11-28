@@ -1,18 +1,14 @@
 package com.example.healthcare;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.example.healthcare.Animation.AnimationLoading;
 import com.example.healthcare.ApiClass.ApiClient;
@@ -22,8 +18,7 @@ import com.example.healthcare.LoginModule.UserService;
 import com.example.healthcare.LoginModule.UserServiceWeb;
 import com.example.healthcare.TextWatcher.AlphanumericTextWatcher;
 import com.example.healthcare.TextWatcher.ClearErrorTextWatcher;
-import com.example.healthcare.TextWatcher.PasswordTextWatcher;
-import com.example.healthcare.TextWatcher.UsernameTextWatcher;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -69,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     // Save the Username and Password using Shared Preference
+    @SuppressLint("SetTextI18n")
     private void sharedPreferenceMethod() {
         userNameInput.setText("test_supriyaa");
         passwordInput.setText("Humworld@1");
@@ -86,44 +81,38 @@ public class MainActivity extends AppCompatActivity {
 
     //login Button Intent Here
     private void intentMethods() {
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String name = Objects.requireNonNull(userNameInput.getText()).toString();
-                String password = Objects.requireNonNull(passwordInput.getText()).toString();
+        loginButton.setOnClickListener(view -> {
+            String name = Objects.requireNonNull(userNameInput.getText()).toString();
+            String password = Objects.requireNonNull(passwordInput.getText()).toString();
 
-                //set error null first
-                if (userNameInput == null && passwordInput == null) {
-                    usernameTextInputLayout.setError(null);
-                    passwordTextInputLayout.setError(null);
-                }
+            //set error null first
+            if (userNameInput == null && passwordInput == null) {
+                usernameTextInputLayout.setError(null);
+                passwordTextInputLayout.setError(null);
+            }
 
-                //check is required or not
-                if (name.equals("")) {
-                    usernameTextInputLayout.setError("Username is Required");
-                    userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));
-                } else if (password.equals("")) {
-                    passwordTextInputLayout.setError("Password is Required");
-                    passwordInput.addTextChangedListener(new ClearErrorTextWatcher(passwordTextInputLayout));
-                } else {
-                    assert userNameInput != null;
-                    userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));  //Clear the error
-                    passwordInput.addTextChangedListener(new ClearErrorTextWatcher(passwordTextInputLayout));  //Clear the error
+            //check is required or not
+            if (name.equals("")) {
+                usernameTextInputLayout.setError("Username is Required");
+                userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));
+            } else if (password.equals("")) {
+                passwordTextInputLayout.setError("Password is Required");
+                passwordInput.addTextChangedListener(new ClearErrorTextWatcher(passwordTextInputLayout));
+            } else {
+                assert userNameInput != null;
+                userNameInput.addTextChangedListener(new ClearErrorTextWatcher(usernameTextInputLayout));  //Clear the error
+                passwordInput.addTextChangedListener(new ClearErrorTextWatcher(passwordTextInputLayout));  //Clear the error
 
-                    //loading animation
-                    animationLoading.startLoadingDialogLoginActivity();
-                    Handler handler = new Handler();
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            //login credentials to database here
-                            //loginMethod(name, password);   //for mobdev base url
-                            loginMethodWeb(name, password);  // for web dev base url
-                        }
-                    };
-                    handler.postDelayed(runnable, 500);
+                //loading animation
+                animationLoading.startLoadingDialogLoginActivity();
+                Handler handler = new Handler();
+                Runnable runnable = () -> {
+                    //login credentials to database here
+                    //loginMethod(name, password);   //for mobdev base url
+                    loginMethodWeb(name, password);  // for web dev base url
+                };
+                handler.postDelayed(runnable, 500);
 
-                }
             }
         });
 
@@ -143,16 +132,16 @@ public class MainActivity extends AppCompatActivity {
         Call<LoginWebResponse> call = apiService.loginUser(name, password);
         call.enqueue(new Callback<LoginWebResponse>() {
             @Override
-            public void onResponse(Call<LoginWebResponse> call, Response<LoginWebResponse> response) {
+            public void onResponse(@NonNull Call<LoginWebResponse> call, @NonNull Response<LoginWebResponse> response) {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
                     LoginWebResponse loginWebResponse = response.body();
-                    Log.d(TAG, "Response: " + response.body().toString());
+                    Log.d(TAG, "Response: " + response.body());
 
                     //if Sucess message from Api, then it Intent to next Activity
                     if (Objects.equals(loginWebResponse.getStatus(), "success")) {
                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                        Toast.makeText(MainActivity.this, "Login Sucessfull", Toast.LENGTH_SHORT).show();
+                        snackBarMethod("Login Sucessfull..");
 
                         //Disable the Loader
                         animationLoading.dismissLoadingDialog();
@@ -175,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
                 } else {
                     //handle other unsucessfull login (Build)
-                    Toast.makeText(MainActivity.this, "Response Unsucessfull", Toast.LENGTH_SHORT).show();
+                    snackBarMethod("Response Unsucessfull..");
 
                     //Disable the Loader
                     animationLoading.dismissLoadingDialog();
@@ -187,10 +176,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<LoginWebResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<LoginWebResponse> call, @NonNull Throwable t) {
                 //Handle API doesn't call
                 Log.e(TAG, "Throwable: " + t.getMessage());
-                Toast.makeText(MainActivity.this, "Please Try Again", Toast.LENGTH_SHORT).show();
+                snackBarMethod("Please Try Again..");
                 startActivity(new Intent(getApplicationContext(), HomeActivity.class));
                 animationLoading.dismissLoadingDialog();
             }
@@ -213,12 +202,12 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     assert response.body() != null;
                     LoginResponse loginResponse = response.body();
-                    Log.d(TAG, "Response: " + response.body().toString());
+                    Log.d(TAG, "Response: " + response.body());
 
 
                     if (Objects.equals(loginResponse.getStatus(), "success")) {
                         startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                        Toast.makeText(MainActivity.this, "Login Sucessfull", Toast.LENGTH_SHORT).show();
+                        snackBarMethod("Login Sucessfull..");
                         Log.d(TAG, "Login response token: " + TOKEN);
 
 
@@ -226,12 +215,12 @@ public class MainActivity extends AppCompatActivity {
                         // Handle unsuccessful login
                         Log.e(TAG, "Error Response: " + response.code());
                         usernameTextInputLayout.setError("Invalid Credentials");
-                        Toast.makeText(getApplicationContext(), "Invalid Credentials", Toast.LENGTH_SHORT).show();
+                        snackBarMethod("Invalid Credentials..");
                     }
 
 
                 } else {
-                    Toast.makeText(MainActivity.this, "Response Unsucessfull", Toast.LENGTH_SHORT).show();
+                    snackBarMethod("Response Unsucessfull..");
                     Log.d(TAG, "onResponse: " + response.code());
                 }
             }
@@ -240,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
                 // Handle network failure
                 Log.e(TAG, "Throwable: " + t.getMessage());
-                Toast.makeText(MainActivity.this, "Login Failure", Toast.LENGTH_SHORT).show();
+                snackBarMethod("Login Failure..");
                 startActivity(new Intent(getApplicationContext(), HomeActivity.class));
             }
         });
@@ -259,6 +248,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         animationLoading.dismissLoadingDialog();
+    }
+
+    //common snack bar for this fragment
+    private void snackBarMethod(String message) {
+        Snackbar.make(getCurrentFocus(), message, Snackbar.LENGTH_SHORT).show();
     }
 
 

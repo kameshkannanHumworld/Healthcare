@@ -6,6 +6,7 @@ import static com.example.healthcare.BleDevices.UrionBp.*;
 import static com.example.healthcare.BleDevices.WeightScale.WEIGHT_SCALE_DEVICE_NAME;
 import static com.example.healthcare.BluetoothModule.BluetoothScanner.*;
 import static com.example.healthcare.DeviceInfoActivity.isDeviceInfoActivityRunning;
+import static com.example.healthcare.MainActivity.TAG;
 
 import android.Manifest;
 import android.bluetooth.BluetoothGatt;
@@ -46,11 +47,6 @@ public class HomeFragment extends Fragment {
     Context context;
     ImageView weighScaleImage, bpMeterImage, ecgMeterImage, glucometerImage;
 
-    //datatypes
-    private boolean isScanning = true;
-    private static final String TAG = "TAGi";
-    private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
-
     //classes and collections
     private BluetoothScanner bluetoothScanner;
     private Handler scanHandler = new Handler();
@@ -82,10 +78,10 @@ public class HomeFragment extends Fragment {
     //initial check for required bluetooth and location permission
     private boolean permissionCheckWhenClickDeviceIcon() {
         boolean isLocationEnable = LocationUtil.requestLocationEnable(requireActivity());
-        boolean isFineLocationEnable =LocationUtil.requestFineLocationConnectPermission(requireActivity());
-        boolean isBleConnectEnable =BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
-        boolean isBluetoothEnable =BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
-        boolean isBleScanEnable =BluetoothUtil.requestBluetoothScanPermission(requireActivity());
+        boolean isFineLocationEnable = LocationUtil.requestFineLocationConnectPermission(requireActivity());
+        boolean isBleConnectEnable = BluetoothUtil.requestBluetoothConnectPermission(requireActivity());
+        boolean isBluetoothEnable = BluetoothUtil.requestBluetoothEnable(requireActivity(), context);
+        boolean isBleScanEnable = BluetoothUtil.requestBluetoothScanPermission(requireActivity());
 
         // Check if the OVERLAY_PERMISSION is granted
 //        if (!Settings.canDrawOverlays(requireContext())) {
@@ -95,19 +91,19 @@ public class HomeFragment extends Fragment {
 //        }
 
         //post notifications permission
-        if(ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ActivityCompat.requestPermissions(requireActivity(),new String[]{Manifest.permission.POST_NOTIFICATIONS},101);
+                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.POST_NOTIFICATIONS}, 101);
             }
         }
 
         //check boolean for above method
-        if(!isLocationEnable && !isFineLocationEnable){
+        if (!isLocationEnable && !isFineLocationEnable) {
             LocationUtil.requestLocationEnableAlert(context);
         } else if (!isBleScanEnable && !isBluetoothEnable && !isBleConnectEnable) {
             BluetoothUtil.requestBluetoothEnableAlert(context);
-        }else{
-            return true;
+        } else {
+            return isLocationEnable && isFineLocationEnable && isBleScanEnable && isBluetoothEnable && isBleConnectEnable;
         }
         return false;
     }
@@ -120,7 +116,7 @@ public class HomeFragment extends Fragment {
             //Weight Scale Listener
             weighScaleImage.setOnClickListener(view -> {
                 boolean isAllPermissionGranted = permissionCheckWhenClickDeviceIcon();
-                if(isAllPermissionGranted){
+                if (isAllPermissionGranted) {
                     bluetoothScanner = new BluetoothScanner(WEIGHT_SCALE_DEVICE_NAME, context);
                     new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
                     Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
@@ -131,32 +127,38 @@ public class HomeFragment extends Fragment {
 
             //BP Meter Listener
             bpMeterImage.setOnClickListener(view -> {
-                permissionCheckWhenClickDeviceIcon();
-                bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME.get(0), context);
-                new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
-                Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
-                intent.putExtra("DEVICE_NAME", URION_BP_DEVICE_NAME.get(0));
-                context.startActivity(intent);
+                boolean isAllPermissionGranted = permissionCheckWhenClickDeviceIcon();
+                if (isAllPermissionGranted) {
+                    bluetoothScanner = new BluetoothScanner(URION_BP_DEVICE_NAME.get(0), context);
+                    new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
+                    Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
+                    intent.putExtra("DEVICE_NAME", URION_BP_DEVICE_NAME.get(0));
+                    context.startActivity(intent);
+                }
             });
 
             //BP Meter Listener
             ecgMeterImage.setOnClickListener(view -> {
-                permissionCheckWhenClickDeviceIcon();
-                bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME.get(0), context);
-                new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
-                Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
-                intent.putExtra("DEVICE_NAME", ECG_DEVICE_NAME.get(0));
-                context.startActivity(intent);
+                boolean isAllPermissionGranted = permissionCheckWhenClickDeviceIcon();
+                if (isAllPermissionGranted) {
+                    bluetoothScanner = new BluetoothScanner(ECG_DEVICE_NAME.get(0), context);
+                    new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
+                    Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
+                    intent.putExtra("DEVICE_NAME", ECG_DEVICE_NAME.get(0));
+                    context.startActivity(intent);
+                }
             });
 
             //BP Meter Listener
             glucometerImage.setOnClickListener(view -> {
-                permissionCheckWhenClickDeviceIcon();
-                bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME.get(0), context);
-                new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
-                Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
-                intent.putExtra("DEVICE_NAME", BLOOD_GLUCOMETER_DEVICE_NAME.get(0));
-                context.startActivity(intent);
+                boolean isAllPermissionGranted = permissionCheckWhenClickDeviceIcon();
+                if (isAllPermissionGranted) {
+                    bluetoothScanner = new BluetoothScanner(BLOOD_GLUCOMETER_DEVICE_NAME.get(0), context);
+                    new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
+                    Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
+                    intent.putExtra("DEVICE_NAME", BLOOD_GLUCOMETER_DEVICE_NAME.get(0));
+                    context.startActivity(intent);
+                }
             });
         }
     }
@@ -186,7 +188,7 @@ public class HomeFragment extends Fragment {
             MyBottomSheetDialogFragment bottomSheetDialogFragment = new MyBottomSheetDialogFragment(context);
             bottomSheetDialogFragment.show(getChildFragmentManager(), bottomSheetDialogFragment.getTag());
         });
-        fab.setImageTintList(ColorStateList.valueOf(getResources().getColor(R.color.white)));
+        fab.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(context, R.color.white)));
     }
 
     @Override

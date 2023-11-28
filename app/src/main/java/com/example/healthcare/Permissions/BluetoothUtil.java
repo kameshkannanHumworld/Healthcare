@@ -1,7 +1,6 @@
 package com.example.healthcare.Permissions;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -21,7 +20,6 @@ public class BluetoothUtil {
     private static final int BLUETOOTH_CONNECT_PERMISSION_REQUEST_CODE = 125;
     private static final int BLUETOOTH_SCAN_PERMISSION_REQUEST_CODE = 126;
 
-    private static final int BLUETOOTH_CONNECT_REQUEST_CODE = 1001;
 
 
     //Check Bluetooth is not null and Enabled
