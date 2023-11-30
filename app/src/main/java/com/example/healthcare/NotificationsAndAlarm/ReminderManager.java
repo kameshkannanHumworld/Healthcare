@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.work.Data;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -32,17 +33,17 @@ public class ReminderManager {
      *       params2 - unique remainder request code (String)
      *       params3 - hour (remainder)
      *       params4 - Minute (remainder)    */
-    public static void setReminder(Context context, String uniqueRemainderRequestCode, int hour, int minute) {
+    public static void setReminder(Context context, String uniqueRemainderRequestCode, int hour, int minute,String medNameInput) {
 
         // Calculate the delay until the specified time
         long delayInMillis = calculateDelay(hour, minute);
 
+        // Create a Data object to hold your input data
+        Data inputData = new Data.Builder()
+                .putString("medNameInput",medNameInput)
+                .build();
+
         // Create a PeriodicWorkRequest to trigger the ReminderWorker with the calculated delay
-//        OneTimeWorkRequest reminderWorkRequest =
-//                new OneTimeWorkRequest.Builder(ReminderWorker.class)
-//                        .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
-//                        .addTag(getReminderTag(uniqueRemainderRequestCode))
-//                        .build();
         PeriodicWorkRequest reminderWorkRequest = new PeriodicWorkRequest.Builder(
                 ReminderWorker.class,
                 1, // repeatInterval: 1 day
@@ -50,6 +51,7 @@ public class ReminderManager {
         )
                 .setInitialDelay(delayInMillis, TimeUnit.MILLISECONDS)
                 .addTag(getReminderTag(uniqueRemainderRequestCode))
+                .setInputData(inputData)
                 .build();
 
 

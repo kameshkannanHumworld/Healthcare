@@ -412,8 +412,6 @@ public class ViewMedicationActivity extends AppCompatActivity {
     }
 
     //onPuase for set the remainder
-
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -423,7 +421,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
             Log.d(TAG, "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
             String uniqueRemainderRequestCode = PATIENT_ID + "_" + MEDICTION_ID + "_" + data.getTag();
             Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
-            ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
+            ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(),medicineName.getText().toString());
         }
         remainderList.clear();
         snackBarMethod("Remainder Set Sucessfully",false);

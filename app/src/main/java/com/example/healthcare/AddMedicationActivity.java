@@ -535,6 +535,11 @@ public class AddMedicationActivity extends AppCompatActivity {
                                 nonProprietaryNameWithDosage = selectedMedicine.getNonProprietaryNameWithDosage();
                                 mediProprietaryName = selectedMedicine.getMediProprietaryName();
                                 mediProdId = selectedMedicine.getMediProdId();
+
+                                Log.e(TAG, "proprietaryNameWithDosage: "+proprietaryNameWithDosage );
+                                Log.e(TAG, "nonProprietaryNameWithDosage: "+nonProprietaryNameWithDosage );
+                                Log.e(TAG, "mediProprietaryName: "+mediProprietaryName );
+                                Log.e(TAG, "mediProdId: "+mediProdId );
                             });
                 }
             }
@@ -786,7 +791,7 @@ public class AddMedicationActivity extends AppCompatActivity {
 //                                    Log.d("Remainder", "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
                                     String uniqueRemainderRequestCode = PATIENT_ID + "_" + saveApiResponse.getId() + "_" + data.getTag();
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
-                                    ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
+                                    ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(),medicineNameInput.getText().toString());
                                 }
                                 snackBarMethod("Updated Sucessfully..",true); //snak bar method
 
@@ -808,7 +813,7 @@ public class AddMedicationActivity extends AppCompatActivity {
 //                                    Log.d("Remainder", "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
                                     String uniqueRemainderRequestCode = PATIENT_ID + "_" + saveApiResponse.getId() + "_" + data.getTag();
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
-                                    ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
+                                    ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(),medicineNameInput.getText().toString());
                                 }
                                 snackBarMethod("Saved Sucessfully..",true); //snak bar method
 

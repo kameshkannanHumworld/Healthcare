@@ -1,37 +1,23 @@
 package com.example.healthcare.NotificationsAndAlarm;
 
-import static android.content.Context.ALARM_SERVICE;
-import static androidx.core.content.ContextCompat.startForegroundService;
+import static android.provider.Settings.System.getString;
 
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 
 import com.example.healthcare.R;
 
@@ -53,15 +39,18 @@ public class ReminderWorker extends Worker {
     @Override
     public Result doWork() {
 
+        //retrieve input data
+        String medNameInput = getInputData().getString("medNameInput");
+
         // Your reminder logic goes here
-        showReminderNotification();
+        showReminderNotification(medNameInput);
 
 
         return Result.success();
     }
 
     @SuppressLint("MissingPermission")
-    private void showReminderNotification() {
+    private void showReminderNotification(String medNameInput) {
 
         //set Alarm Sound
         Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -74,6 +63,9 @@ public class ReminderWorker extends Worker {
                 .setSmallIcon(R.drawable.humhealthlogoappicon)
                 .setContentTitle("Healthcare")
                 .setContentText("It's time for your Medicine!")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(medNameInput)
+                        .setBigContentTitle("It's time for your Medicine!"))
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
