@@ -31,7 +31,7 @@ public class AnimationLoading {
         alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         alertDialog.setContentView(R.layout.loading_lottie_animation);
         alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        alertDialog.setCancelable(false);
+        alertDialog.setCancelable(true);
         alertDialog.show();
 
     }

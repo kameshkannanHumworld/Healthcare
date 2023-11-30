@@ -18,7 +18,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -157,7 +156,7 @@ public class MedicationsFragment extends Fragment {
                     try {
                         JSONObject jsonObject = new JSONObject(medicineReminder);
                         String uuid = jsonObject.getString("uuid");
-                        ReminderManager.clearRemindersForMedicine(context,uuid);
+                        ReminderManager.clearRemindersForMedicine(context, uuid);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -230,11 +229,11 @@ public class MedicationsFragment extends Fragment {
                 if (direction == ItemTouchHelper.LEFT) { // From left to right swipe
 
                     //ask confirmation before delete
-                    deleteConfirmationDialogMethod(position);
+                    DialogConfirmationMethod(position, true);
                 }
 
                 if (direction == ItemTouchHelper.RIGHT) { // From right to left swipe
-                    updateItem(position);
+                    DialogConfirmationMethod(position, false);
                 }
 
                 // Auto refresh
@@ -274,7 +273,7 @@ public class MedicationsFragment extends Fragment {
 
     //method ask confirmation before delete , when swipe right to left
     @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
-    public void deleteConfirmationDialogMethod(int position) {
+    public void DialogConfirmationMethod(int position, Boolean isDelete) {
 
         final Dialog dialog = new Dialog(requireContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -287,12 +286,21 @@ public class MedicationsFragment extends Fragment {
         Button btnNo = dialog.findViewById(R.id.btnNo);
         TextView dialogHeader = dialog.findViewById(R.id.dialogHeader);
 
-        dialogHeader.setText("Confirmation");
-        tvMessage.setText("Are you sure want to Delete?");
+        if (isDelete) {
+            dialogHeader.setText("Confirmation");
+            tvMessage.setText("Are you sure want to Delete?");
+        } else {
+            dialogHeader.setText("Confirmation");
+            tvMessage.setText("If you Update your medication, \n Your Remainder time will lost. Set it Again");
+        }
 
         btnYes.setOnClickListener(v -> {
             dialog.dismiss();
-            deleteItem(position);
+            if (isDelete) {
+                deleteItem(position);
+            } else {
+                updateItem(position);
+            }
         });
 
         btnNo.setOnClickListener(v -> {
@@ -330,6 +338,18 @@ public class MedicationsFragment extends Fragment {
     private void updateItem(int position) {
 
         viewMedicationData = medicationList.get(position);
+
+        //delete remainder when delete the medicine
+        deleteRemainderMethod(String.valueOf(viewMedicationData.getMedicationId()));
+
+        //delete the remainder for this medicine
+        if (deleteRequestCodeForThisMedication != null && !deleteRequestCodeForThisMedication.isEmpty()) {
+            for (String code : deleteRequestCodeForThisMedication) {
+                Log.d(TAG, "Medication Fragment - Remainder deleted : " + code);
+                ReminderManager.clearRemindersForMedicine(context, code);
+            }
+            deleteRequestCodeForThisMedication.clear();
+        }
 
         Intent intent = new Intent(requireContext(), AddMedicationActivity.class);
         intent.putExtra("EDIT_MED_NAME", viewMedicationData.getName());
@@ -534,5 +554,12 @@ public class MedicationsFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        autoDeleteUnactiveMedicationsList.clear();
+        activeMedicationsList.clear();
     }
 }
