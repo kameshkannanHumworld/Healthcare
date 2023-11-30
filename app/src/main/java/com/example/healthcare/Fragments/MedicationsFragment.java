@@ -7,14 +7,18 @@ import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
 import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
 import static com.example.healthcare.MainActivity.TAG;
 import static com.example.healthcare.MainActivity.TOKEN;
+import static com.example.healthcare.NotificationsAndAlarm.ReminderManager.PREFERENCE_KEY;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,14 +46,21 @@ import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationDa
 import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationResponse;
 import com.example.healthcare.MedicationsModule.ViewMedications.ViewMedicationService;
 import com.example.healthcare.MedicineClickInterface;
+import com.example.healthcare.NotificationsAndAlarm.ReminderManager;
 import com.example.healthcare.R;
 import com.example.healthcare.ViewMedicationActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 import retrofit2.Call;
@@ -65,12 +76,16 @@ public class MedicationsFragment extends Fragment {
     //datatypes
     List<ViewMedicationData> medicationList;
     public static Integer RECYCLER_POSITION_MEDICATION;
-
+    private List<String> requestCodeForThisMedication;
+    private List<String> deleteRequestCodeForThisMedication;
+    private List<String> activeMedicationsList;
+    private List<String> autoDeleteUnactiveMedicationsList;
 
     //UI views
     RecyclerView recyclerMedications;
     SwipeRefreshLayout swipeRefreshLayout;
     TextView noMedicationsTextView;
+    Context context;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -80,6 +95,10 @@ public class MedicationsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_medications, container, false);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         noMedicationsTextView = view.findViewById(R.id.noMedicationsTextView);
+        requestCodeForThisMedication = new ArrayList<>();
+        deleteRequestCodeForThisMedication = new ArrayList<>();
+        activeMedicationsList = new ArrayList<>();
+        autoDeleteUnactiveMedicationsList = new ArrayList<>();
 
         //setup data with arraylist
         medicationList = new ArrayList<>();
@@ -96,7 +115,102 @@ public class MedicationsFragment extends Fragment {
         //swipe refresh layout
         swipeRefreshLayoutMethod();
 
+        //remainder auto delete, when medication last effective date expired
+//        autoDeleteRemainderMethod();
+
         return view;
+    }
+
+    //remainder auto delete, when medication last effective date expired
+    @SuppressLint("NewApi")
+    private void autoDeleteRemainderMethod() {
+        List<String> allRemaindersList = new ArrayList<>();
+        // Retrieve the set of reminders from SharedPreferences
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+        Set<String> reminders = preferences.getStringSet(PREFERENCE_KEY, new HashSet<>());
+
+        //filter remainder for selected medicine
+        for (String medicineReminder : reminders) {
+
+            // Deserialize JSON string to extract reminder data
+            try {
+                JSONObject jsonObject = new JSONObject(medicineReminder);
+                String requestCode = jsonObject.getString("requestCode");
+                allRemaindersList.add(requestCode);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Filter allRemaindersList based on the data in activeMedicationsList
+        allRemaindersList.removeIf(item -> containsMedicationID(item, activeMedicationsList));
+
+        Log.e(TAG, "autoDeleteRemainderMethod-allRemaindersList : " + allRemaindersList);
+
+        //filter and delete remainder for selected medicine
+        for (String medicineReminder : reminders) {
+            for (String remainder : allRemaindersList) {
+                if (medicineReminder.contains(remainder)) {
+                    autoDeleteUnactiveMedicationsList.add(medicineReminder);
+
+                    // Deserialize JSON string to extract reminder data
+                    try {
+                        JSONObject jsonObject = new JSONObject(medicineReminder);
+                        String uuid = jsonObject.getString("uuid");
+                        ReminderManager.clearRemindersForMedicine(context,uuid);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }
+
+        Log.e(TAG, "autoDeleteRemainderMethod-auto Delete Unactive Medications List : " + autoDeleteUnactiveMedicationsList);
+
+    }
+
+    //method for find common medication found in both allRemaindersList and activeMedicationsList
+    private boolean containsMedicationID(String item, List<String> medicationIDs) {
+        for (String medicationID : medicationIDs) {
+            if (item.contains(medicationID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //delete remainder when delete the medicine
+    private void deleteRemainderMethod(String filterPart) {
+
+        // Retrieve the set of reminders from SharedPreferences
+        SharedPreferences preferences = context.getSharedPreferences(PREFERENCE_KEY, Context.MODE_PRIVATE);
+        Set<String> reminders = preferences.getStringSet(PREFERENCE_KEY, new HashSet<>());
+
+        //filter remainder for selected medicine
+        for (String medicineReminder : reminders) {
+            if (medicineReminder.contains(filterPart)) {
+                requestCodeForThisMedication.add(medicineReminder);
+            }
+        }
+        Collections.sort(requestCodeForThisMedication);
+
+        // Display reminders with hour and minute
+        for (String reminderData : requestCodeForThisMedication) {
+            Log.d(TAG, "delete Reminders For this Medicine: " + reminderData);
+            String uuid;
+
+            // Deserialize JSON string to extract reminder data
+            try {
+                JSONObject jsonObject = new JSONObject(reminderData);
+                uuid = jsonObject.getString("uuid");
+                Log.d(TAG, "displayRemindersForMedicine UUID: " + uuid);
+                deleteRequestCodeForThisMedication.add(uuid);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     //method for swipe left,right
@@ -236,6 +350,9 @@ public class MedicationsFragment extends Fragment {
     private void deleteItem(int position) {
         ViewMedicationData viewMedicationData = medicationList.get(position);
 
+        //delete remainder when delete the medicine
+        deleteRemainderMethod(String.valueOf(viewMedicationData.getMedicationId()));
+
         //set this selected data for delete
         DeleteApiRequest deleteApiRequest = new DeleteApiRequest();
         deleteApiRequest.setPatientId(PATIENT_ID);
@@ -253,6 +370,16 @@ public class MedicationsFragment extends Fragment {
             public void onResponse(@NonNull Call<DeleteApiResponse> call, @NonNull Response<DeleteApiResponse> response) {
                 if (response.isSuccessful()) {
                     snackBarMethod("Deleted Sucessfully");
+
+                    //delete the remainder for this medicine
+                    if (deleteRequestCodeForThisMedication != null && !deleteRequestCodeForThisMedication.isEmpty()) {
+                        for (String code : deleteRequestCodeForThisMedication) {
+                            Log.d(TAG, "Medication Fragment - Remainder deleted : " + code);
+                            ReminderManager.clearRemindersForMedicine(context, code);
+                        }
+                        deleteRequestCodeForThisMedication.clear();
+                    }
+
                     //refresh
                     medicationList.remove(position);
                     medicationAdapter.notifyItemRemoved(position);
@@ -337,6 +464,15 @@ public class MedicationsFragment extends Fragment {
                         medicationList.addAll(dataList);
                         medicationAdapter.notifyDataSetChanged();
 
+                        //get active medicines Id in the list for auto delete remainder
+                        for (ViewMedicationData s : medicationList) {
+                            Log.e(TAG, "onResponse: " + s.getMedicationId());
+                            activeMedicationsList.add(String.valueOf(s.getMedicationId()));
+                        }
+
+                        //remainder auto delete, when medication last effective date expired
+                        autoDeleteRemainderMethod();
+
                         //if recycler view is null, it shows TextView (noMedicationsTextView)
                         int itemCount = medicationAdapter.getItemCount();
                         Log.d(TAG, "Recyeler view count: " + itemCount);
@@ -393,4 +529,10 @@ public class MedicationsFragment extends Fragment {
             viewItem(position);
         }
     };
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
 }

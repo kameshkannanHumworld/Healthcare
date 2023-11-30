@@ -23,8 +23,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -89,6 +91,7 @@ public class AddMedicationActivity extends AppCompatActivity {
     private MaterialButton alarmButton1, alarmButton2, alarmButton3, alarmButton4;
     private Switch remainderToggleSwitch;
     private HorizontalScrollView remainderTimeSlotLayout;
+    private RelativeLayout AddMedicationActivityRoot;
 
     //Data types
     String mDateInput, mFrequencyInput;
@@ -424,7 +427,7 @@ public class AddMedicationActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call<MedicationFrequencyResponse> call, @NonNull Throwable t) {
                 // Handle API call failure
-                snackBarMethod("Please try Again.."); //snak bar method
+                snackBarMethod("Please try Again..",false); //snak bar method
                 Log.d(TAG, "textInputLayoutDropdownMethod: " + t.getLocalizedMessage());
             }
         });
@@ -571,6 +574,7 @@ public class AddMedicationActivity extends AppCompatActivity {
 
     // Assign ID for the UI here
     private void idAssignHere() {
+        AddMedicationActivityRoot = findViewById(R.id.AddMedicationActivityRoot);
         submitButton = findViewById(R.id.submitButton);
         addMedicineBackButton = findViewById(R.id.addMedicineBackButton);
         medicineNameInput = findViewById(R.id.medicineNameInput);
@@ -697,7 +701,7 @@ public class AddMedicationActivity extends AppCompatActivity {
                             medicationsSaveApiMethod();
                         } else {
                             animationLoading.dismissLoadingDialog(); //dismiss the loader
-                            snackBarMethod(responseBodyString); //snak bar method
+                            snackBarMethod(responseBodyString,false); //snak bar method
 
                         }
                     } catch (IOException e) {
@@ -784,12 +788,12 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
                                     ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
                                 }
-                                snackBarMethod("Updated Sucessfully.."); //snak bar method
+                                snackBarMethod("Updated Sucessfully..",true); //snak bar method
 
                                 remainderList.clear();
 
                             } else {
-                                snackBarMethod("Updated Sucessfully.."); //snak bar method
+                                snackBarMethod("Updated Sucessfully..",true); //snak bar method
                             }
                             IS_EDIT = false;
 
@@ -806,18 +810,18 @@ public class AddMedicationActivity extends AppCompatActivity {
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
                                     ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute());
                                 }
-                                snackBarMethod("Saved Sucessfully.."); //snak bar method
+                                snackBarMethod("Saved Sucessfully..",true); //snak bar method
 
 
                             } else {
-                                snackBarMethod("Saved Sucessfully.."); //snak bar method
+                                snackBarMethod("Saved Sucessfully..",true); //snak bar method
                             }
                         }
 
                         isSavedForBackPress = true;
                         onBackPressed(); // navigation to previous page
                     } else {
-                        snackBarMethod("Saved Unsucessfully.."); //snak bar method
+                        snackBarMethod("Saved Unsucessfully..",true); //snak bar method
                     }
                 } else {
                     Log.d(TAG, "onResponse: else" + response.code());
@@ -924,9 +928,14 @@ public class AddMedicationActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    //common snack bar for this fragment
-    private void snackBarMethod(String message) {
-        Snackbar.make(getCurrentFocus(),message,Snackbar.LENGTH_SHORT).show();
+    //common snack bar and Toast for this fragment
+    private void snackBarMethod(String message,Boolean isToast) {
+        if(!isToast){
+            Snackbar.make(AddMedicationActivityRoot, message, Snackbar.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        }
+
     }
 
 }
