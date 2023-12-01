@@ -47,10 +47,12 @@ public class HomeFragment extends Fragment {
     Context context;
     ImageView weighScaleImage, bpMeterImage, ecgMeterImage, glucometerImage;
 
-    //classes and collections
+    //classes
     private BluetoothScanner bluetoothScanner;
-    private Handler scanHandler = new Handler();
+    private final Handler scanHandler = new Handler();
     private AnimationLoading animationLoading;
+
+    //datatype
     public static List<BluetoothGatt> connectedGatts = new ArrayList<>();
 
 

@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -85,6 +86,7 @@ public class MedicationsFragment extends Fragment {
     SwipeRefreshLayout swipeRefreshLayout;
     TextView noMedicationsTextView;
     Context context;
+    ProgressBar progressBarMedicationFragment;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -92,12 +94,9 @@ public class MedicationsFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_medications, container, false);
-        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
-        noMedicationsTextView = view.findViewById(R.id.noMedicationsTextView);
-        requestCodeForThisMedication = new ArrayList<>();
-        deleteRequestCodeForThisMedication = new ArrayList<>();
-        activeMedicationsList = new ArrayList<>();
-        autoDeleteUnactiveMedicationsList = new ArrayList<>();
+
+        //Assign Id for the UI views here
+        assignIdMethod(view);
 
         //setup data with arraylist
         medicationList = new ArrayList<>();
@@ -114,10 +113,23 @@ public class MedicationsFragment extends Fragment {
         //swipe refresh layout
         swipeRefreshLayoutMethod();
 
-        //remainder auto delete, when medication last effective date expired
-//        autoDeleteRemainderMethod();
-
         return view;
+    }
+
+
+    //Assign Id for the UI views here
+    private void assignIdMethod(View view) {
+
+        //assign UI Id's here
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
+        noMedicationsTextView = view.findViewById(R.id.noMedicationsTextView);
+        progressBarMedicationFragment = view.findViewById(R.id.progressBarMedicationFragment);
+
+        //assign List here
+        requestCodeForThisMedication = new ArrayList<>();
+        deleteRequestCodeForThisMedication = new ArrayList<>();
+        activeMedicationsList = new ArrayList<>();
+        autoDeleteUnactiveMedicationsList = new ArrayList<>();
     }
 
     //remainder auto delete, when medication last effective date expired
@@ -481,6 +493,7 @@ public class MedicationsFragment extends Fragment {
                     }
                     if (dataList != null) {
                         Log.d(TAG, "onResponse: " + response.code());
+                        progressBarMedicationFragment.setVisibility(View.GONE);
                         medicationList.addAll(dataList);
                         medicationAdapter.notifyDataSetChanged();
 
