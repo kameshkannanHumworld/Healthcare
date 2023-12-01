@@ -98,9 +98,6 @@ public class MedicationsFragment extends Fragment {
         //Assign Id for the UI views here
         assignIdMethod(view);
 
-        //setup data with arraylist
-        medicationList = new ArrayList<>();
-
         // Set click listener for the FAB
         floatingActionButtonMethod(view);
 
@@ -124,12 +121,14 @@ public class MedicationsFragment extends Fragment {
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshLayout);
         noMedicationsTextView = view.findViewById(R.id.noMedicationsTextView);
         progressBarMedicationFragment = view.findViewById(R.id.progressBarMedicationFragment);
+        recyclerMedications = view.findViewById(R.id.recyclerMedications);
 
         //assign List here
         requestCodeForThisMedication = new ArrayList<>();
         deleteRequestCodeForThisMedication = new ArrayList<>();
         activeMedicationsList = new ArrayList<>();
         autoDeleteUnactiveMedicationsList = new ArrayList<>();
+        medicationList = new ArrayList<>();
     }
 
     //remainder auto delete, when medication last effective date expired
@@ -245,6 +244,8 @@ public class MedicationsFragment extends Fragment {
                 }
 
                 if (direction == ItemTouchHelper.RIGHT) { // From right to left swipe
+
+                    //update the medication
                     DialogConfirmationMethod(position, false);
                 }
 
@@ -540,7 +541,6 @@ public class MedicationsFragment extends Fragment {
 
     //set data to the recycler view
     private void updateRecyclerViewMethod(View view) {
-        recyclerMedications = view.findViewById(R.id.recyclerMedications);
         recyclerMedications.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false));
         medicationAdapter = new MedicationAdapter(requireContext(), medicationList, medicineClickInterfaceMethod);
         recyclerMedications.setAdapter(medicationAdapter);

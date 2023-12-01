@@ -1,5 +1,5 @@
 /*
-*   MedicationAdapter - this is a recycler view adapter for medication shown in HomeFragment.
+*   MedicationAdapter - this is a recycler view adapter for medication shown in Medication Fragment.
 * */
 
 package com.example.healthcare.Adapters;

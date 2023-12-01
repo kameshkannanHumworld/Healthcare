@@ -150,12 +150,12 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 weightScaleRefresh();             //for Weight Scale
             } else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(deviceName)) {
                 deviceNameTextView.setText("Blood Glucometer");
-                bloodGlucometerRefresh();             //for Blood Glucometer
+                bloodGlucometerRefresh();        //for Blood Glucometer
             } else if (ECG_DEVICE_NAME.contains(deviceName)) {
                 deviceNameTextView.setText("ECG");
                 ecgMeterRefresh();             //for ECG meter
             } else {
-                deviceNameTextView.setText(deviceName);
+                deviceNameTextView.setText("Non-Humhealth device");
             }
         }
     }
