@@ -147,7 +147,7 @@ class MedicationViewHolder extends RecyclerView.ViewHolder {
             if (medicineClickInterfaceOnClickListener != null) {
                 int position = getBindingAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    medicineClickInterfaceOnClickListener.onItemClick(position);
+                    medicineClickInterfaceOnClickListener.onItemClick(position,view);
                 }
 
             }

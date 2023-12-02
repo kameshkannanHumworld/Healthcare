@@ -5,6 +5,7 @@ import static com.example.healthcare.AddMedicationActivity.ID_DROPDOWN;
 import static com.example.healthcare.AddMedicationActivity.IS_EDIT;
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
 import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
+import static com.example.healthcare.Animation.Transition.zoomInTransition;
 import static com.example.healthcare.MainActivity.TAG;
 import static com.example.healthcare.MainActivity.TOKEN;
 import static com.example.healthcare.NotificationsAndAlarm.ReminderManager.PREFERENCE_KEY;
@@ -327,7 +328,7 @@ public class MedicationsFragment extends Fragment {
 
     //method to send the medication data to the ViewMedicationActivity by Intent
     @SuppressLint("NotifyDataSetChanged")
-    private void viewItem(int position) {
+    private void viewItem(int position, View view) {
         viewMedicationData = medicationList.get(position);
 
         Intent intent = new Intent(requireContext(), ViewMedicationActivity.class);
@@ -341,7 +342,7 @@ public class MedicationsFragment extends Fragment {
         MEDICTION_ID = viewMedicationData.getMedicationId();
         RECYCLER_POSITION_MEDICATION = position;
         intent.putExtra("MEDICTION_ID", MEDICTION_ID);
-        startActivity(intent);
+        startActivity(intent,zoomInTransition(view));
 
         medicationAdapter.notifyDataSetChanged();
     }
@@ -556,10 +557,10 @@ public class MedicationsFragment extends Fragment {
     //Interface for medicine click listener in recycler view
     private final MedicineClickInterface medicineClickInterfaceMethod = new MedicineClickInterface() {
         @Override
-        public void onItemClick(int position) {
+        public void onItemClick(int position, View view) {
             viewMedicationData = medicationList.get(position);
             MEDICTION_ID = viewMedicationData.getMedicationId();
-            viewItem(position);
+            viewItem(position,view);
         }
     };
 

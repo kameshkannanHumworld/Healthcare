@@ -1,5 +1,6 @@
 package com.example.healthcare.Fragments;
 
+import static com.example.healthcare.Animation.Transition.zoomInTransition;
 import static com.example.healthcare.BleDevices.BloodGlucometer.*;
 import static com.example.healthcare.BleDevices.ECGMeter.*;
 import static com.example.healthcare.BleDevices.UrionBp.*;
@@ -123,7 +124,7 @@ public class HomeFragment extends Fragment {
                     new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
                     Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
                     intent.putExtra("DEVICE_NAME", WEIGHT_SCALE_DEVICE_NAME);
-                    context.startActivity(intent);
+                    context.startActivity(intent,zoomInTransition(view));
                 }
             });
 
@@ -135,7 +136,7 @@ public class HomeFragment extends Fragment {
                     new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
                     Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
                     intent.putExtra("DEVICE_NAME", URION_BP_DEVICE_NAME.get(0));
-                    context.startActivity(intent);
+                    context.startActivity(intent,zoomInTransition(view));
                 }
             });
 
@@ -147,7 +148,7 @@ public class HomeFragment extends Fragment {
                     new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
                     Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
                     intent.putExtra("DEVICE_NAME", ECG_DEVICE_NAME.get(0));
-                    context.startActivity(intent);
+                    context.startActivity(intent,zoomInTransition(view));
                 }
             });
 
@@ -159,7 +160,7 @@ public class HomeFragment extends Fragment {
                     new Thread(() -> bluetoothScanner.startScan()).start(); // background BLE scan
                     Intent intent = new Intent(context, DeviceInfoActivity.class); //page intent
                     intent.putExtra("DEVICE_NAME", BLOOD_GLUCOMETER_DEVICE_NAME.get(0));
-                    context.startActivity(intent);
+                    context.startActivity(intent,zoomInTransition(view));
                 }
             });
         }
