@@ -1,6 +1,7 @@
 package com.example.healthcare;
 
 
+import static com.example.healthcare.CommonClass.*;
 import static com.example.healthcare.MainActivity.TAG;
 import static com.example.healthcare.MainActivity.TOKEN;
 
@@ -24,7 +25,6 @@ import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +55,7 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -89,16 +90,12 @@ public class AddMedicationActivity extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     CardView remainderCardView;
     private MaterialButton alarmButton1, alarmButton2, alarmButton3, alarmButton4;
-    private Switch remainderToggleSwitch;
+    private SwitchMaterial remainderToggleSwitch;
     private HorizontalScrollView remainderTimeSlotLayout;
     private RelativeLayout AddMedicationActivityRoot;
 
     //Data types
     String mDateInput, mFrequencyInput;
-    public static boolean IS_EDIT = false;
-    public static final int ID_DROPDOWN = 33689;
-    public static final int PATIENT_ID = 53278;
-    public static final int CAREPLAN_ID = 34534;
     public final Integer VISIT_ID = null;
     public static Integer MEDICTION_ID;
     private static boolean isSavedForBackPress = false;
@@ -111,7 +108,6 @@ public class AddMedicationActivity extends AppCompatActivity {
     private AnimationLoading animationLoading;
 
 
-    @SuppressLint({"MissingInflatedId", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -290,11 +286,11 @@ public class AddMedicationActivity extends AppCompatActivity {
                 } else {
                     // Handle invalid index (e.g., index < 0)
                     // You may want to log a warning or throw an exception based on your use case
-                    Log.w("TAG", "Invalid index: " + index);
+                    Log.w(TAG, "Invalid index: " + index);
                 }
 
                 for (RemainderData data : remainderList) {
-                    Log.d("Remainder", "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
+                    Log.d(TAG, "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
 
                 }
             }
@@ -368,7 +364,7 @@ public class AddMedicationActivity extends AppCompatActivity {
                 Params1 - X-Auth_Token
                 parms2 - login User Id value from TOKEN, which was decoded from JWT Decoder(Here hardcode)
         */
-        Call<MedicationFrequencyResponse> call = service.getMedicationFrequencies(TOKEN, ID_DROPDOWN);
+        Call<MedicationFrequencyResponse> call = service.getMedicationFrequencies(TOKEN, LOGINER_ID);
         call.enqueue(new Callback<MedicationFrequencyResponse>() {
             @Override
             public void onResponse(@NonNull Call<MedicationFrequencyResponse> call, @NonNull Response<MedicationFrequencyResponse> response) {
@@ -427,7 +423,7 @@ public class AddMedicationActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call<MedicationFrequencyResponse> call, @NonNull Throwable t) {
                 // Handle API call failure
-                snackBarMethod("Please try Again..",false); //snak bar method
+                snackBarMethod("Please try Again..", false); //snak bar method
                 Log.d(TAG, "textInputLayoutDropdownMethod: " + t.getLocalizedMessage());
             }
         });
@@ -536,10 +532,10 @@ public class AddMedicationActivity extends AppCompatActivity {
                                 mediProprietaryName = selectedMedicine.getMediProprietaryName();
                                 mediProdId = selectedMedicine.getMediProdId();
 
-                                Log.e(TAG, "proprietaryNameWithDosage: "+proprietaryNameWithDosage );
-                                Log.e(TAG, "nonProprietaryNameWithDosage: "+nonProprietaryNameWithDosage );
-                                Log.e(TAG, "mediProprietaryName: "+mediProprietaryName );
-                                Log.e(TAG, "mediProdId: "+mediProdId );
+                                Log.e(TAG, "proprietaryNameWithDosage: " + proprietaryNameWithDosage);
+                                Log.e(TAG, "nonProprietaryNameWithDosage: " + nonProprietaryNameWithDosage);
+                                Log.e(TAG, "mediProprietaryName: " + mediProprietaryName);
+                                Log.e(TAG, "mediProdId: " + mediProdId);
                             });
                 }
             }
@@ -569,9 +565,10 @@ public class AddMedicationActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 // after changed and call the autocomplete method here
-                apiMedicineAutocompleteMethod(s.toString());
-                Log.d(TAG, "afterTextChanged: " + s);
-                medicineNameInput.addTextChangedListener(new ClearErrorTextWatcher(textInputLayout3));
+                if (s.toString().length() >= 3) {
+                    apiMedicineAutocompleteMethod(s.toString());
+                    Log.d(TAG, "afterTextChanged: " + s);
+                }
             }
         });
     }
@@ -609,7 +606,7 @@ public class AddMedicationActivity extends AppCompatActivity {
 
 
             //get Values for save
-            String medName = Objects.requireNonNull(medicineNameInput.getText()).toString().trim();
+            String medName = Objects.requireNonNull(medicineNameInput.getText()).toString();
             Integer quantity = null;
             String quantityString = Objects.requireNonNull(medicineQuantityInput.getText()).toString();
             if (!quantityString.isEmpty()) {
@@ -630,6 +627,8 @@ public class AddMedicationActivity extends AppCompatActivity {
                 textInputLayout4.setError("Frequency is Required");
             } else if (quantity == null || quantity < 0) {
                 textInputLayout5.setError("Quantity is Required");
+            } else if (quantity > 90) {
+                textInputLayout5.setError("Max quantity is 90");
             } else {
 
                 //animation loading start here
@@ -706,7 +705,7 @@ public class AddMedicationActivity extends AppCompatActivity {
                             medicationsSaveApiMethod();
                         } else {
                             animationLoading.dismissLoadingDialog(); //dismiss the loader
-                            snackBarMethod(responseBodyString,false); //snak bar method
+                            snackBarMethod(responseBodyString, false); //snak bar method
 
                         }
                     } catch (IOException e) {
@@ -791,14 +790,14 @@ public class AddMedicationActivity extends AppCompatActivity {
 //                                    Log.d("Remainder", "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
                                     String uniqueRemainderRequestCode = PATIENT_ID + "_" + saveApiResponse.getId() + "_" + data.getTag();
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
-                                    ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(),medicineNameInput.getText().toString());
+                                    ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(), medicineNameInput.getText().toString());
                                 }
-                                snackBarMethod("Updated Sucessfully..",true); //snak bar method
+                                snackBarMethod("Updated Sucessfully..", true); //snak bar method
 
                                 remainderList.clear();
 
                             } else {
-                                snackBarMethod("Updated Sucessfully..",true); //snak bar method
+                                snackBarMethod("Updated Sucessfully..", true); //snak bar method
                             }
                             IS_EDIT = false;
 
@@ -813,20 +812,20 @@ public class AddMedicationActivity extends AppCompatActivity {
 //                                    Log.d("Remainder", "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
                                     String uniqueRemainderRequestCode = PATIENT_ID + "_" + saveApiResponse.getId() + "_" + data.getTag();
                                     Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
-                                    ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(),medicineNameInput.getText().toString());
+                                    ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(), medicineNameInput.getText().toString());
                                 }
-                                snackBarMethod("Saved Sucessfully..",true); //snak bar method
+                                snackBarMethod("Saved Sucessfully..", true); //snak bar method
 
 
                             } else {
-                                snackBarMethod("Saved Sucessfully..",true); //snak bar method
+                                snackBarMethod("Saved Sucessfully..", true); //snak bar method
                             }
                         }
 
                         isSavedForBackPress = true;
                         onBackPressed(); // navigation to previous page
                     } else {
-                        snackBarMethod("Saved Unsucessfully..",true); //snak bar method
+                        snackBarMethod("Saved Unsucessfully..", true); //snak bar method
                     }
                 } else {
                     Log.d(TAG, "onResponse: else" + response.code());
@@ -934,10 +933,10 @@ public class AddMedicationActivity extends AppCompatActivity {
     }
 
     //common snack bar and Toast for this fragment
-    private void snackBarMethod(String message,Boolean isToast) {
-        if(!isToast){
+    private void snackBarMethod(String message, Boolean isToast) {
+        if (!isToast) {
             Snackbar.make(AddMedicationActivityRoot, message, Snackbar.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
 

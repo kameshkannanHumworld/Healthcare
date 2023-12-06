@@ -1,10 +1,7 @@
 package com.example.healthcare.Fragments;
 
-import static com.example.healthcare.AddMedicationActivity.CAREPLAN_ID;
-import static com.example.healthcare.AddMedicationActivity.ID_DROPDOWN;
-import static com.example.healthcare.AddMedicationActivity.IS_EDIT;
+import static com.example.healthcare.CommonClass.*;
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
-import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
 import static com.example.healthcare.Animation.Transition.zoomInTransition;
 import static com.example.healthcare.MainActivity.TAG;
 import static com.example.healthcare.MainActivity.TOKEN;
@@ -477,10 +474,11 @@ public class MedicationsFragment extends Fragment {
 
     //method to fetch the Medicine data from the API
     private void fetchDataFromAPI() {
+        progressBarMedicationFragment.setVisibility(View.VISIBLE);
 
         //retrofit setup
         ViewMedicationService service = ApiClient.getWebClient().create(ViewMedicationService.class);
-        Call<ViewMedicationResponse> call = service.getMedicationsList(PATIENT_ID, CAREPLAN_ID, TOKEN, ID_DROPDOWN);
+        Call<ViewMedicationResponse> call = service.getMedicationsList(PATIENT_ID, CAREPLAN_ID, TOKEN, LOGINER_ID);
 
         //retrofit call
         call.enqueue(new Callback<ViewMedicationResponse>() {
@@ -523,6 +521,7 @@ public class MedicationsFragment extends Fragment {
                     }
                 } else {
                     Log.d(TAG, "onResponse: else" + response.code());
+                    progressBarMedicationFragment.setVisibility(View.GONE);
                     recyclerMedications.setVisibility(View.GONE);
                     noMedicationsTextView.setVisibility(View.VISIBLE);
                     noMedicationsTextView.setText("Network Response Error");
@@ -534,6 +533,7 @@ public class MedicationsFragment extends Fragment {
             public void onFailure(@NonNull Call<ViewMedicationResponse> call, @NonNull Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getLocalizedMessage());
                 recyclerMedications.setVisibility(View.GONE);
+                progressBarMedicationFragment.setVisibility(View.GONE);
                 noMedicationsTextView.setVisibility(View.VISIBLE);
                 noMedicationsTextView.setText("Please Try Again After Some Time ");
             }
@@ -550,7 +550,10 @@ public class MedicationsFragment extends Fragment {
     //floating Action Button Method
     private void floatingActionButtonMethod(View view) {
         FloatingActionButton fab = view.findViewById(R.id.fabMedicalFragment);
-        fab.setOnClickListener(v -> startActivity(new Intent(requireContext(), AddMedicationActivity.class)));
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), AddMedicationActivity.class);
+            startActivity(intent,zoomInTransition(v));
+        });
         fab.setImageTintList(ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.white)));
     }
 

@@ -18,7 +18,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @SuppressLint("MissingPermission")
-public class UrionBp {
+public class UrionBp{
 
     public static final String URION_BP_UUID_SERVICE = ("0000FFF0-0000-1000-8000-00805F9B34FB");
     public static final String URION_BP_UUID_NOTIFY = "0000FFF1-0000-1000-8000-00805F9B34FB";
@@ -30,7 +30,6 @@ public class UrionBp {
     public static Integer URION_BP_DIASTOLIC_READINGS = null;
     public static Integer URION_BP_PULSE_READINGS = null;
     private static BluetoothGatt bluetoothGattUrionBp;
-
 
     //Urion Bp  onCharacteristicChanged method
     public static void onCharacteristicChangedMethodUrionBp(byte[] byteArray, BluetoothGatt gatt) {
@@ -44,7 +43,6 @@ public class UrionBp {
             DEVICE_INFO_CLASS_SET_TEXT = "Please wait Device is Taking reading";
             URION_BP_DEVICE_ERROR_MESSAGES = null;
 
-//            Log.d(TAG, "onCharacteristicChangedMethodUrionBp: " + ConverterClass.getPairsFromHexString(byteArray));
             List<String> pairs = ConverterClass.getPairsFromHexString(byteArray);
 
             //Reading value
@@ -144,6 +142,7 @@ public class UrionBp {
             Log.e(TAG, "Service not found.");
         }
     }
+
 }
 
 

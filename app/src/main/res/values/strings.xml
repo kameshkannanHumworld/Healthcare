@@ -25,7 +25,7 @@
     <string name="enter_notes">Enter Notes</string>
     <string name="enter_frequency">Enter Frequency</string>
     <string name="submit">Submit</string>
-    <string name="add_medicines">Add Medicines</string>
+    <string name="add_medicines">Add Medication</string>
     <string name="ecg_meter">ECG Meter</string>
     <string name="weight_scale">Weight Scale</string>
     <string name="blood_pressure">Blood Pressure</string>

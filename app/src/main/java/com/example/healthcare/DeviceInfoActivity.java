@@ -43,8 +43,8 @@ import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.google.android.material.snackbar.Snackbar;
 
 
-public class DeviceInfoActivity extends AppCompatActivity {
-    
+public class DeviceInfoActivity extends AppCompatActivity{
+
     //UI views
     ImageView backButton;
     CardView systolicDiastolicLayout;
@@ -57,7 +57,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     TextView resultTextViewForMessage;
     private LottieAnimationView deviceInfoScanLottie;
     private Context context;
-    
+
     //Datatypes
     String deviceName;
     public static boolean isDeviceInfoActivityRunning = false;
@@ -67,6 +67,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
     public static Boolean BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
     public static Boolean BLOOD_PRESSURE_READING_ALERT_ERROR = false;
     public static Boolean BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
+    public static Boolean circularProgressBarAnimation = false;
 
     //Classes
     private BluetoothScanner bluetoothScanner;
@@ -103,7 +104,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         //Assign Id Here
         idAssignHere();
-
 
         //get device name from Intent
         deviceName = getIntent().getStringExtra("DEVICE_NAME");
@@ -169,15 +169,15 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         if (deviceConnected) {
             isConnectedTextView.setText("Connected");
-            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.green));
-            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.green));
 
             //logic here
 
 
         } else {
             isConnectedTextView.setText("Not Connected");
-            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.red));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
         }
     }
 
@@ -217,7 +217,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             }
         } else {
             isConnectedTextView.setText("Not Connected");
-            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.red));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
 
             deviceInfoScanLottie.setVisibility(View.VISIBLE);
             linearLayoutBloodGlucometer.setVisibility(View.GONE);
@@ -239,7 +239,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             linearLayoutWeightScale.setVisibility(View.VISIBLE);
 
             isConnectedTextView.setText("Connected");
-            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.green));
 
             if (WEIGHT_SCALE_READING != null) {
                 String floatConversionReading = String.valueOf(WEIGHT_SCALE_READING);
@@ -256,7 +256,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             }
         } else {
             isConnectedTextView.setText("Not Connected");
-            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.red));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
 
             deviceInfoScanLottie.setVisibility(View.VISIBLE);
             linearLayoutWeightScale.setVisibility(View.GONE);
@@ -277,7 +277,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             systolicDiastolicLayout.setVisibility(View.VISIBLE);
 
             isConnectedTextView.setText("Connected");
-            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.green));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.green));
 
             //logic
             resultTextViewForMessage.setText(DEVICE_INFO_CLASS_SET_TEXT);
@@ -299,7 +299,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
             }
 
             if (URION_BP_DEVICE_ERROR_MESSAGES != null) {
-                errorMessageTextView.setVisibility(View.VISIBLE);
                 systolicReadingTextView.setVisibility(View.GONE);
                 diastolicReadingTextView.setVisibility(View.GONE);
                 pulseReadingTextView.setVisibility(View.GONE);
@@ -313,7 +312,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             }
         } else {
             isConnectedTextView.setText("Not Connected");
-            isConnectedTextView.setTextColor(ContextCompat.getColor(context,R.color.red));
+            isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.red));
 
             deviceInfoScanLottie.setVisibility(View.VISIBLE);
             messageResultLayout.setVisibility(View.GONE);
@@ -345,7 +344,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
         linearLayoutEcgMeter = findViewById(R.id.linearLayoutEcgMeter);
         messageResultLayout = findViewById(R.id.messageResultLayout);
         systolicDiastolicLayout = findViewById(R.id.systolicDiastolicLayout);
-
     }
 
     //back button logic here
@@ -364,7 +362,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
 //                if (deviceConnected) {
 //                    ecgDisconnectDeviceMethod();             //for ECG meter
 //                }
-                Log.e(TAG, "backButtonMethod ECG working" );
+                Log.e(TAG, "backButtonMethod ECG working");
             } else if (deviceName.equals(WEIGHT_SCALE_DEVICE_NAME)) {
                 WEIGHT_SCALE_READING = null;
             } else if (BLOOD_GLUCOMETER_DEVICE_NAME.contains(deviceName)) {
@@ -459,7 +457,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
             if (isError) {
                 dialogHeader.setText("Failed");
                 readingConstraintLayout.setVisibility(View.GONE);
-                tvMessage.setTextColor(ContextCompat.getColor(context,R.color.red));
+                tvMessage.setTextColor(ContextCompat.getColor(context, R.color.red));
             } else {
                 readingConstraintLayout.setVisibility(View.VISIBLE);
                 dialogHeader.setText("Sucess");
@@ -521,8 +519,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
 
         dialog.show();
     }
-
-
 }
 
 

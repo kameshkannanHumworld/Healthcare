@@ -44,7 +44,7 @@ public class MedicineNameTextWatcher implements TextWatcher {
     }
 
     private boolean isAllowedSpecialCharacter(char c) {
-        String allowedSpecialCharacters = "!@#$%^&*()_+-=[]|,./<>?:;\\{}\"'`~";
+        String allowedSpecialCharacters = "!@#$%^&*()_+-=[]|,./<>?:;\\{}\"'`~ ";
 //        String allowedSpecialCharacters = "!@#$%^&*";
         return allowedSpecialCharacters.contains(String.valueOf(c));
     }

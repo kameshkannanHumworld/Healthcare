@@ -1,7 +1,7 @@
 package com.example.healthcare;
 
 import static com.example.healthcare.AddMedicationActivity.MEDICTION_ID;
-import static com.example.healthcare.AddMedicationActivity.PATIENT_ID;
+import static com.example.healthcare.CommonClass.*;
 import static com.example.healthcare.AddMedicationActivity.remainderList;
 import static com.example.healthcare.Converters.ConverterClass.dateFormatSpilitterMethod;
 import static com.example.healthcare.Fragments.MedicationsFragment.RECYCLER_POSITION_MEDICATION;
@@ -32,6 +32,7 @@ import com.example.healthcare.NotificationsAndAlarm.ReminderWorker;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
@@ -52,7 +53,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
     ImageView medicineImageViewMedicationActivity;
     LinearLayout remainderTimeSlotLinearLayout;
     TextView medicineName, frequencyTV, quantityTV, effectiveDateOnlyTV, effectiveMonthYearTV, lastEffectiveDateOnlyTV, lastEffectiveMonthYearTV, notesTV;
-    private Switch remainderToggleSwitchViewMedicationActivity;
+    private SwitchMaterial remainderToggleSwitchViewMedicationActivity;
     private MaterialTimePicker picker;
     MaterialButton alarmButton1, alarmButton2, alarmButton3, alarmButton4;
     private RelativeLayout viewMedicationActivityRoot;
