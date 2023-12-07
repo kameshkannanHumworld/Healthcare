@@ -30,6 +30,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,6 +40,7 @@ import androidx.core.content.ContextCompat;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
+import com.blogspot.atifsoftwares.animatoolib.Animatoo;
 import com.example.healthcare.BluetoothModule.BluetoothScanner;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -57,6 +59,7 @@ public class DeviceInfoActivity extends AppCompatActivity{
     TextView resultTextViewForMessage;
     private LottieAnimationView deviceInfoScanLottie;
     private Context context;
+    private ProgressBar circularProgressBarBloodPressure,circularProgressBarBloodGlucometer;
 
     //Datatypes
     String deviceName;
@@ -67,7 +70,7 @@ public class DeviceInfoActivity extends AppCompatActivity{
     public static Boolean BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
     public static Boolean BLOOD_PRESSURE_READING_ALERT_ERROR = false;
     public static Boolean BLOOD_PRESSURE_READING_ALERT_SUCESSFULL = false;
-    public static Boolean circularProgressBarAnimation = false;
+    private Boolean circularProgressBarAnimation = true;
 
     //Classes
     private BluetoothScanner bluetoothScanner;
@@ -173,6 +176,7 @@ public class DeviceInfoActivity extends AppCompatActivity{
             isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.green));
 
             //logic here
+            ecgReadings.setText("Device not configured");
 
 
         } else {
@@ -197,15 +201,23 @@ public class DeviceInfoActivity extends AppCompatActivity{
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(ContextCompat.getColor(this, R.color.green));
 
+            //restrict refresh here for circular animation
+            if(BLOOD_GLUCOMETER_RESULT != null && BLOOD_GLUCOMETER_RESULT.equals("Please wait...") && circularProgressBarAnimation){
+                circularProgressBarBloodGlucometer.setVisibility(View.VISIBLE);
+                circularProgressBarAnimation = false;
+            }
+
+            //display message to UI
             if (BLOOD_GLUCOMETER_RESULT != null) {
                 resultTextViewForMessage.setText(BLOOD_GLUCOMETER_RESULT);
 
                 if (BLOOD_GLUCOMETER_READING_ALERT_ERROR) {
-
                     alertDialogMethod("The Blood Glucometer has been measured Failed.", "---", "mg/dl", true, 50);
                     BLOOD_GLUCOMETER_READING_ALERT_ERROR = false;
                 }
             }
+
+            //display result on UI
             if (BLOOD_GLUCOMETER_RESULT_VALUE != null) {
                 bloodGlucometerReadingsValue.setText(BLOOD_GLUCOMETER_RESULT_VALUE);
 
@@ -276,6 +288,7 @@ public class DeviceInfoActivity extends AppCompatActivity{
             messageResultLayout.setVisibility(View.VISIBLE);
             systolicDiastolicLayout.setVisibility(View.VISIBLE);
 
+
             isConnectedTextView.setText("Connected");
             isConnectedTextView.setTextColor(ContextCompat.getColor(context, R.color.green));
 
@@ -284,6 +297,12 @@ public class DeviceInfoActivity extends AppCompatActivity{
 
             if (URION_BP_DIASTOLIC_READINGS != null) {
                 diastolicReadingTextView.setText("" + URION_BP_DIASTOLIC_READINGS);
+
+                //restrict refresh here for circular animation
+                if(circularProgressBarAnimation){
+                    circularProgressBarBloodPressure.setVisibility(View.VISIBLE);
+                    circularProgressBarAnimation = false;
+                }
             }
 
             if (URION_BP_SYSTOLIC_READINGS != null && URION_BP_PULSE_READINGS != null) {
@@ -344,6 +363,8 @@ public class DeviceInfoActivity extends AppCompatActivity{
         linearLayoutEcgMeter = findViewById(R.id.linearLayoutEcgMeter);
         messageResultLayout = findViewById(R.id.messageResultLayout);
         systolicDiastolicLayout = findViewById(R.id.systolicDiastolicLayout);
+        circularProgressBarBloodPressure = findViewById(R.id.circularProgressBarBloodPressure);
+        circularProgressBarBloodGlucometer = findViewById(R.id.circularProgressBarBloodGlucometer);
     }
 
     //back button logic here

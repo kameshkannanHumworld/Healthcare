@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.blogspot.atifsoftwares.animatoolib.Animatoo;
 import com.example.healthcare.BottomSheetDialog.NotificationBottomSheet;
 import com.example.healthcare.NotificationsAndAlarm.RemainderData;
 import com.example.healthcare.NotificationsAndAlarm.ReminderManager;
@@ -59,10 +60,9 @@ public class ViewMedicationActivity extends AppCompatActivity {
     private RelativeLayout viewMedicationActivityRoot;
 
     //Datatypes
-    String medictionId,frequencyCode;
+    String medictionId, frequencyCode;
     private List<String> requestCodeForThisMedication;
     private Set<String> filteredReminders;
-
 
 
     @Override
@@ -110,7 +110,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
                 if (requestCodeForThisMedication != null && !requestCodeForThisMedication.isEmpty()) {
                     remainderButtonCountVisiblityMethod(frequencyCode, true);
                     Log.d(TAG, "onCheckedChanged: if " + frequencyCode);
-                    snackBarMethod("Remainder Enabled",false);
+                    snackBarMethod("Remainder Enabled", false);
                 } else {
                     remainderButtonCountVisiblityMethod(frequencyCode, false);
                     Log.d(TAG, "onCheckedChanged: else  " + frequencyCode);
@@ -132,7 +132,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
             } else {
                 remainderTimeSlotLinearLayout.setVisibility(View.GONE);
                 remainderList.clear();
-                snackBarMethod("Remainder Disabled",false);
+                snackBarMethod("Remainder Disabled", false);
 
                 //disable the button onclickListener
                 updateButtonState(alarmButton1);
@@ -151,8 +151,6 @@ public class ViewMedicationActivity extends AppCompatActivity {
                 }
 
             }
-
-
 
 
         });
@@ -368,7 +366,7 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
         //set image
         String drawableName = "medicine" + (RECYCLER_POSITION_MEDICATION + 1);
-         int svgResource = getResources().getIdentifier(drawableName, "drawable", getPackageName());
+        int svgResource = getResources().getIdentifier(drawableName, "drawable", getPackageName());
         medicineImageViewMedicationActivity.setImageResource(svgResource);
 
     }
@@ -422,10 +420,10 @@ public class ViewMedicationActivity extends AppCompatActivity {
             Log.d(TAG, "Hour: " + data.getHour() + ", Minute: " + data.getMinute() + ", Tag: " + data.getTag());
             String uniqueRemainderRequestCode = PATIENT_ID + "_" + MEDICTION_ID + "_" + data.getTag();
             Log.d(TAG, "Alarm uniqueRemainderRequestCode: " + uniqueRemainderRequestCode);
-            ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(),medicineName.getText().toString());
+            ReminderManager.setReminder(getApplicationContext(), uniqueRemainderRequestCode, data.getHour(), data.getMinute(), medicineName.getText().toString());
         }
         remainderList.clear();
-        snackBarMethod("Remainder Set Sucessfully",false);
+        snackBarMethod("Remainder Set Sucessfully", false);
 
     }
 
@@ -521,12 +519,13 @@ public class ViewMedicationActivity extends AppCompatActivity {
 
 
     //common snack bar for this fragment
-    private void snackBarMethod(String message,Boolean isToast) {
-        if(!isToast){
+    private void snackBarMethod(String message, Boolean isToast) {
+        if (!isToast) {
             Snackbar.make(viewMedicationActivityRoot, message, Snackbar.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         }
 
     }
+
 }
