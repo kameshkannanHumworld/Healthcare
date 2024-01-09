@@ -52,6 +52,7 @@ dependencies {
     implementation ("com.google.android.gms:play-services-location:21.0.1") //Location service
     implementation ("androidx.work:work-runtime:2.9.0")
     implementation("com.github.AtifSayings:Animatoo:1.0.1")
+    implementation ("androidx.recyclerview:recyclerview-selection:1.1.0-rc01")
 
 
 
